@@ -8,7 +8,14 @@
 <meta name="theme-color" content="#1F3864">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<style media="print">
+  .hdr-badges, .steps, .pbar-wrap, .res-tabs, .export-bar,
+  .chips, .install-banner, .acts, .card h3 { display: none !important; }
+  .out-content { max-height: none !important; overflow: visible !important;
+    font-size: 11pt; border: none !important; }
+  body { background: white !important; }
+  .app { padding: 0 !important; }
+</style>
 <style>
   :root {
     --azul: #1F3864;
@@ -387,7 +394,8 @@
         <span class="ok-txt" id="ok-txt"></span>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button class="btn btn-s" onclick="goTo(1)">← Editar</button>
-          <button class="btn btn-g" id="btn-dl" onclick="descargarWord()">⬇ Descargar Word</button>
+          <button class="btn btn-s" onclick="borrarCache()">↺ Nueva sesión</button>
+          <button class="btn btn-g" onclick="exportarPDF()">⬇ Exportar PDF</button>
         </div>
       </div>
     </div>
@@ -882,28 +890,51 @@ function renderPlan() { return wData.planes || ''; }
 // ═══════════════════════════════════════
 //  EXPORTAR WORD — docx.js (cliente)
 // ═══════════════════════════════════════
-async function descargarWord() {
-  const btn = document.getElementById('btn-dl');
-  btn.disabled = true; btn.textContent = '⏳ Generando…';
-  try {
-    const res = await fetch('/api/generar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ accion: 'word', datos: wData })
+// ═══════════════════════════════════════
+//  EXPORTAR PDF
+// ═══════════════════════════════════════
+function exportarPDF() {
+  // Mostrar todas las pestañas antes de imprimir
+  document.querySelectorAll('.rpane').forEach(p => p.style.display = 'block');
+  document.querySelectorAll('.out-content').forEach(c => {
+    c.style.maxHeight = 'none';
+    c.style.overflow = 'visible';
+  });
+  window.print();
+  // Restaurar después de imprimir
+  setTimeout(() => {
+    document.querySelectorAll('.rpane').forEach((p, i) => {
+      p.style.display = p.classList.contains('on') ? 'block' : 'none';
     });
-    if (!res.ok) throw new Error('Error del servidor');
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Planeamiento_${wData.asig}_T${wData.trim}.docx`;
-    a.click();
-    URL.revokeObjectURL(url);
-    btn.textContent = '✓ Descargado';
-    setTimeout(() => { btn.disabled=false; btn.textContent='⬇ Descargar Word'; }, 3000);
-  } catch(e) {
-    btn.disabled = false; btn.textContent = '⬇ Descargar Word';
-    alert('Error: ' + e.message);
+    document.querySelectorAll('.out-content').forEach(c => {
+      c.style.maxHeight = '';
+      c.style.overflow = '';
+    });
+  }, 1000);
+}
+
+// ═══════════════════════════════════════
+//  BORRAR CACHÉ / NUEVA SESIÓN
+// ═══════════════════════════════════════
+function borrarCache() {
+  if (confirm('¿Iniciar una nueva sesión? Se borrarán los datos actuales.')) {
+    wData = {};
+    // Limpiar formulario
+    ['asig','grado','area','tema','conc','proc','acti','semana','docente'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    // Restablecer pills
+    document.querySelectorAll('.pill.on').forEach(p => p.classList.remove('on'));
+    document.querySelectorAll('.pill.gon').forEach(p => p.classList.remove('gon'));
+    // Marcar pills por defecto
+    const defaults = ['Aprendizaje cooperativo','Juego didáctico','Unigrado'];
+    document.querySelectorAll('.pill').forEach(p => {
+      if (defaults.includes(p.textContent.trim())) p.classList.add('on');
+    });
+    document.querySelectorAll('#pr1,#pr2,#pr3').forEach(p => p.classList.add('gon'));
+    document.getElementById('curr-info').style.display = 'none';
+    goTo(1);
   }
 }
 
