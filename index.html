@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#1F3864">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
 <style>
   :root {
     --azul: #1F3864;
@@ -886,156 +886,24 @@ async function descargarWord() {
   const btn = document.getElementById('btn-dl');
   btn.disabled = true; btn.textContent = '⏳ Generando…';
   try {
-    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
-      AlignmentType, BorderStyle, WidthType, ShadingType, VerticalAlign,
-      Header, Footer } = docx;
-
-    const AZ='1F3864', AZC='D6E4F0', BL='FFFFFF';
-    const W = 9360;
-    const brd = { style: BorderStyle.SINGLE, size: 6, color: AZ };
-    const BD = { top:brd, bottom:brd, left:brd, right:brd };
-
-    function tr2(t, o={}) {
-      return new TextRun({ text:String(t||''), font:'Arial',
-        size:o.s||20, bold:o.b||false, color:o.c||'000000' });
-    }
-    function cell2(runs, o={}) {
-      if (!Array.isArray(runs)) runs = [tr2(runs, o)];
-      return new TableCell({
-        borders: BD,
-        shading: { fill: o.f||BL, type: ShadingType.CLEAR },
-        verticalAlign: o.v || VerticalAlign.CENTER,
-        columnSpan: o.sp||1,
-        width: { size: o.w||(W/(o.sp||1)), type: WidthType.DXA },
-        margins: { top:80, bottom:80, left:120, right:120 },
-        children: [new Paragraph({
-          alignment: o.ctr ? AlignmentType.CENTER : AlignmentType.LEFT,
-          spacing: { before:40, after:40 },
-          children: runs
-        })]
-      });
-    }
-    function hc(t, o={}) {
-      return cell2([tr2(t,{b:true,s:o.s||20,c:'FFFFFF'})], {f:AZ,ctr:true,...o});
-    }
-    function p2(t, o={}) {
-      return new Paragraph({
-        alignment: o.ctr ? AlignmentType.CENTER : AlignmentType.LEFT,
-        spacing: { before:o.bt||0, after:o.at||80 },
-        children: [tr2(t, o)]
-      });
-    }
-    function ml(arr) {
-      return arr.flatMap(({l,t}) => [
-        ...(l ? [tr2(l+'\n',{b:true,s:19})] : []),
-        ...(t ? [tr2(t+'\n',{s:19})] : [])
-      ]);
-    }
-
-    const g = wData;
-    const half = W/2;
-
-    const tH = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[W], rows:[
-      new TableRow({children:[hc('MINISTERIO DE EDUCACIÓN',{s:24})]}),
-      new TableRow({children:[cell2('DIRECCIÓN REGIONAL DE EDUCACIÓN DE ____________________',{f:AZC,ctr:true,b:true,s:18})]}),
-      new TableRow({children:[hc('SECUENCIA DIDÁCTICA SEMANAL — EDUCACIÓN PRIMARIA, PREMEDIA Y MEDIA — UNIGRADO',{s:17})]}),
-      new TableRow({children:[cell2('FORMATO N° 4',{f:'F2F2F2',ctr:true,b:true,s:18})]})
-    ]});
-
-    const tD = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[2400,1080,1080,4800], rows:[
-      new TableRow({children:[
-        cell2(ml([{l:'(1) ASIGNATURA: ',t:g.asig}]),{f:AZC,w:2400}),
-        cell2(ml([{l:'(2) HRS/SEM: ',t:g.horas}]),{f:AZC,w:1080}),
-        cell2(ml([{l:'(3) GRADO: ',t:g.grado}]),{f:AZC,w:1080}),
-        cell2(ml([{l:'(4) DOCENTE: ',t:g.docente}]),{f:AZC,w:4800})
-      ]}),
-      new TableRow({children:[
-        cell2(ml([{l:'(5) SEMANA: ',t:g.semana}]),{f:AZC,sp:3,w:4560}),
-        cell2(ml([{l:'(6) TRIMESTRE: ',t:g.trim}]),{f:AZC,w:4800})
-      ]})
-    ]});
-
-    const tC = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[half,half], rows:[
-      new TableRow({children:[hc('(7) ÁREA(S):',{sp:2,w:W})]}),
-      new TableRow({children:[cell2(g.area||'___',{sp:2,w:W})]}),
-      new TableRow({children:[hc('(8) COMPETENCIA(S) — Rasgos:'),hc('(9) OBJETIVOS DE APRENDIZAJE:')]}),
-      new TableRow({children:[
-        cell2(ml([{t:g.comp},{l:'\nRasgos:\n',t:g.rasgos}]),{v:VerticalAlign.TOP}),
-        cell2([tr2(g.objs,{s:19})],{v:VerticalAlign.TOP})
-      ]})
-    ]});
-
-    const tCo = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[half,half], rows:[
-      new TableRow({children:[hc('(10) CONTENIDOS:'),hc('(11) INDICADORES DE LOGRO:')]}),
-      new TableRow({children:[
-        cell2(ml([{l:'Conceptual:\n',t:g.conc},{l:'\nProcedimental:\n',t:g.proc},{l:'\nActitudinal:\n',t:g.acti}]),{v:VerticalAlign.TOP}),
-        cell2([tr2(g.ind,{s:19})],{v:VerticalAlign.TOP})
-      ]})
-    ]});
-
-    const W1=4200, W2=1500, W3=1800, W4=1860;
-    const tA = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[W1,W2,W3,W4], rows:[
-      new TableRow({children:[hc('(12) ACTIVIDADES',{w:W1}),hc('(13) EVALUACIÓN',{sp:3,w:W2+W3+W4})]}),
-      new TableRow({children:[
-        cell2('',{f:AZC,w:W1}),
-        cell2([tr2('(13.1) EVIDENCIAS',{b:true,s:17,c:AZ})],{f:AZC,ctr:true,w:W2}),
-        cell2([tr2('(13.2) CRITERIOS',{b:true,s:17,c:AZ})],{f:AZC,ctr:true,w:W3}),
-        cell2([tr2('(13.3) TIPO/INSTRUMENTOS',{b:true,s:17,c:AZ})],{f:AZC,ctr:true,w:W4})
-      ]}),
-      new TableRow({children:[
-        cell2(ml([{l:'Inicio:\n',t:g.ini},{l:'\nDesarrollo:\n',t:g.des},{l:'\nCierre:\n',t:g.cie}]),{v:VerticalAlign.TOP,w:W1}),
-        cell2(ml([{l:'Entregables:\n',t:g.evid}]),{v:VerticalAlign.TOP,w:W2}),
-        cell2([tr2(g.crit,{s:18})],{v:VerticalAlign.TOP,w:W3}),
-        cell2(ml([{l:'Diagnóstica:\n',t:g.ed},{l:'\nFormativa:\n',t:g.ef},{l:'\nSumativa:\n',t:g.es}]),{v:VerticalAlign.TOP,w:W4})
-      ]})
-    ]});
-
-    const tO = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[W], rows:[
-      new TableRow({children:[cell2(ml([{l:'(14) OBSERVACIONES: ',t:'_______________________________________________'}]))]})
-    ]});
-
-    const noBd = {top:{style:BorderStyle.NONE},bottom:{style:BorderStyle.NONE},left:{style:BorderStyle.NONE},right:{style:BorderStyle.NONE}};
-    const tF = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[half,half], rows:[
-      new TableRow({children:[
-        new TableCell({borders:noBd,width:{size:half,type:WidthType.DXA},margins:{top:160,bottom:80,left:120,right:120},
-          children:[p2('_'.repeat(36),{s:18,at:16}),p2('(15) Firma del (los) docente(s)',{s:17,b:true,c:'555555'})]}),
-        new TableCell({borders:noBd,width:{size:half,type:WidthType.DXA},margins:{top:160,bottom:80,left:120,right:120},
-          children:[p2('_'.repeat(36),{s:18,at:16}),p2('(16) Firma del Coordinador(a) o Subdirector(a) Técnico Docente',{s:17,b:true,c:'555555'})]})
-      ]})
-    ]});
-
-    const mkHeader = txt => new Table({width:{size:W,type:WidthType.DXA},columnWidths:[W],rows:[
-      new TableRow({children:[hc(txt,{s:20})]})
-    ]});
-
-    const doc = new Document({
-      styles:{default:{document:{run:{font:'Arial',size:20,color:'000000'}}}},
-      sections:[{
-        properties:{page:{size:{width:12240,height:15840},margin:{top:900,right:800,bottom:900,left:900}}},
-        headers:{default:new Header({children:[p2('MINISTERIO DE EDUCACIÓN — MEDUCA PANAMÁ  |  Formato N° 4',{s:15,c:'888888',ctr:true,at:0})]})},
-        footers:{default:new Footer({children:[p2(`${g.asig} | ${g.grado} | Trimestre ${g.trim}`,{s:15,c:'888888',at:0})]})},
-        children:[
-          tH, p2(''), tD, p2(''), tC, p2(''), tCo, p2(''), tA, p2(''), tO, p2(''), tF,
-          ...(g.secuencia ? [p2(''), mkHeader('SECUENCIA DIDÁCTICA DETALLADA'), p2(''), p2(g.secuencia,{s:19,at:0})] : []),
-          ...(g.planes ? [p2(''), mkHeader('PLANES DIARIOS'), p2(''), p2(g.planes,{s:19,at:0})] : [])
-        ]
-      }]
+    const res = await fetch('/api/generar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accion: 'word', datos: wData })
     });
-
-    const buf = await Packer.toBuffer(doc);
-    const blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    if (!res.ok) throw new Error('Error del servidor');
+    const blob = await res.blob();
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Planeamiento_${g.asig.replace(/\s/g,'_')}_${g.grado.replace(/[°\s]/g,'')}_T${g.trim}.docx`;
+    a.download = `Planeamiento_${wData.asig}_T${wData.trim}.docx`;
     a.click();
     URL.revokeObjectURL(url);
     btn.textContent = '✓ Descargado';
     setTimeout(() => { btn.disabled=false; btn.textContent='⬇ Descargar Word'; }, 3000);
-
   } catch(e) {
     btn.disabled = false; btn.textContent = '⬇ Descargar Word';
-    alert('Error al generar Word: ' + e.message);
+    alert('Error: ' + e.message);
   }
 }
 
