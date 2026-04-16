@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de Planeamientos MEDUCA</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1F3864">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<style>
+  :root {
+    --azul: #1F3864;
+    --azul-m: #2E75B6;
+    --azul-c: #D6E4F0;
+    --verde: #1E6B3C;
+    --verde-c: #E8F5EE;
+    --rojo-c: #FDECEA;
+    --rojo: #C0392B;
+    --gris: #F5F6F7;
+    --borde: #DADDE1;
+    --texto: #1C1E21;
+    --muted: #65676B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    font-size: 14px; background: #F0F2F5; color: var(--texto); min-height: 100vh; }
+
+  .app { max-width: 680px; margin: 0 auto; padding: 12px; }
+
+  /* Header */
+  .hdr { background: var(--azul); color: white; border-radius: 12px;
+    padding: 16px 20px; margin-bottom: 14px; }
+  .hdr-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 12px;
+    background: rgba(255,255,255,0.2); color: white; font-weight: 500; }
+  .hdr h1 { font-size: 18px; font-weight: 700; margin-bottom: 3px; }
+  .hdr p { font-size: 12px; opacity: 0.8; }
+
+  /* Steps */
+  .steps { display: flex; gap: 6px; margin-bottom: 10px; }
+  .stp { flex: 1; padding: 8px 4px; border: 1.5px solid var(--borde);
+    border-radius: 8px; background: white; font-size: 11px; font-weight: 600;
+    color: var(--muted); cursor: pointer; text-align: center; transition: .15s; }
+  .stp.active { border-color: var(--azul-m); color: var(--azul); background: var(--azul-c); }
+  .stp.done { border-color: var(--verde); color: var(--verde); background: var(--verde-c); }
+  .pbar-wrap { height: 4px; background: var(--borde); border-radius: 2px; margin-bottom: 14px; }
+  .pbar { height: 4px; background: var(--azul); border-radius: 2px; transition: .4s; }
+
+  /* Panels */
+  .panel { display: none; }
+  .panel.on { display: block; }
+
+  /* Cards */
+  .card { background: white; border: 1px solid var(--borde); border-radius: 12px;
+    padding: 16px; margin-bottom: 12px; }
+  .card h3 { font-size: 13px; font-weight: 700; color: var(--azul);
+    margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--azul-c); }
+
+  /* Forms */
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+  .field label { font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .4px; }
+  select, input[type=text], textarea {
+    width: 100%; padding: 9px 11px; border: 1.5px solid var(--borde);
+    border-radius: 8px; font-size: 13px; font-family: inherit;
+    background: white; color: var(--texto); transition: .15s; outline: none; }
+  select:focus, input:focus, textarea:focus {
+    border-color: var(--azul-m); box-shadow: 0 0 0 3px rgba(46,117,182,.12); }
+  textarea { resize: vertical; min-height: 68px; }
+
+  /* Pills */
+  .pills { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .pill { font-size: 12px; padding: 5px 12px; border-radius: 20px;
+    border: 1.5px solid var(--borde); color: var(--muted); cursor: pointer;
+    background: white; transition: .12s; user-select: none; }
+  .pill.on { background: var(--azul); color: white; border-color: var(--azul); }
+  .pill.gon { background: var(--verde); color: white; border-color: var(--verde); }
+
+  /* Buttons */
+  .acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+  .btn { padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700;
+    cursor: pointer; border: none; font-family: inherit; transition: .15s; }
+  .btn-p { background: var(--azul); color: white; }
+  .btn-p:hover { background: #162a4e; }
+  .btn-s { background: white; color: var(--azul); border: 1.5px solid var(--azul); }
+  .btn-s:hover { background: var(--azul-c); }
+  .btn-g { background: var(--verde); color: white; font-size: 14px; padding: 12px 24px; }
+  .btn-g:hover { background: #155230; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+
+  /* Curriculum info */
+  .curr-info { background: var(--verde-c); border: 1px solid #A8D5B8;
+    border-radius: 8px; padding: 10px 14px; font-size: 12px;
+    color: var(--verde); margin-bottom: 10px; display: none; }
+
+  /* Loading */
+  .load-card { background: white; border: 1px solid var(--borde);
+    border-radius: 12px; padding: 32px 20px; text-align: center; margin-bottom: 12px; }
+  .spin { width: 32px; height: 32px; border: 3px solid var(--azul-c);
+    border-top-color: var(--azul); border-radius: 50%;
+    animation: spin .7s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .load-title { font-size: 15px; font-weight: 700; color: var(--azul); margin-bottom: 6px; }
+  .load-sub { font-size: 12px; color: var(--muted); }
+  .load-steps { margin: 16px auto; max-width: 260px; text-align: left; }
+  .ls { font-size: 12px; padding: 5px 0; color: var(--muted);
+    display: flex; align-items: center; gap: 8px; }
+  .ls.done-s { color: var(--verde); }
+  .ls.active-s { color: var(--azul); font-weight: 700; }
+  .dot { width: 8px; height: 8px; border-radius: 50%;
+    background: var(--borde); flex-shrink: 0; }
+  .ls.done-s .dot { background: var(--verde); }
+  .ls.active-s .dot { background: var(--azul-m); }
+
+  /* Result */
+  .res-tabs { display: flex; background: var(--gris);
+    border-radius: 10px 10px 0 0; overflow: hidden;
+    border: 1px solid var(--borde); border-bottom: none; }
+  .rtab { padding: 10px 16px; font-size: 12px; font-weight: 700;
+    cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent;
+    transition: .12s; }
+  .rtab.on { color: var(--azul); border-bottom-color: var(--azul); background: white; }
+  .rpane { display: none; }
+  .rpane.on { display: block; }
+  .out-content { white-space: pre-wrap; font-size: 12px; line-height: 1.8;
+    color: var(--texto); padding: 16px; background: white;
+    border: 1px solid var(--borde); border-top: none;
+    border-radius: 0 0 0 0; max-height: 420px; overflow-y: auto;
+    font-family: 'Courier New', monospace; }
+  .export-bar { background: var(--gris); border: 1px solid var(--borde);
+    border-top: none; border-radius: 0 0 10px 10px;
+    padding: 12px 16px; display: flex;
+    justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .ok-txt { font-size: 11px; color: var(--verde); font-weight: 700; }
+  .chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; }
+  .chip { font-size: 11px; padding: 3px 10px; border-radius: 12px;
+    background: var(--azul-c); color: var(--azul); font-weight: 700; }
+
+  /* Error */
+  .err-box { background: var(--rojo-c); border: 1px solid #F5C6C6;
+    border-radius: 10px; padding: 20px; text-align: center; color: var(--rojo); }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .g2, .g3 { grid-template-columns: 1fr; }
+    .steps { gap: 4px; }
+    .stp { font-size: 10px; padding: 7px 2px; }
+    .hdr h1 { font-size: 16px; }
+  }
+
+  /* PWA install banner */
+  .install-banner { background: var(--azul-c); border: 1px solid var(--azul-m);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;
+    display: none; align-items: center; gap: 10px; font-size: 12px; color: var(--azul); }
+  .install-banner.show { display: flex; }
+  .install-banner button { font-size: 12px; padding: 5px 12px;
+    background: var(--azul); color: white; border: none;
+    border-radius: 6px; cursor: pointer; font-weight: 700; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- PWA Install Banner -->
+  <div class="install-banner" id="install-banner">
+    <span>Instala esta app en tu pantalla de inicio</span>
+    <button onclick="instalarPWA()">Instalar</button>
+    <button onclick="document.getElementById('install-banner').classList.remove('show')"
+      style="background:transparent;color:var(--azul);border:1px solid var(--azul-m)">✕</button>
+  </div>
+
+  <div class="hdr">
+    <div class="hdr-badges">
+      <span class="badge">Formato N° 4 — MEDUCA</span>
+      <span class="badge">Currículo 2° grado integrado</span>
+      <span class="badge">Exporta a Word</span>
+    </div>
+    <h1>Generador de Planeamientos</h1>
+    <p>Educación Primaria · Premedia · Media — Panamá</p>
+  </div>
+
+  <div class="steps">
+    <div class="stp active" id="s1">① Datos</div>
+    <div class="stp" id="s2">② Contenido</div>
+    <div class="stp" id="s3">③ Evaluación</div>
+    <div class="stp" id="s4">④ Resultado</div>
+  </div>
+  <div class="pbar-wrap"><div class="pbar" id="pb" style="width:25%"></div></div>
+
+  <!-- PANEL 1 -->
+  <div class="panel on" id="p1">
+    <div class="card">
+      <h3>Datos del planeamiento</h3>
+      <div class="g2">
+        <div class="field">
+          <label>Asignatura *</label>
+          <select id="asig" onchange="onCurriculoChange()">
+            <option value="">Seleccionar…</option>
+            <option>Matemática</option>
+            <option>Español</option>
+            <option>Ciencias Naturales</option>
+            <option>Ciencias Sociales</option>
+            <option>Inglés</option>
+            <option>Religión, Moral y Valores</option>
+            <option>Expresiones Artísticas</option>
+            <option>Educación Física</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Grado *</label>
+          <select id="grado" onchange="onCurriculoChange()">
+            <option value="">Seleccionar…</option>
+            <optgroup label="Primaria">
+              <option>1° grado</option><option>2° grado</option>
+              <option>3° grado</option><option>4° grado</option>
+              <option>5° grado</option><option>6° grado</option>
+            </optgroup>
+            <optgroup label="Premedia">
+              <option>7° grado</option><option>8° grado</option><option>9° grado</option>
+            </optgroup>
+            <optgroup label="Media">
+              <option>10° grado</option><option>11° grado</option><option>12° grado</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      <div class="g3">
+        <div class="field">
+          <label>Trimestre</label>
+          <select id="trim"><option>I</option><option>II</option><option>III</option></select>
+        </div>
+        <div class="field">
+          <label>Tipo</label>
+          <select id="tipo"><option value="semanal">Semanal</option><option value="quincenal">Quincenal</option></select>
+        </div>
+        <div class="field">
+          <label>Clases / sem.</label>
+          <select id="clases">
+            <option>2</option><option>3</option><option>4</option>
+            <option selected>5</option><option>6</option><option>7</option>
+          </select>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="field">
+          <label>Semana</label>
+          <input type="text" id="semana" placeholder="del 14 al 18 de abril de 2025">
+        </div>
+        <div class="field">
+          <label>Docente</label>
+          <input type="text" id="docente" placeholder="Profa. María González">
+        </div>
+      </div>
+      <div class="field">
+        <label>Contexto escolar</label>
+        <div class="pills" id="ctx">
+          <span class="pill on" onclick="tp(this)">Unigrado</span>
+          <span class="pill" onclick="tp(this)">Multigrado</span>
+          <span class="pill" onclick="tp(this)">Rural</span>
+          <span class="pill" onclick="tp(this)">Urbano</span>
+          <span class="pill" onclick="tp(this)">Indígena</span>
+          <span class="pill" onclick="tp(this)">Inclusión</span>
+        </div>
+      </div>
+    </div>
+    <div class="acts">
+      <button class="btn btn-p" onclick="goNext(1)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PANEL 2 -->
+  <div class="panel" id="p2">
+    <div class="curr-info" id="curr-info"></div>
+    <div class="card">
+      <h3>Contenido curricular</h3>
+      <div class="g2">
+        <div class="field">
+          <label>Área del programa</label>
+          <input type="text" id="area" placeholder="Ej: Aritmética / Comprensión lectora">
+        </div>
+        <div class="field">
+          <label>Tema / Contenido *</label>
+          <input type="text" id="tema" placeholder="Ej: Suma y resta hasta el 100">
+        </div>
+      </div>
+      <div class="field">
+        <label>Contenido conceptual <small style="font-weight:400;text-transform:none">(opcional — Claude lo completa)</small></label>
+        <textarea id="conc" placeholder="Ej: Concepto de suma, sumando, adición…"></textarea>
+      </div>
+      <div class="field">
+        <label>Contenido procedimental <small style="font-weight:400;text-transform:none">(opcional)</small></label>
+        <textarea id="proc" placeholder="Ej: Resolver sumas con reagrupación…"></textarea>
+      </div>
+      <div class="field">
+        <label>Contenido actitudinal <small style="font-weight:400;text-transform:none">(opcional)</small></label>
+        <textarea id="acti" placeholder="Ej: Perseverancia, colaboración…"></textarea>
+      </div>
+    </div>
+    <div class="acts">
+      <button class="btn btn-s" onclick="goTo(1)">← Atrás</button>
+      <button class="btn btn-p" onclick="goNext(2)">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- PANEL 3 -->
+  <div class="panel" id="p3">
+    <div class="card">
+      <h3>Estrategias metodológicas</h3>
+      <div class="pills" id="est">
+        <span class="pill on" onclick="tp(this)">Aprendizaje cooperativo</span>
+        <span class="pill" onclick="tp(this)">Resolución de problemas</span>
+        <span class="pill on" onclick="tp(this)">Juego didáctico</span>
+        <span class="pill" onclick="tp(this)">Método científico</span>
+        <span class="pill" onclick="tp(this)">Lectura comprensiva</span>
+        <span class="pill" onclick="tp(this)">ABP (proyectos)</span>
+        <span class="pill" onclick="tp(this)">Exposición oral</span>
+        <span class="pill" onclick="tp(this)">Trabajo práctico</span>
+        <span class="pill" onclick="tp(this)">Investigación</span>
+        <span class="pill" onclick="tp(this)">Mapa conceptual</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Evaluación</h3>
+      <div class="g3">
+        <div class="field">
+          <label>Diagnóstica</label>
+          <select id="ed">
+            <option>Lluvia de ideas</option>
+            <option>Pregunta oral</option>
+            <option>Observación directa</option>
+            <option>Cuestionario oral</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Formativa</label>
+          <select id="ef">
+            <option>Lista de cotejo</option>
+            <option>Taller colaborativo</option>
+            <option>Escala estimativa</option>
+            <option>Portafolio</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Sumativa</label>
+          <select id="es">
+            <option>Rúbrica analítica</option>
+            <option>Prueba escrita</option>
+            <option>Exposición oral</option>
+            <option>Proyecto</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" style="margin-top:6px">
+        <label>Productos a generar</label>
+        <div class="pills">
+          <span class="pill gon" id="pr1" onclick="tpg(this)">Planeamiento semanal</span>
+          <span class="pill gon" id="pr2" onclick="tpg(this)">Secuencia didáctica</span>
+          <span class="pill gon" id="pr3" onclick="tpg(this)">Planes diarios</span>
+        </div>
+      </div>
+    </div>
+    <div class="acts">
+      <button class="btn btn-s" onclick="goTo(2)">← Atrás</button>
+      <button class="btn btn-g" onclick="generar()">✦ Generar planeamiento</button>
+    </div>
+  </div>
+
+  <!-- PANEL 4 -->
+  <div class="panel" id="p4">
+    <div class="load-card" id="load-box" style="display:none">
+      <div class="spin"></div>
+      <div class="load-title" id="lt">Generando planeamiento…</div>
+      <div class="load-sub" id="ls">Consultando currículo oficial MEDUCA…</div>
+      <div class="load-steps" id="lsteps"></div>
+    </div>
+    <div id="err-wrap" style="display:none"></div>
+    <div id="res-box" style="display:none">
+      <div class="chips" id="res-chips"></div>
+      <div class="res-tabs" id="res-tabs"></div>
+      <div id="rpanes"></div>
+      <div class="export-bar">
+        <span class="ok-txt" id="ok-txt"></span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-s" onclick="goTo(1)">← Editar</button>
+          <button class="btn btn-g" id="btn-dl" onclick="descargarWord()">⬇ Descargar Word</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════
+//  CURRÍCULO OFICIAL 2° GRADO — MEDUCA 2014
+// ═══════════════════════════════════════
+const CURRICULO = {
+  "Matemática": {
+    "2° grado": {
+      areas: ["Aritmética","Sistemas de Medidas","Geometría","Estadística y Probabilidad"],
+      competencia: "Pensamiento lógico matemático: habilidad para utilizar y relacionar los números, sus operaciones básicas, los símbolos y las formas de expresión y razonamiento matemático, tanto para producir e interpretar distintos tipos de información como para resolver problemas de la vida cotidiana.",
+      rasgos: [
+        "Resuelve operaciones fundamentales en el campo de los números naturales aplicando conceptos matemáticos en situaciones de su entorno.",
+        "Maneja estructuras básicas y procesos matemáticos que le permiten comprender y resolver situaciones de la vida diaria.",
+        "Resuelve problemas desarrollando el razonamiento lógico y procesos sistemáticos concretos.",
+        "Expresa curiosidad, cuestiona y reflexiona acerca de los conceptos matemáticos en situaciones prácticas cotidianas."
+      ],
+      temas: {
+        "Aritmética": ["Números naturales hasta el 999","Suma y resta hasta el 100","Multiplicación: tablas del 1 al 5","División: distribuciones equitativas","Potenciación con exponente 2","Fracciones: medios y cuartos","Unidad monetaria"],
+        "Geometría": ["Líneas: rectas, curvas, paralelas, perpendiculares","Figuras geométricas: polígonos","Cuerpos geométricos: cubo, esfera, cilindro"],
+        "Medidas": ["Tiempo: horas, minutos, días, semanas","Longitud: metro, centímetro","Capacidad: litro, medio litro"],
+        "Estadística": ["Tablas estadísticas sencillas","Pictogramas","Gráficas de barras simples"]
+      }
+    }
+  },
+  "Español": {
+    "2° grado": {
+      areas: ["Comunicación oral","Lectura","Escritura","Literatura"],
+      competencia: "Comunicación lingüística: emplea el lenguaje verbal, no verbal y escrito para comunicar hechos, sucesos, ideas, pensamientos y sentimientos en situaciones del entorno mediante su idioma materno.",
+      rasgos: [
+        "Comunica de manera oral, escrita, visual y gestual sus ideas con claridad y fluidez.",
+        "Comprende, analiza e interpreta lo que se le comunica.",
+        "Desarrolla el hábito de la lectura para el enriquecimiento personal y cultural.",
+        "Aplica normas de gramática y comunicación para expresar ideas y sentimientos."
+      ],
+      temas: {
+        "Comunicación oral": ["Expresión oral: pronunciación y entonación","Descripción de imágenes","Diálogo y conversación","Monólogo y obra teatral"],
+        "Lectura": ["Comprensión lectora de textos narrativos","Lectura de cuentos y fábulas","Lectura de textos informativos","Identificación de personajes, lugar y tiempo"],
+        "Escritura": ["Oraciones simples","El párrafo","Uso de mayúsculas y punto","Textos prácticos: acrósticos, poemas, trabalenguas"],
+        "Gramática": ["Sustantivo: género y número","El adjetivo","El verbo: presente","Sinónimos y antónimos"]
+      }
+    }
+  },
+  "Ciencias Naturales": {
+    "2° grado": {
+      areas: ["Seres vivos","Materia y energía","La Tierra y el universo","Salud y ambiente"],
+      competencia: "Conocimiento e interacción con el mundo físico: habilidad para interactuar con el mundo físico en sus aspectos naturales y los generados por la acción humana, posibilitando la comprensión de sucesos y la preservación de las condiciones de vida.",
+      rasgos: [
+        "Identifica y describe los seres vivos y sus características en el entorno natural panameño.",
+        "Aplica el método de observación para explorar fenómenos naturales sencillos.",
+        "Demuestra respeto y cuidado por los seres vivos y el medio ambiente.",
+        "Relaciona los cambios del entorno con las actividades humanas y naturales."
+      ],
+      temas: {
+        "Seres vivos": ["Plantas: partes y funciones","Animales vertebrados e invertebrados","Ciclo de vida","Cadena alimentaria","El ser humano: sistemas del cuerpo"],
+        "Materia": ["Estados de la materia: sólido, líquido, gaseoso","Mezclas sencillas","Cambios físicos observables"],
+        "Tierra": ["El agua: ciclo del agua","El suelo: tipos y uso","El aire y sus características"],
+        "Salud": ["Hábitos de higiene personal","Alimentación saludable","Prevención de enfermedades"]
+      }
+    }
+  },
+  "Ciencias Sociales": {
+    "2° grado": {
+      areas: ["La familia y la comunidad","Panamá: geografía e historia","Ciudadanía y valores"],
+      competencia: "Interacción social y ciudadana: capacidad para comprender la realidad social, cooperar, convivir y ejercer la ciudadanía democrática en una sociedad plural.",
+      rasgos: [
+        "Reconoce y valora la importancia de la familia y la comunidad en su formación.",
+        "Identifica las características geográficas básicas de Panamá y su comunidad.",
+        "Practica valores de convivencia, respeto y solidaridad.",
+        "Comprende hechos históricos sencillos relacionados con la identidad panameña."
+      ],
+      temas: {
+        "Familia": ["La familia: tipos y roles","Normas de convivencia","Tradiciones y costumbres panameñas"],
+        "Panamá": ["Provincias y comarcas de Panamá","Símbolos patrios","Fechas históricas importantes","El Canal de Panamá"],
+        "Geografía": ["El mapa: elementos básicos","Accidentes geográficos","El clima en Panamá"]
+      }
+    }
+  },
+  "Religión, Moral y Valores": {
+    "2° grado": {
+      areas: ["Valores humanos","Convivencia","Fe y espiritualidad"],
+      competencia: "Desarrollo ético y moral: capacidad para actuar de acuerdo con principios éticos y valores que favorezcan la convivencia pacífica y el desarrollo humano integral.",
+      rasgos: [
+        "Practica valores de solidaridad, honradez, respeto y tolerancia.",
+        "Actúa con responsabilidad en su entorno familiar, escolar y comunitario.",
+        "Reflexiona sobre el sentido de su vida y el bien común.",
+        "Demuestra actitud de servicio y cuidado hacia los demás."
+      ],
+      temas: {
+        "Valores": ["La honestidad y la verdad","El respeto y la tolerancia","La solidaridad","La responsabilidad personal"],
+        "Convivencia": ["Normas de convivencia escolar","La amistad y el compañerismo","Resolución pacífica de conflictos"]
+      }
+    }
+  }
+};
+
+// ═══════════════════════════════════════
+//  HELPERS UI
+// ═══════════════════════════════════════
+function tp(el) { el.classList.toggle('on'); }
+function tpg(el) { el.classList.toggle('gon'); }
+function getPills(id) {
+  return Array.from(document.getElementById(id).querySelectorAll('.pill.on,.pill.gon'))
+    .map(p => p.textContent.trim());
+}
+
+function goTo(n) {
+  [1,2,3,4].forEach(i => {
+    document.getElementById('p'+i).classList.toggle('on', i===n);
+    const s = document.getElementById('s'+i);
+    s.className = 'stp' + (i < n ? ' done' : i === n ? ' active' : '');
+  });
+  document.getElementById('pb').style.width = (n*25)+'%';
+  window.scrollTo(0,0);
+}
+
+function goNext(from) {
+  if (from === 1) {
+    if (!document.getElementById('asig').value || !document.getElementById('grado').value) {
+      alert('Por favor selecciona Asignatura y Grado.'); return;
+    }
+  }
+  if (from === 2) {
+    if (!document.getElementById('tema').value.trim()) {
+      alert('Por favor ingresa el Tema / Contenido.'); return;
+    }
+  }
+  goTo(from + 1);
+}
+
+function onCurriculoChange() {
+  const a = document.getElementById('asig').value;
+  const g = document.getElementById('grado').value;
+  const info = document.getElementById('curr-info');
+  const cur = CURRICULO[a]?.[g];
+  if (cur) {
+    const temas = Object.entries(cur.temas)
+      .map(([k,v]) => `${k}: ${v.slice(0,2).join(', ')}…`).join(' | ');
+    info.innerHTML = `<strong>Currículo cargado:</strong> ${a} — ${g} (MEDUCA 2014). Áreas: ${cur.areas.join(', ')}. ${temas}`;
+    info.style.display = 'block';
+  } else {
+    info.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════
+//  RECOGER DATOS
+// ═══════════════════════════════════════
+function getData() {
+  return {
+    asig: document.getElementById('asig').value,
+    grado: document.getElementById('grado').value,
+    trim: document.getElementById('trim').value,
+    tipo: document.getElementById('tipo').value,
+    clases: document.getElementById('clases').value,
+    semana: document.getElementById('semana').value || 'del ___ al ___ de __________ 2025',
+    docente: document.getElementById('docente').value || '________________________________',
+    area: document.getElementById('area').value,
+    tema: document.getElementById('tema').value,
+    conc: document.getElementById('conc').value,
+    proc: document.getElementById('proc').value,
+    acti: document.getElementById('acti').value,
+    estrategias: getPills('est').join(', ') || 'Aprendizaje activo',
+    ed: document.getElementById('ed').value,
+    ef: document.getElementById('ef').value,
+    es: document.getElementById('es').value,
+    ctx: getPills('ctx').join(', ') || 'Unigrado',
+    productos: ['Planeamiento semanal','Secuencia didáctica','Planes diarios']
+      .filter((_,i) => document.getElementById('pr'+(i+1)).classList.contains('gon'))
+  };
+}
+
+// ═══════════════════════════════════════
+//  PROMPTS
+// ═══════════════════════════════════════
+function buildPrompt(tipo, d) {
+  const cur = CURRICULO[d.asig]?.[d.grado];
+  const currCtx = cur ? `
+CURRÍCULO OFICIAL MEDUCA 2014 para ${d.asig} — ${d.grado}:
+- Competencia: ${cur.competencia}
+- Rasgos: ${cur.rasgos.join(' | ')}
+- Áreas: ${cur.areas.join(', ')}
+- Temas del área "${d.area}": ${cur.temas[d.area]?.join(', ') || 'según programa'}
+Usa esta información como base curricular oficial.` : '';
+
+  const base = `Eres experto en planificación educativa según el currículo oficial MEDUCA Panamá (Formato N°4, actualización 2014).
+Genera contenido REAL, específico y aplicable para aula panameña. NO uses frases genéricas.
+${currCtx}
+
+DATOS:
+- Asignatura: ${d.asig} | Grado: ${d.grado} | Trimestre: ${d.trim}
+- Área: ${d.area || 'según programa'} | Tema: ${d.tema}
+- Contenido conceptual: ${d.conc || 'extraer del currículo oficial'}
+- Contenido procedimental: ${d.proc || 'extraer del currículo oficial'}
+- Contenido actitudinal: ${d.acti || 'extraer del currículo oficial'}
+- Estrategias: ${d.estrategias}
+- Eval. diagnóstica: ${d.ed} | Formativa: ${d.ef} | Sumativa: ${d.es}
+- Contexto: ${d.ctx} | Clases/semana: ${d.clases}`;
+
+  if (tipo === 'semanal') return base + `
+
+GENERA el planeamiento semanal con estas secciones etiquetadas EXACTAS:
+
+[COMPETENCIAS]
+Competencia oficial del programa de ${d.asig} ${d.grado} relevante al tema.
+
+[RASGOS]
+3-4 rasgos alineados al tema (lista con viñetas •).
+
+[OBJETIVOS]
+2-3 objetivos SMART numerados: verbo + objeto + condición + finalidad.
+
+[CONCEPTUAL]
+Lista • del contenido conceptual específico.
+
+[PROCEDIMENTAL]
+Lista • del contenido procedimental específico.
+
+[ACTITUDINAL]
+Lista • del contenido actitudinal.
+
+[INDICADORES]
+3-4 indicadores de logro observables, numerados.
+
+[ACT_INICIO]
+2-3 actividades de inicio concretas (tiempo aprox.), contextualizadas en Panamá.
+
+[ACT_DESARROLLO]
+4-5 actividades de desarrollo progresivas y activas.
+
+[ACT_CIERRE]
+2-3 actividades de cierre con evaluación formativa y reflexión metacognitiva.
+
+[EVIDENCIAS]
+Productos concretos que generan los estudiantes (lista •).
+
+[CRITERIOS]
+4 criterios de evaluación claros y medibles (lista •).
+
+Solo las secciones etiquetadas. Sin texto adicional.`;
+
+  if (tipo === 'secuencia') return base + `
+
+GENERA la secuencia didáctica en 3 momentos. Sin etiquetas, solo el texto:
+
+MOMENTO 1 — INICIO (tiempo aprox.)
+[activación de saberes, pregunta generadora, motivación]
+
+MOMENTO 2 — DESARROLLO (tiempo aprox.)
+[actividades progresivas simple→complejo, material, diferenciación básica]
+
+MOMENTO 3 — CIERRE (tiempo aprox.)
+[síntesis, evaluación formativa, reflexión ¿qué aprendí?, ¿cómo?, ¿para qué?]
+
+Recursos necesarios. Max 500 palabras.`;
+
+  const dias = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo']
+    .slice(0, parseInt(d.clases));
+  return base + `
+
+GENERA ${d.clases} planes diarios para: ${dias.join(', ')}.
+Cada plan:
+DÍA N — [día]
+Objetivo: (concreto y alcanzable en 1 clase)
+INICIO (10 min): [actividad de motivación]
+DESARROLLO (__ min): [actividad principal con pasos]
+CIERRE (10 min): [consolidación + evaluación formativa]
+Evidencia: [qué demuestra el estudiante hoy]
+Tarea: [significativa o N/A]
+Max 650 palabras total.`;
+}
+
+function parseSec(txt) {
+  const r = {};
+  const re = /\[([A-Z_]+)\]\s*([\s\S]*?)(?=\[[A-Z_]+\]|$)/g;
+  let m;
+  while ((m = re.exec(txt)) !== null) r[m[1]] = m[2].trim();
+  return r;
+}
+
+// ═══════════════════════════════════════
+//  LLAMADA AL BACKEND (Vercel Function)
+// ═══════════════════════════════════════
+async function llamarAPI(prompt, maxTokens = 1800) {
+  const res = await fetch('/api/generar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, maxTokens })
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || `Error del servidor: ${res.status}`);
+  }
+  const data = await res.json();
+  return data.texto || '';
+}
+
+// ═══════════════════════════════════════
+//  LOADING UI
+// ═══════════════════════════════════════
+function setLoad(title, sub, step) {
+  document.getElementById('lt').textContent = title;
+  document.getElementById('ls').textContent = sub;
+  const steps = [
+    'Cargando currículo oficial…',
+    'Generando planeamiento semanal…',
+    'Generando secuencia didáctica…',
+    'Generando planes diarios…',
+    'Preparando documento Word…'
+  ];
+  document.getElementById('lsteps').innerHTML = steps.map((s,i) =>
+    `<div class="ls ${i < step ? 'done-s' : i === step ? 'active-s' : ''}">
+      <div class="dot"></div>${s}</div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════
+//  GENERACIÓN PRINCIPAL
+// ═══════════════════════════════════════
+let wData = {};
+
+async function generar() {
+  const d = getData();
+  if (!d.asig || !d.grado || !d.tema) {
+    alert('Completa Asignatura, Grado y Tema.'); return;
+  }
+  if (d.productos.length === 0) {
+    alert('Selecciona al menos un producto a generar.'); return;
+  }
+
+  goTo(4);
+  document.getElementById('load-box').style.display = 'block';
+  document.getElementById('res-box').style.display = 'none';
+  document.getElementById('err-wrap').style.display = 'none';
+
+  try {
+    setLoad('Generando planeamiento semanal…', 'Consultando currículo MEDUCA 2014…', 1);
+    const txt1 = await llamarAPI(buildPrompt('semanal', d), 1800);
+    const sec = parseSec(txt1);
+
+    let secuencia = '', planes = '';
+
+    if (d.productos.includes('Secuencia didáctica')) {
+      setLoad('Generando secuencia didáctica…', 'Diseñando los 3 momentos…', 2);
+      secuencia = await llamarAPI(buildPrompt('secuencia', d), 900);
+    }
+
+    if (d.productos.includes('Planes diarios')) {
+      setLoad('Generando planes diarios…', `Diseñando ${d.clases} planes de clase…`, 3);
+      planes = await llamarAPI(buildPrompt('diarios', d), 1000);
+    }
+
+    setLoad('Listo', 'Planeamiento generado correctamente.', 4);
+
+    wData = {
+      asig: d.asig, grado: d.grado, trim: d.trim,
+      semana: d.semana, docente: d.docente, horas: d.clases,
+      area: d.area, tema: d.tema,
+      comp: sec.COMPETENCIAS || '', rasgos: sec.RASGOS || '',
+      objs: sec.OBJETIVOS || '',
+      conc: sec.CONCEPTUAL || d.conc, proc: sec.PROCEDIMENTAL || d.proc,
+      acti: sec.ACTITUDINAL || d.acti, ind: sec.INDICADORES || '',
+      ini: sec.ACT_INICIO || '', des: sec.ACT_DESARROLLO || '',
+      cie: sec.ACT_CIERRE || '',
+      evid: sec.EVIDENCIAS || '', crit: sec.CRITERIOS || '',
+      ed: d.ed, ef: d.ef, es: d.es,
+      secuencia, planes, productos: d.productos
+    };
+
+    await new Promise(r => setTimeout(r, 500));
+    mostrarResultado(d);
+
+  } catch(e) {
+    document.getElementById('load-box').style.display = 'none';
+    document.getElementById('err-wrap').style.display = 'block';
+    document.getElementById('err-wrap').innerHTML = `
+      <div class="err-box">
+        <strong>Error al generar</strong><br><br>
+        ${e.message}<br><br>
+        <button class="btn btn-s" onclick="goTo(3)">← Volver e intentar</button>
+      </div>`;
+  }
+}
+
+// ═══════════════════════════════════════
+//  MOSTRAR RESULTADOS
+// ═══════════════════════════════════════
+function mostrarResultado(d) {
+  document.getElementById('load-box').style.display = 'none';
+  document.getElementById('res-box').style.display = 'block';
+
+  document.getElementById('res-chips').innerHTML =
+    [d.asig, d.grado, `Trim. ${d.trim}`, d.ctx, `${d.clases} cl/sem`]
+    .map(t => `<span class="chip">${t}</span>`).join('');
+
+  const tabs = [
+    { id:'t1', label:'Planeamiento semanal', fn: renderSem },
+    ...(wData.secuencia ? [{ id:'t2', label:'Secuencia didáctica', fn: renderSec }] : []),
+    ...(wData.planes ? [{ id:'t3', label:'Planes diarios', fn: renderPlan }] : [])
+  ];
+
+  const tabBar = document.getElementById('res-tabs');
+  const panesWrap = document.getElementById('rpanes');
+  tabBar.innerHTML = '';
+  panesWrap.innerHTML = '';
+
+  tabs.forEach((t, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'rtab' + (i === 0 ? ' on' : '');
+    btn.textContent = t.label;
+    btn.onclick = () => {
+      document.querySelectorAll('.rtab').forEach(x => x.classList.remove('on'));
+      document.querySelectorAll('.rpane').forEach(x => x.classList.remove('on'));
+      btn.classList.add('on');
+      document.getElementById(t.id).classList.add('on');
+    };
+    tabBar.appendChild(btn);
+
+    const pn = document.createElement('div');
+    pn.className = 'rpane' + (i === 0 ? ' on' : '');
+    pn.id = t.id;
+    pn.innerHTML = `<div class="out-content">${esc(t.fn())}</div>`;
+    panesWrap.appendChild(pn);
+  });
+
+  document.getElementById('ok-txt').textContent =
+    'Generado con Formato N°4 MEDUCA — listo para descargar';
+}
+
+function esc(t) {
+  return String(t)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderSem() {
+  const g = wData;
+  return `SECUENCIA DIDÁCTICA SEMANAL — FORMATO N°4 — MEDUCA PANAMÁ
+
+(1) ASIGNATURA: ${g.asig}   (2) HORAS/SEM: ${g.horas}   (3) GRADO: ${g.grado}
+(4) DOCENTE: ${g.docente}
+(5) SEMANA: ${g.semana}
+(6) TRIMESTRE: ${g.trim}
+
+(7) ÁREA(S): ${g.area || '_______'}
+
+(8) COMPETENCIA(S):
+${g.comp}
+
+Rasgos:
+${g.rasgos}
+
+(9) OBJETIVOS DE APRENDIZAJE:
+${g.objs}
+
+(10) CONTENIDOS:
+• Conceptual: ${g.conc}
+• Procedimental: ${g.proc}
+• Actitudinal: ${g.acti}
+
+(11) INDICADORES DE LOGRO:
+${g.ind}
+
+(12) ACTIVIDADES:
+Inicio:
+${g.ini}
+
+Desarrollo:
+${g.des}
+
+Cierre:
+${g.cie}
+
+(13) EVALUACIÓN:
+Evidencias: ${g.evid}
+Criterios: ${g.crit}
+• Diagnóstica: ${g.ed}
+• Formativa: ${g.ef}
+• Sumativa: ${g.es}
+
+(14) OBSERVACIONES: _______________
+(15) Firma del docente: _______________
+(16) Firma Coordinador/Subdirector: _______________`;
+}
+function renderSec() { return wData.secuencia || ''; }
+function renderPlan() { return wData.planes || ''; }
+
+// ═══════════════════════════════════════
+//  EXPORTAR WORD — docx.js (cliente)
+// ═══════════════════════════════════════
+async function descargarWord() {
+  const btn = document.getElementById('btn-dl');
+  btn.disabled = true; btn.textContent = '⏳ Generando…';
+  try {
+    const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+      AlignmentType, BorderStyle, WidthType, ShadingType, VerticalAlign,
+      Header, Footer } = docx;
+
+    const AZ='1F3864', AZC='D6E4F0', BL='FFFFFF';
+    const W = 9360;
+    const brd = { style: BorderStyle.SINGLE, size: 6, color: AZ };
+    const BD = { top:brd, bottom:brd, left:brd, right:brd };
+
+    function tr2(t, o={}) {
+      return new TextRun({ text:String(t||''), font:'Arial',
+        size:o.s||20, bold:o.b||false, color:o.c||'000000' });
+    }
+    function cell2(runs, o={}) {
+      if (!Array.isArray(runs)) runs = [tr2(runs, o)];
+      return new TableCell({
+        borders: BD,
+        shading: { fill: o.f||BL, type: ShadingType.CLEAR },
+        verticalAlign: o.v || VerticalAlign.CENTER,
+        columnSpan: o.sp||1,
+        width: { size: o.w||(W/(o.sp||1)), type: WidthType.DXA },
+        margins: { top:80, bottom:80, left:120, right:120 },
+        children: [new Paragraph({
+          alignment: o.ctr ? AlignmentType.CENTER : AlignmentType.LEFT,
+          spacing: { before:40, after:40 },
+          children: runs
+        })]
+      });
+    }
+    function hc(t, o={}) {
+      return cell2([tr2(t,{b:true,s:o.s||20,c:'FFFFFF'})], {f:AZ,ctr:true,...o});
+    }
+    function p2(t, o={}) {
+      return new Paragraph({
+        alignment: o.ctr ? AlignmentType.CENTER : AlignmentType.LEFT,
+        spacing: { before:o.bt||0, after:o.at||80 },
+        children: [tr2(t, o)]
+      });
+    }
+    function ml(arr) {
+      return arr.flatMap(({l,t}) => [
+        ...(l ? [tr2(l+'\n',{b:true,s:19})] : []),
+        ...(t ? [tr2(t+'\n',{s:19})] : [])
+      ]);
+    }
+
+    const g = wData;
+    const half = W/2;
+
+    const tH = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[W], rows:[
+      new TableRow({children:[hc('MINISTERIO DE EDUCACIÓN',{s:24})]}),
+      new TableRow({children:[cell2('DIRECCIÓN REGIONAL DE EDUCACIÓN DE ____________________',{f:AZC,ctr:true,b:true,s:18})]}),
+      new TableRow({children:[hc('SECUENCIA DIDÁCTICA SEMANAL — EDUCACIÓN PRIMARIA, PREMEDIA Y MEDIA — UNIGRADO',{s:17})]}),
+      new TableRow({children:[cell2('FORMATO N° 4',{f:'F2F2F2',ctr:true,b:true,s:18})]})
+    ]});
+
+    const tD = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[2400,1080,1080,4800], rows:[
+      new TableRow({children:[
+        cell2(ml([{l:'(1) ASIGNATURA: ',t:g.asig}]),{f:AZC,w:2400}),
+        cell2(ml([{l:'(2) HRS/SEM: ',t:g.horas}]),{f:AZC,w:1080}),
+        cell2(ml([{l:'(3) GRADO: ',t:g.grado}]),{f:AZC,w:1080}),
+        cell2(ml([{l:'(4) DOCENTE: ',t:g.docente}]),{f:AZC,w:4800})
+      ]}),
+      new TableRow({children:[
+        cell2(ml([{l:'(5) SEMANA: ',t:g.semana}]),{f:AZC,sp:3,w:4560}),
+        cell2(ml([{l:'(6) TRIMESTRE: ',t:g.trim}]),{f:AZC,w:4800})
+      ]})
+    ]});
+
+    const tC = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[half,half], rows:[
+      new TableRow({children:[hc('(7) ÁREA(S):',{sp:2,w:W})]}),
+      new TableRow({children:[cell2(g.area||'___',{sp:2,w:W})]}),
+      new TableRow({children:[hc('(8) COMPETENCIA(S) — Rasgos:'),hc('(9) OBJETIVOS DE APRENDIZAJE:')]}),
+      new TableRow({children:[
+        cell2(ml([{t:g.comp},{l:'\nRasgos:\n',t:g.rasgos}]),{v:VerticalAlign.TOP}),
+        cell2([tr2(g.objs,{s:19})],{v:VerticalAlign.TOP})
+      ]})
+    ]});
+
+    const tCo = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[half,half], rows:[
+      new TableRow({children:[hc('(10) CONTENIDOS:'),hc('(11) INDICADORES DE LOGRO:')]}),
+      new TableRow({children:[
+        cell2(ml([{l:'Conceptual:\n',t:g.conc},{l:'\nProcedimental:\n',t:g.proc},{l:'\nActitudinal:\n',t:g.acti}]),{v:VerticalAlign.TOP}),
+        cell2([tr2(g.ind,{s:19})],{v:VerticalAlign.TOP})
+      ]})
+    ]});
+
+    const W1=4200, W2=1500, W3=1800, W4=1860;
+    const tA = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[W1,W2,W3,W4], rows:[
+      new TableRow({children:[hc('(12) ACTIVIDADES',{w:W1}),hc('(13) EVALUACIÓN',{sp:3,w:W2+W3+W4})]}),
+      new TableRow({children:[
+        cell2('',{f:AZC,w:W1}),
+        cell2([tr2('(13.1) EVIDENCIAS',{b:true,s:17,c:AZ})],{f:AZC,ctr:true,w:W2}),
+        cell2([tr2('(13.2) CRITERIOS',{b:true,s:17,c:AZ})],{f:AZC,ctr:true,w:W3}),
+        cell2([tr2('(13.3) TIPO/INSTRUMENTOS',{b:true,s:17,c:AZ})],{f:AZC,ctr:true,w:W4})
+      ]}),
+      new TableRow({children:[
+        cell2(ml([{l:'Inicio:\n',t:g.ini},{l:'\nDesarrollo:\n',t:g.des},{l:'\nCierre:\n',t:g.cie}]),{v:VerticalAlign.TOP,w:W1}),
+        cell2(ml([{l:'Entregables:\n',t:g.evid}]),{v:VerticalAlign.TOP,w:W2}),
+        cell2([tr2(g.crit,{s:18})],{v:VerticalAlign.TOP,w:W3}),
+        cell2(ml([{l:'Diagnóstica:\n',t:g.ed},{l:'\nFormativa:\n',t:g.ef},{l:'\nSumativa:\n',t:g.es}]),{v:VerticalAlign.TOP,w:W4})
+      ]})
+    ]});
+
+    const tO = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[W], rows:[
+      new TableRow({children:[cell2(ml([{l:'(14) OBSERVACIONES: ',t:'_______________________________________________'}]))]})
+    ]});
+
+    const noBd = {top:{style:BorderStyle.NONE},bottom:{style:BorderStyle.NONE},left:{style:BorderStyle.NONE},right:{style:BorderStyle.NONE}};
+    const tF = new Table({ width:{size:W,type:WidthType.DXA}, columnWidths:[half,half], rows:[
+      new TableRow({children:[
+        new TableCell({borders:noBd,width:{size:half,type:WidthType.DXA},margins:{top:160,bottom:80,left:120,right:120},
+          children:[p2('_'.repeat(36),{s:18,at:16}),p2('(15) Firma del (los) docente(s)',{s:17,b:true,c:'555555'})]}),
+        new TableCell({borders:noBd,width:{size:half,type:WidthType.DXA},margins:{top:160,bottom:80,left:120,right:120},
+          children:[p2('_'.repeat(36),{s:18,at:16}),p2('(16) Firma del Coordinador(a) o Subdirector(a) Técnico Docente',{s:17,b:true,c:'555555'})]})
+      ]})
+    ]});
+
+    const mkHeader = txt => new Table({width:{size:W,type:WidthType.DXA},columnWidths:[W],rows:[
+      new TableRow({children:[hc(txt,{s:20})]})
+    ]});
+
+    const doc = new Document({
+      styles:{default:{document:{run:{font:'Arial',size:20,color:'000000'}}}},
+      sections:[{
+        properties:{page:{size:{width:12240,height:15840},margin:{top:900,right:800,bottom:900,left:900}}},
+        headers:{default:new Header({children:[p2('MINISTERIO DE EDUCACIÓN — MEDUCA PANAMÁ  |  Formato N° 4',{s:15,c:'888888',ctr:true,at:0})]})},
+        footers:{default:new Footer({children:[p2(`${g.asig} | ${g.grado} | Trimestre ${g.trim}`,{s:15,c:'888888',at:0})]})},
+        children:[
+          tH, p2(''), tD, p2(''), tC, p2(''), tCo, p2(''), tA, p2(''), tO, p2(''), tF,
+          ...(g.secuencia ? [p2(''), mkHeader('SECUENCIA DIDÁCTICA DETALLADA'), p2(''), p2(g.secuencia,{s:19,at:0})] : []),
+          ...(g.planes ? [p2(''), mkHeader('PLANES DIARIOS'), p2(''), p2(g.planes,{s:19,at:0})] : [])
+        ]
+      }]
+    });
+
+    const buf = await Packer.toBuffer(doc);
+    const blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Planeamiento_${g.asig.replace(/\s/g,'_')}_${g.grado.replace(/[°\s]/g,'')}_T${g.trim}.docx`;
+    a.click();
+    URL.revokeObjectURL(url);
+    btn.textContent = '✓ Descargado';
+    setTimeout(() => { btn.disabled=false; btn.textContent='⬇ Descargar Word'; }, 3000);
+
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '⬇ Descargar Word';
+    alert('Error al generar Word: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════
+//  PWA — Instalar en pantalla de inicio
+// ═══════════════════════════════════════
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('install-banner').classList.add('show');
+});
+function instalarPWA() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(() => {
+    deferredPrompt = null;
+    document.getElementById('install-banner').classList.remove('show');
+  });
+}
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').classList.remove('show');
+});
+</script>
+</body>
+</html>
