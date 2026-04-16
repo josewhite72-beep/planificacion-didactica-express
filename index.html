@@ -185,7 +185,7 @@
     <div class="hdr-badges">
       <span class="badge">Formato N° 4 — MEDUCA</span>
       <span class="badge">Currículo 2° grado integrado</span>
-      <span class="badge">Exporta a Word</span>
+      <span class="badge">Exporta a PDF</span>
     </div>
     <h1>Generador de Planeamientos</h1>
     <p>Educación Primaria · Premedia · Media — Panamá</p>
@@ -709,7 +709,7 @@ function setLoad(title, sub, step) {
     'Generando planeamiento semanal…',
     'Generando secuencia didáctica…',
     'Generando planes diarios…',
-    'Preparando documento Word…'
+    'Preparando para exportar…'
   ];
   document.getElementById('lsteps').innerHTML = steps.map((s,i) =>
     `<div class="ls ${i < step ? 'done-s' : i === step ? 'active-s' : ''}">
