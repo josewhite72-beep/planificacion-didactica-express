@@ -245,16 +245,24 @@ textarea{resize:vertical;min-height:68px}
       </div>
     </div>
     <div class="field">
-      <label>Contenido conceptual <small style="font-weight:400;text-transform:none">(opcional)</small></label>
+      <label>Competencias <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
+      <textarea id="comp_input" rows="3" placeholder="Ej: Comunicativa — Rasgo 6: Utiliza correctamente las normas gramaticales…&#10;Aprender a aprender — Rasgo 1: Autorregula su proceso de aprendizaje…"></textarea>
+    </div>
+    <div class="field">
+      <label>Contenido conceptual <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
       <textarea id="conc" placeholder="Ej: El alfabeto en imprenta y cursiva, mayúscula y minúscula…"></textarea>
     </div>
     <div class="field">
-      <label>Contenido procedimental <small style="font-weight:400;text-transform:none">(opcional)</small></label>
+      <label>Contenido procedimental <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
       <textarea id="proc" placeholder="Ej: Identificación de los cuidados de la comunicación escrita…"></textarea>
     </div>
     <div class="field">
-      <label>Contenido actitudinal <small style="font-weight:400;text-transform:none">(opcional)</small></label>
+      <label>Contenido actitudinal <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
       <textarea id="acti" placeholder="Ej: Esmero en la transcripción y escritura de textos…"></textarea>
+    </div>
+    <div class="field">
+      <label>Indicadores de logro <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
+      <textarea id="ind_input" rows="3" placeholder="Ej: Identifica las letras del alfabeto en imprenta y cursiva, en mayúscula y minúscula…&#10;Transcribe palabras con esmero, respetando la forma gráfica…"></textarea>
     </div>
   </div>
   <div class="acts">
@@ -616,9 +624,11 @@ function getData(){
     docente:document.getElementById('docente').value||'________________________________',
     area:document.getElementById('area').value,
     tema:document.getElementById('tema').value,
+    comp_input:document.getElementById('comp_input').value,
     conc:document.getElementById('conc').value,
     proc:document.getElementById('proc').value,
     acti:document.getElementById('acti').value,
+    ind_input:document.getElementById('ind_input').value,
     estrategias:getPills('est').join(', ')||'Aprendizaje activo',
     ed:document.getElementById('ed').value,
     ef:document.getElementById('ef').value,
@@ -653,12 +663,30 @@ DATOS:
 - Centro: ${d.centro} | Regional: ${d.regional}
 - Asignatura: ${d.asig} | Grado: ${d.grado} | Trimestre: ${d.trim} | Tipo: ${d.tipo}
 - Área: ${d.area||'según programa'} | Tema: ${d.tema}
-- Contenido conceptual: ${d.conc||'extraer del programa 2026'}
-- Contenido procedimental: ${d.proc||'extraer del programa 2026'}
-- Contenido actitudinal: ${d.acti||'extraer del programa 2026'}
 - Estrategias: ${d.estrategias}
 - Eval. diagnóstica: ${d.ed} | Formativa: ${d.ef} | Sumativa: ${d.es}
-- Contexto: ${d.ctx} | Horas/semana: ${d.clases}`;
+- Contexto: ${d.ctx} | Horas/semana: ${d.clases}
+
+ELEMENTOS OFICIALES DEL PROGRAMA (usar TEXTUALMENTE, sin modificar ni parafrasear):
+
+COMPETENCIAS (copiar exactamente como aparecen):
+${d.comp_input||'[Seleccionar del currículo oficial según área y tema]'}
+
+CONTENIDO CONCEPTUAL:
+${d.conc||'[Extraer del programa 2026 según tema]'}
+
+CONTENIDO PROCEDIMENTAL:
+${d.proc||'[Extraer del programa 2026 según tema]'}
+
+CONTENIDO ACTITUDINAL:
+${d.acti||'[Extraer del programa 2026 según tema]'}
+
+INDICADORES DE LOGRO (copiar exactamente como aparecen en el programa):
+${d.ind_input||'[Seleccionar del programa oficial según área y tema]'}
+
+REGLA FUNDAMENTAL: Los elementos oficiales de arriba se transcriben textualmente en el planeamiento.
+Los objetivos de aprendizaje los genera la IA, alineados coherentemente con las competencias, contenidos e indicadores oficiales.
+Las actividades, evidencias, criterios e instrumentos los genera la IA con total coherencia con los elementos oficiales.`;
 
   if(tipo==='secuencia') return base+`
 
@@ -666,23 +694,29 @@ GENERA la Secuencia Didáctica Semanal completa en Formato N°4 oficial MEDUCA.
 Usa exactamente estas secciones etiquetadas:
 
 [COMPETENCIAS]
-Lista las competencias del programa con sus rasgos numerados exactos, seleccionando los más relevantes al tema.
-Formato: • NombreCompetencia\\n  - N. Rasgo exacto del programa
+Transcribe TEXTUALMENTE las competencias proporcionadas, con sus rasgos exactos.
+Si no se proporcionaron, selecciona las más relevantes del currículo oficial.
 
 [OBJETIVOS]
-2-3 objetivos de aprendizaje del programa oficial, o ajustados con los 4 elementos: acción + objeto + condición + finalidad.
+Genera 2-3 objetivos de aprendizaje alineados con las competencias, contenidos e indicadores oficiales.
+Estructura: verbo de acción + contenido específico + condición + finalidad.
+Deben derivarse directamente de los indicadores de logro proporcionados.
 
 [CONCEPTUAL]
-Contenido conceptual específico del tema (lista con •).
+Transcribe TEXTUALMENTE el contenido conceptual proporcionado.
+Si no se proporcionó, extrae del programa oficial.
 
 [PROCEDIMENTAL]
-Contenido procedimental específico (lista con •).
+Transcribe TEXTUALMENTE el contenido procedimental proporcionado.
+Si no se proporcionó, extrae del programa oficial.
 
 [ACTITUDINAL]
-Contenido actitudinal específico (lista con •).
+Transcribe TEXTUALMENTE el contenido actitudinal proporcionado.
+Si no se proporcionó, extrae del programa oficial.
 
 [INDICADORES]
-${indOficiales?`Selecciona de la lista oficial los indicadores más relevantes al tema "${d.tema}" y cópialos TEXTUALMENTE tal como aparecen en el programa. No los modifiques, no los parafrasees.`:'2-4 indicadores de logro observables y medibles, extraídos o derivados del programa oficial.'}
+Transcribe TEXTUALMENTE los indicadores de logro proporcionados.
+Si no se proporcionaron, selecciona de la lista oficial del programa.
 
 [ACT_INICIO]
 2-3 actividades de inicio (tiempo aprox.). Concretas, con motivación y diagnóstico. Contexto panameño.
@@ -1011,7 +1045,7 @@ function exportarPDF(){
 function borrarCache(){
   if(confirm('¿Iniciar una nueva sesión? Se borrarán los datos actuales.')){
     wData={};
-    ['asig','grado','area','tema','conc','proc','acti','semana','docente'].forEach(id=>{
+    ['asig','grado','area','tema','comp_input','conc','proc','acti','ind_input','semana','docente'].forEach(id=>{
       const el=document.getElementById(id);if(el)el.value='';
     });
     document.querySelectorAll('.pill.on').forEach(p=>p.classList.remove('on'));
