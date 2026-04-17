@@ -344,7 +344,8 @@ textarea{resize:vertical;min-height:68px}
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button class="btn btn-s" onclick="goTo(1)">← Editar</button>
         <button class="btn btn-s" onclick="borrarCache()">↺ Nueva sesión</button>
-        <button class="btn btn-g" onclick="exportarPDF()">⬇ Exportar PDF</button>
+        <button class="btn btn-s" onclick="exportarPDF()">⬇ PDF</button>
+        <button class="btn btn-g" id="btn-word" onclick="descargarWord()">⬇ Descargar Word</button>
       </div>
     </div>
   </div>
@@ -908,6 +909,33 @@ function borrarCache(){
     document.querySelectorAll('#pr1,#pr2').forEach(p=>p.classList.add('gon'));
     document.getElementById('curr-info').style.display='none';
     goTo(1);
+  }
+}
+
+// ═══════════════════════════════════════
+//  DESCARGAR WORD (servidor)
+// ═══════════════════════════════════════
+async function descargarWord(){
+  const btn=document.getElementById('btn-word');
+  btn.disabled=true;btn.textContent='⏳ Generando…';
+  try{
+    const res=await fetch('/api/generar',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({accion:'word',datos:wData})
+    });
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||'Error del servidor')}
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`Planeamiento_${wData.asig||'MEDUCA'}_T${wData.trim||'I'}.docx`.replace(/[°\s]/g,'_');
+    a.click();
+    URL.revokeObjectURL(url);
+    btn.textContent='✓ Descargado';
+    setTimeout(()=>{btn.disabled=false;btn.textContent='⬇ Descargar Word';},3000);
+  }catch(e){
+    btn.disabled=false;btn.textContent='⬇ Descargar Word';
+    alert('Error: '+e.message);
   }
 }
 
