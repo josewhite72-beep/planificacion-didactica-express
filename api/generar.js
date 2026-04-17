@@ -92,22 +92,25 @@ function generarDocx(g) {
   }
 
   function parTexto(txt, bold = false, size = 16, center = false, color = '000000') {
-    // Dividir por saltos de línea
-    const lineas = String(txt || '').split('\n');
-    if (lineas.length === 1) return par(run(txt, bold, size, color), center);
-    return lineas.map((l, i) => par(run(l, bold, size, color), center, 0, i < lineas.length - 1 ? 30 : 60)).join('');
+    const texto = String(txt || '').trim();
+    if (!texto) return parVacio();
+    const lineas = texto.split('\n');
+    if (lineas.length === 1) return par(run(texto, bold, size, color), center);
+    return lineas.map((l, i) => par(run(l || ' ', bold, size, color), center, 0, i < lineas.length - 1 ? 30 : 60)).join('');
   }
 
   function celda(contenido, anchoDxa, fill = BL, span = 1, vAlign = 'top') {
-    return `<w:tc>${tcPr(anchoDxa, fill, span, vAlign)}${contenido}</w:tc>`;
+    // Garantizar que siempre haya al menos un párrafo válido
+    const contenidoFinal = contenido && contenido.trim() ? contenido : parVacio();
+    return `<w:tc>${tcPr(anchoDxa, fill, span, vAlign)}${contenidoFinal}</w:tc>`;
   }
 
   function celdaH(txt, anchoDxa, span = 1) {
-    return celda(par(run(txt, true, 17, BL), true), anchoDxa, AZ, span);
+    return celda(par(run(txt || '', true, 17, BL), true), anchoDxa, AZ, span);
   }
 
   function celdaInfo(label, valor, anchoDxa) {
-    return celda(par(run(label, true, 15) + run(valor, false, 15)), anchoDxa, AZC);
+    return celda(par(run(label || '', true, 15) + run(valor || '', false, 15)), anchoDxa, AZC);
   }
 
   function fila(...celdas) { return `<w:tr>${celdas.join('')}</w:tr>`; }
@@ -332,14 +335,20 @@ function generarDocx(g) {
 
 // ── Parser de tablas Markdown ──
 function parsearTablaMarkdown(txt) {
+  if (!txt) return [];
   const lineas = txt.split('\n').filter(l => l.includes('|'));
   const filas = [];
   for (const linea of lineas) {
     if (linea.match(/^\s*\|[-:\s|]+\|\s*$/)) continue; // separador
-    const cols = linea.split('|').filter((_, i, a) => i > 0 && i < a.length - 1).map(c => c.trim());
-    if (cols.length > 0) filas.push(cols);
+    const cols = linea.split('|')
+      .filter((_, i, a) => i > 0 && i < a.length - 1)
+      .map(c => c.trim() || ' ');
+    if (cols.length > 0 && !cols.every(c => c === '-' || c === ' ')) {
+      filas.push(cols);
+    }
   }
-  return filas.slice(0); // incluye encabezado — lo saltamos en el llamador
+  // Saltar primera fila si es encabezado repetido
+  return filas.length > 1 ? filas.slice(1) : filas;
 }
 
 // ════════════════════════════════════════════════════════════
