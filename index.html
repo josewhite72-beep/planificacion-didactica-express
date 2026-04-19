@@ -969,9 +969,13 @@ async function generar(){
   try{
     let secuencia='',planes='';
 
+    // Tokens según duración del planeamiento
+    const tokensSecuencia = d.semanas >= 2 ? 3500 : 2500;
+    const tokensDiarios = Math.min(8000, 600 * d.totalDias); // ~600 tokens por día
+
     if(d.productos.includes('Secuencia didáctica (Formato N°4)')){
       setLoad('Generando Secuencia Didáctica…','Competencias, indicadores, actividades e instrumentos…',1);
-      const txt=await llamarAPI(buildPrompt('secuencia',d),2500);
+      const txt=await llamarAPI(buildPrompt('secuencia',d),tokensSecuencia);
       const sec=parseSec(txt);
       wData={
         regional:d.regional,centro:d.centro,
@@ -993,8 +997,8 @@ async function generar(){
     }
 
     if(d.productos.includes('Planes diarios detallados')){
-      setLoad('Generando planes diarios…',`Diseñando ${d.clases} planes detallados…`,2);
-      planes=await llamarAPI(buildPrompt('diarios',d),3000);
+      setLoad('Generando planes diarios…',`Diseñando ${d.totalDias} planes (${d.semanas} semana(s))…`,2);
+      planes=await llamarAPI(buildPrompt('diarios',d),tokensDiarios);
       wData.planes=planes;
     }
 
