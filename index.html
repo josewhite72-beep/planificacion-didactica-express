@@ -849,77 +849,83 @@ Fecha | Observaciones (esmero y disposición) | Interpretación | Recomendacione
 
 Solo las secciones etiquetadas. Sin texto adicional antes ni después.`;
 
-  // Planes diarios
+  // Planes diarios — generación por semana
   const totalDias = d.totalDias;
   const minPorPeriodo = d.minutos;
   const periodosPorSemana = d.clases;
   const diasPorSemana = d.dias;
   const minPorDia = Math.round((periodosPorSemana / diasPorSemana) * minPorPeriodo);
 
-  // Distribución progresiva según número de días
-  const distribucion = [];
-  for(let i=1; i<=totalDias; i++){
-    const pct = (i-1)/(totalDias-1||1);
-    let fase;
-    if(pct < 0.15) fase = 'INICIO DEL TEMA';
-    else if(pct < 0.35) fase = 'DESARROLLO 1 — Exploración guiada';
-    else if(pct < 0.55) fase = 'DESARROLLO 2 — Práctica guiada';
-    else if(pct < 0.70) fase = 'DESARROLLO 3 — Práctica independiente';
-    else if(pct < 0.85) fase = 'DESARROLLO 4 — Aplicación y producción';
-    else fase = 'CIERRE — Evaluación y síntesis';
-    const semana = Math.ceil(i/diasPorSemana);
-    distribucion.push({dia:i, semana, fase});
+  // Rango de días para esta llamada
+  const diaInicio = d.diaInicio || 1;
+  const diaFin = d.diaFin || totalDias;
+  const semanaNum = d.semanaNum || 1;
+  const diasNombres = ['Lunes','Martes','Miércoles','Jueves','Viernes'];
+
+  // Distribución progresiva completa (para contexto)
+  const fases = (dia) => {
+    const pct = (dia-1)/(totalDias-1||1);
+    if(pct < 0.15) return 'INICIO DEL TEMA — Motivación y diagnóstico';
+    if(pct < 0.35) return 'DESARROLLO 1 — Exploración guiada';
+    if(pct < 0.55) return 'DESARROLLO 2 — Práctica guiada';
+    if(pct < 0.70) return 'DESARROLLO 3 — Práctica independiente';
+    if(pct < 0.85) return 'DESARROLLO 4 — Aplicación y producción';
+    return 'CIERRE — Evaluación sumativa y síntesis';
+  };
+
+  const diasBloque = [];
+  for(let i=diaInicio; i<=diaFin; i++){
+    const nombre = diasNombres[(i-1) % diasNombres.length];
+    diasBloque.push({dia:i, nombre, fase:fases(i)});
   }
 
   return base+`
 
-INSTRUCCIÓN CRÍTICA: Genera EXACTAMENTE ${totalDias} planes diarios (${d.semanas} semana(s) × ${diasPorSemana} días).
-Cada día tiene ${minPorDia} minutos disponibles (${Math.round(periodosPorSemana/diasPorSemana * 10)/10} períodos × ${minPorPeriodo} min).
+GENERA EXACTAMENTE ${diasBloque.length} planes diarios — SEMANA ${semanaNum} (días ${diaInicio} al ${diaFin} de ${totalDias} totales).
+Tiempo disponible por día: ${minPorDia} minutos (${Math.round(periodosPorSemana/diasPorSemana*10)/10} períodos × ${minPorPeriodo} min).
 
-ESTRUCTURA PROGRESIVA — El contenido evoluciona a lo largo de los días:
-${distribucion.map(({dia,semana,fase})=>`DÍA ${dia} (Semana ${semana}): ${fase}`).join('\n')}
+PLAN DE LA SEMANA ${semanaNum}:
+${diasBloque.map(({dia,nombre,fase})=>`DÍA ${dia} — ${nombre.toUpperCase()}: ${fase}`).join('\n')}
 
 REGLAS PEDAGÓGICAS:
-1. CADA día mantiene los 3 momentos oficiales (Inicio / Desarrollo / Cierre) — estructura FIJA
-2. El INICIO de cada día (salvo el primero) retoma el cierre del día anterior con un repaso breve (5 min)
-3. El DESARROLLO de cada día corresponde a la FASE indicada arriba — el contenido avanza progresivamente
-4. El CIERRE consolida lo trabajado ese día y prepara el siguiente
-5. Las estrategias seleccionadas (${d.estrategias}) se aplican en las actividades de DESARROLLO
-6. Las estrategias se ALINEAN con los indicadores: ${d.ind_input||'según programa'}
-7. La evaluación formativa (${d.ef}) aparece en los días de DESARROLLO 2 y 3
-8. La evaluación sumativa (${d.es}) aparece en el CIERRE final
+1. Cada día mantiene los 3 momentos oficiales: Inicio / Desarrollo / Cierre
+2. El INICIO de cada día (salvo el día ${diaInicio}) incluye repaso breve del día anterior (5 min)
+3. El DESARROLLO corresponde a la FASE asignada a ese día
+4. Estrategias a usar en el desarrollo: ${d.estrategias}
+5. Las estrategias se alinean con los indicadores: ${d.ind_input||'según programa'}
+6. Evaluación formativa (${d.ef}) en días de DESARROLLO 2 y 3
+7. Evaluación sumativa (${d.es}) solo en el día de CIERRE final
+8. Actividades concretas y contextualizadas en Barrigón, Coclé, Panamá
 
-FORMATO DE CADA DÍA:
+${diasBloque.map(({dia,nombre,fase})=>`
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DÍA [N] — [NOMBRE DEL DÍA] | Semana [N] | ${minPorDia} min disponibles
-FASE: [nombre de la fase]
+DÍA ${dia} — ${nombre.toUpperCase()} | Semana ${semanaNum} | ${minPorDia} min
+FASE: ${fase}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-OBJETIVO DEL DÍA: (alineado al indicador trabajado hoy)
-INDICADOR QUE SE TRABAJA HOY: (textual del programa)
+OBJETIVO DEL DÍA: (alineado al indicador y la fase)
+INDICADOR QUE SE TRABAJA HOY: (del programa oficial)
 
-INICIO ([X] min):
+INICIO (${Math.round(minPorDia*0.2)} min):
 Propósito: (activar/repasar según la fase)
-• Actividad: (descripción concreta con tiempo)
-${totalDias > 1 ? '• Repaso del día anterior: (solo desde día 2 en adelante — 5 min)' : ''}
+${dia > diaInicio ? '• Repaso del día anterior (5 min): breve recuperación' : '• Diagnóstico inicial: explorar conocimientos previos'}
+• Actividad motivadora: (concreta, con materiales específicos)
 
-DESARROLLO ([X] min):
-Propósito: (según la fase del día)
-• Actividad 1: (usando estrategia: [estrategia elegida] — descripción detallada)
-• Actividad 2: (variación de la estrategia o complemento)
-Diferenciación: (cómo atender distintos ritmos de aprendizaje)
+DESARROLLO (${Math.round(minPorDia*0.6)} min):
+Propósito: ${fase}
+• Actividad 1 — ${d.estrategias.split(',')[0]||'Aprendizaje cooperativo'}: (descripción detallada paso a paso)
+• Actividad 2: (variación o complemento, con diferenciación)
+Diferenciación: (atención a distintos ritmos)
 
-CIERRE ([X] min):
-Propósito: (consolidar y preparar el siguiente día)
-• Actividad de cierre: (síntesis o mini-producción)
-• Evaluación: ([tipo según la fase] — instrumento: [instrumento])
+CIERRE (${Math.round(minPorDia*0.2)} min):
+Propósito: consolidar y preparar el día siguiente
+• Síntesis: (mini-producción o reflexión)
+• Evaluación: (instrumento apropiado para esta fase)
 • Reflexión metacognitiva: ¿Qué aprendí? ¿Cómo lo aprendí? ¿Para qué me sirve?
 
-RECURSOS: (materiales específicos y concretos)
-EVIDENCIA DEL DÍA: (producto observable)
-TAREA: (opcional — significativa y breve)
-CONEXIÓN CON DÍA ${`SIGUIENTE`}: (qué retomará mañana)
-
-Genera los ${totalDias} días completos con contenido real y concreto, contextualizado en Barrigón, Coclé, Panamá.`;
+RECURSOS: (materiales concretos y accesibles en escuela rural)
+EVIDENCIA DEL DÍA: (producto observable y registrable)
+TAREA: (breve y significativa, o N/A)
+CONEXIÓN CON DÍA SIGUIENTE: (qué retomará mañana)`).join('\n')}`;
 
 }
 
@@ -949,7 +955,13 @@ async function llamarAPI(prompt,maxTokens=2000){
 function setLoad(title,sub,step){
   document.getElementById('lt').textContent=title;
   document.getElementById('ls').textContent=sub;
-  const steps=['Cargando currículo MEDUCA 2026…','Generando Secuencia Didáctica (Formato N°4)…','Generando planes diarios detallados…','Preparando documento…'];
+  const steps=[
+    'Cargando currículo MEDUCA 2026…',
+    'Generando Secuencia Didáctica (Formato N°4)…',
+    'Generando planes diarios — Semana 1…',
+    'Generando planes diarios — Semana 2…',
+    'Preparando documento…'
+  ];
   document.getElementById('lsteps').innerHTML=steps.map((s,i)=>
     `<div class="ls ${i<step?'done-s':i===step?'active-s':''}"><div class="dot"></div>${s}</div>`
   ).join('');
@@ -961,7 +973,7 @@ function setLoad(title,sub,step){
 let wData={};
 
 // ═══════════════════════════════════════
-//  GENERACIÓN PRINCIPAL
+//  GENERACIÓN PRINCIPAL — 3 llamadas
 // ═══════════════════════════════════════
 async function generar(){
   const d=getData();
@@ -974,14 +986,11 @@ async function generar(){
   document.getElementById('err-wrap').style.display='none';
 
   try{
-    let secuencia='',planes='';
 
-    // Tokens según duración del planeamiento
-    const tokensSecuencia = d.semanas >= 2 ? 3500 : 2500;
-    const tokensDiarios = Math.min(8000, 600 * d.totalDias); // ~600 tokens por día
-
+    // ── LLAMADA 1: Secuencia Didáctica ──
     if(d.productos.includes('Secuencia didáctica (Formato N°4)')){
       setLoad('Generando Secuencia Didáctica…','Competencias, indicadores, actividades e instrumentos…',1);
+      const tokensSecuencia = d.semanas >= 2 ? 3500 : 2500;
       const txt=await llamarAPI(buildPrompt('secuencia',d),tokensSecuencia);
       const sec=parseSec(txt);
       wData={
@@ -1001,15 +1010,34 @@ async function generar(){
         ed:d.ed,ef:d.ef,es:d.es,
         productos:d.productos
       };
+    }else{
+      wData={...wData,regional:d.regional,centro:d.centro,asig:d.asig,grado:d.grado,
+        trim:d.trim,tipo:d.tipo,semana:d.semana,docente:d.docente,horas:d.clases,
+        area:d.area,tema:d.tema,ed:d.ed,ef:d.ef,es:d.es,productos:d.productos};
     }
 
+    // ── LLAMADAS 2 y 3: Planes diarios por semana ──
     if(d.productos.includes('Planes diarios detallados')){
-      setLoad('Generando planes diarios…',`Diseñando ${d.totalDias} planes (${d.semanas} semana(s))…`,2);
-      planes=await llamarAPI(buildPrompt('diarios',d),tokensDiarios);
-      wData.planes=planes;
+      let planesCompletos='';
+
+      // Semana 1
+      setLoad('Generando planes diarios…',`Semana 1 de ${d.semanas} (días 1–${d.dias})…`,2);
+      const dSem1={...d, semanaNum:1, diaInicio:1, diaFin:d.dias};
+      const sem1=await llamarAPI(buildPrompt('diarios',dSem1),3500);
+      planesCompletos+=sem1;
+
+      // Semana 2 (si aplica)
+      if(d.semanas >= 2){
+        setLoad('Generando planes diarios…',`Semana 2 de ${d.semanas} (días ${d.dias+1}–${d.totalDias})…`,3);
+        const dSem2={...d, semanaNum:2, diaInicio:d.dias+1, diaFin:d.totalDias};
+        const sem2=await llamarAPI(buildPrompt('diarios',dSem2),3500);
+        planesCompletos+='\n\n'+sem2;
+      }
+
+      wData.planes=planesCompletos;
     }
 
-    setLoad('Listo','Planeamiento generado correctamente.',3);
+    setLoad('Listo','Planeamiento generado correctamente.',4);
     await new Promise(r=>setTimeout(r,400));
     mostrarResultado(d);
 
