@@ -269,6 +269,10 @@ textarea{resize:vertical;min-height:68px}
       </div>
     </div>
     <div class="field">
+      <label>Objetivo(s) de aprendizaje <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
+      <textarea id="obj_input" rows="3" placeholder="Ej: Expresa, de manera oral y escrita, sentimientos, ideas y pensamientos utilizando lenguaje verbal y no verbal para fortalecer sus relaciones interpersonales…&#10;Emplea elementos de la comunicación en diversos textos y situaciones de su entorno…"></textarea>
+    </div>
+    <div class="field">
       <label>Competencias <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
       <textarea id="comp_input" rows="3" placeholder="Ej: Comunicativa — Rasgo 6: Utiliza correctamente las normas gramaticales…&#10;Aprender a aprender — Rasgo 1: Autorregula su proceso de aprendizaje…"></textarea>
     </div>
@@ -665,6 +669,7 @@ function getData(){
     docente:document.getElementById('docente').value||'________________________________',
     area:document.getElementById('area').value,
     tema:document.getElementById('tema').value,
+    obj_input:document.getElementById('obj_input').value,
     comp_input:document.getElementById('comp_input').value,
     conc:document.getElementById('conc').value,
     proc:document.getElementById('proc').value,
@@ -753,6 +758,9 @@ DATOS:
 
 ELEMENTOS OFICIALES DEL PROGRAMA (usar TEXTUALMENTE, sin modificar ni parafrasear):
 
+OBJETIVO(S) DE APRENDIZAJE (transcribir TEXTUALMENTE del programa):
+${d.obj_input||'[Pegar del programa oficial]'}
+
 COMPETENCIAS (copiar exactamente como aparecen):
 ${d.comp_input||'[Seleccionar del currículo oficial según área y tema]'}
 
@@ -782,9 +790,8 @@ Transcribe TEXTUALMENTE las competencias proporcionadas, con sus rasgos exactos.
 Si no se proporcionaron, selecciona las más relevantes del currículo oficial.
 
 [OBJETIVOS]
-Genera 2-3 objetivos de aprendizaje alineados con las competencias, contenidos e indicadores oficiales.
-Estructura: verbo de acción + contenido específico + condición + finalidad.
-Deben derivarse directamente de los indicadores de logro proporcionados.
+Transcribe TEXTUALMENTE los objetivos de aprendizaje proporcionados del programa oficial.
+Si no se proporcionaron, indica: "Ver programa oficial — Área: [área]".
 
 [CONCEPTUAL]
 Transcribe TEXTUALMENTE el contenido conceptual proporcionado.
@@ -1165,7 +1172,7 @@ function exportarPDF(){
 function borrarCache(){
   if(confirm('¿Iniciar una nueva sesión? Se borrarán los datos actuales.')){
     wData={};
-    ['asig','grado','area','tema','comp_input','conc','proc','acti','ind_input','semana','docente'].forEach(id=>{
+    ['asig','grado','area','tema','obj_input','comp_input','conc','proc','acti','ind_input','semana','docente'].forEach(id=>{
       const el=document.getElementById(id);if(el)el.value='';
     });
     document.getElementById('semanas').value='2';
