@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generador de Planeamientos MEDUCA</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1F3864">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<style media="print">
+  .hdr-badges,.steps,.pbar-wrap,.export-bar,.chips,.install-banner,.acts,.card h3,
+  .res-tabs,#res-chips { display:none !important; }
+  .out-content { max-height:none !important; overflow:visible !important;
+    font-size:10.5pt; border:none !important; line-height:1.6; }
+  body { background:white !important; }
+  .app { padding:0 !important; }
+  .doc-sep { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+</style>
+<style>
+:root {
+  --azul:#1F3864; --azul-m:#2E75B6; --azul-c:#D6E4F0;
+  --verde:#1E6B3C; --verde-c:#E8F5EE;
+  --rojo-c:#FDECEA; --rojo:#C0392B;
+  --gris:#F5F6F7; --borde:#DADDE1; --texto:#1C1E21; --muted:#65676B;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  font-size:14px;background:#F0F2F5;color:var(--texto);min-height:100vh}
+.app{max-width:700px;margin:0 auto;padding:12px}
+
+.hdr{background:var(--azul);color:white;border-radius:12px;padding:16px 20px;margin-bottom:14px}
+.hdr-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.badge{font-size:11px;padding:2px 8px;border-radius:12px;background:rgba(255,255,255,.2);color:white;font-weight:500}
+.hdr h1{font-size:18px;font-weight:700;margin-bottom:3px}
+.hdr p{font-size:12px;opacity:.8}
+
+.steps{display:flex;gap:6px;margin-bottom:10px}
+.stp{flex:1;padding:8px 4px;border:1.5px solid var(--borde);border-radius:8px;
+  background:white;font-size:11px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;transition:.15s}
+.stp.active{border-color:var(--azul-m);color:var(--azul);background:var(--azul-c)}
+.stp.done{border-color:var(--verde);color:var(--verde);background:var(--verde-c)}
+.pbar-wrap{height:4px;background:var(--borde);border-radius:2px;margin-bottom:14px}
+.pbar{height:4px;background:var(--azul);border-radius:2px;transition:.4s}
+
+.panel{display:none}.panel.on{display:block}
+.card{background:white;border:1px solid var(--borde);border-radius:12px;padding:16px;margin-bottom:12px}
+.card h3{font-size:13px;font-weight:700;color:var(--azul);margin-bottom:12px;
+  padding-bottom:8px;border-bottom:2px solid var(--azul-c)}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}
+.field label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+select,input[type=text],textarea{width:100%;padding:9px 11px;border:1.5px solid var(--borde);
+  border-radius:8px;font-size:13px;font-family:inherit;background:white;color:var(--texto);
+  transition:.15s;outline:none}
+select:focus,input:focus,textarea:focus{border-color:var(--azul-m);box-shadow:0 0 0 3px rgba(46,117,182,.12)}
+textarea{resize:vertical;min-height:68px}
+
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.pill{font-size:12px;padding:5px 12px;border-radius:20px;border:1.5px solid var(--borde);
+  color:var(--muted);cursor:pointer;background:white;transition:.12s;user-select:none}
+.pill.on{background:var(--azul);color:white;border-color:var(--azul)}
+.pill.gon{background:var(--verde);color:white;border-color:var(--verde)}
+
+.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.btn{padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;
+  cursor:pointer;border:none;font-family:inherit;transition:.15s}
+.btn-p{background:var(--azul);color:white}.btn-p:hover{background:#162a4e}
+.btn-s{background:white;color:var(--azul);border:1.5px solid var(--azul)}.btn-s:hover{background:var(--azul-c)}
+.btn-g{background:var(--verde);color:white;font-size:14px;padding:12px 24px}.btn-g:hover{background:#155230}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.curr-info{background:var(--verde-c);border:1px solid #A8D5B8;border-radius:8px;
+  padding:10px 14px;font-size:12px;color:var(--verde);margin-bottom:10px;display:none}
+
+.load-card{background:white;border:1px solid var(--borde);border-radius:12px;
+  padding:32px 20px;text-align:center;margin-bottom:12px}
+.spin{width:32px;height:32px;border:3px solid var(--azul-c);border-top-color:var(--azul);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-title{font-size:15px;font-weight:700;color:var(--azul);margin-bottom:6px}
+.load-sub{font-size:12px;color:var(--muted)}
+.load-steps{margin:16px auto;max-width:280px;text-align:left}
+.ls{font-size:12px;padding:5px 0;color:var(--muted);display:flex;align-items:center;gap:8px}
+.ls.done-s{color:var(--verde)}.ls.active-s{color:var(--azul);font-weight:700}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--borde);flex-shrink:0}
+.ls.done-s .dot{background:var(--verde)}.ls.active-s .dot{background:var(--azul-m)}
+
+.export-bar{background:var(--gris);border:1px solid var(--borde);border-top:none;
+  border-radius:0 0 10px 10px;padding:12px 16px;display:flex;
+  justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.ok-txt{font-size:11px;color:var(--verde);font-weight:700}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.chip{font-size:11px;padding:3px 10px;border-radius:12px;
+  background:var(--azul-c);color:var(--azul);font-weight:700}
+.err-box{background:var(--rojo-c);border:1px solid #F5C6C6;border-radius:10px;
+  padding:20px;text-align:center;color:var(--rojo)}
+
+.doc-sep{background:var(--azul);color:white;padding:10px 16px;font-size:13px;
+  font-weight:700;border-radius:8px 8px 0 0;margin-top:16px}
+#doc-unico .doc-sep:first-child{margin-top:0}
+.doc-divider{height:3px;background:var(--azul-c)}
+.out-content{white-space:pre-wrap;font-size:12px;line-height:1.8;color:var(--texto);
+  padding:16px;background:white;border:1px solid var(--borde);border-top:none;
+  max-height:500px;overflow-y:auto;font-family:'Courier New',monospace}
+#doc-unico .out-content{border-radius:0;border-top:none}
+
+.install-banner{background:var(--azul-c);border:1px solid var(--azul-m);border-radius:10px;
+  padding:10px 14px;margin-bottom:12px;display:none;align-items:center;gap:10px;font-size:12px;color:var(--azul)}
+.install-banner.show{display:flex}
+.install-banner button{font-size:12px;padding:5px 12px;background:var(--azul);color:white;
+  border:none;border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap}
+
+@media(max-width:480px){.g2,.g3{grid-template-columns:1fr}.steps{gap:4px}
+  .stp{font-size:10px;padding:7px 2px}.hdr h1{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="install-banner" id="install-banner">
+  <span>Instala esta app en tu pantalla de inicio</span>
+  <button onclick="instalarPWA()">Instalar</button>
+  <button onclick="document.getElementById('install-banner').classList.remove('show')"
+    style="background:transparent;color:var(--azul);border:1px solid var(--azul-m)">✕</button>
+</div>
+
+<div class="hdr">
+  <div class="hdr-badges">
+    <span class="badge">Formato N°4 — MEDUCA</span>
+    <span class="badge">Currículo 2° grado — Actualización 2026</span>
+    <span class="badge">Exporta a PDF</span>
+  </div>
+  <h1>Generador de Planeamientos</h1>
+  <p>Educación Primaria · Premedia · Media — Panamá</p>
+</div>
+
+<div class="steps">
+  <div class="stp active" id="s1">① Datos</div>
+  <div class="stp" id="s2">② Contenido</div>
+  <div class="stp" id="s3">③ Evaluación</div>
+  <div class="stp" id="s4">④ Resultado</div>
+</div>
+<div class="pbar-wrap"><div class="pbar" id="pb" style="width:25%"></div></div>
+
+<!-- PANEL 1 -->
+<div class="panel on" id="p1">
+  <div class="card">
+    <h3>Datos institucionales</h3>
+    <div class="g2">
+      <div class="field">
+        <label>Dirección Regional</label>
+        <input type="text" id="regional" value="Coclé">
+      </div>
+      <div class="field">
+        <label>Centro Educativo</label>
+        <input type="text" id="centro" value="Barrigón">
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label>Asignatura *</label>
+        <select id="asig" onchange="onCurriculoChange()">
+          <option value="">Seleccionar…</option>
+          <option>Matemática</option><option>Español</option>
+          <option>Ciencias Naturales</option><option>Ciencias Sociales</option>
+          <option>Inglés</option><option>Religión, Moral y Valores</option>
+          <option>Expresiones Artísticas</option><option>Educación Física</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Grado *</label>
+        <select id="grado" onchange="onCurriculoChange()">
+          <option value="">Seleccionar…</option>
+          <optgroup label="Primaria">
+            <option>1° grado</option><option>2° grado</option><option>3° grado</option>
+            <option>4° grado</option><option>5° grado</option><option>6° grado</option>
+          </optgroup>
+          <optgroup label="Premedia">
+            <option>7° grado</option><option>8° grado</option><option>9° grado</option>
+          </optgroup>
+          <optgroup label="Media">
+            <option>10° grado</option><option>11° grado</option><option>12° grado</option>
+          </optgroup>
+        </select>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label>Trimestre</label>
+        <select id="trim"><option>I</option><option>II</option><option>III</option></select>
+      </div>
+      <div class="field">
+        <label>Tipo</label>
+        <select id="tipo"><option value="semanal">Semanal</option><option value="quincenal">Quincenal</option></select>
+      </div>
+      <div class="field">
+        <label>Semanas</label>
+        <select id="semanas">
+          <option value="1">1 semana</option>
+          <option value="2" selected>2 semanas</option>
+        </select>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field">
+        <label>Períodos / semana</label>
+        <select id="clases">
+          <option>2</option><option>3</option><option>4</option>
+          <option>5</option><option>6</option><option selected>7</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Días / semana</label>
+        <select id="dias">
+          <option>3</option><option>4</option><option value="5" selected>5</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Min. por período</label>
+        <select id="minutos">
+          <option value="35" selected>35 min</option>
+          <option value="40">40 min</option>
+          <option value="45">45 min</option>
+          <option value="50">50 min</option>
+        </select>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="field">
+        <label>Semana(s)</label>
+        <input type="text" id="semana" placeholder="20 de abril al 1 de mayo de 2026">
+      </div>
+      <div class="field">
+        <label>Docente</label>
+        <input type="text" id="docente" placeholder="Jose White">
+      </div>
+    </div>
+    <div class="field">
+      <label>Contexto</label>
+      <div class="pills" id="ctx">
+        <span class="pill on" onclick="tp(this)">Unigrado</span>
+        <span class="pill" onclick="tp(this)">Multigrado</span>
+        <span class="pill" onclick="tp(this)">Rural</span>
+        <span class="pill" onclick="tp(this)">Urbano</span>
+        <span class="pill" onclick="tp(this)">Indígena</span>
+        <span class="pill" onclick="tp(this)">Inclusión</span>
+      </div>
+    </div>
+  </div>
+  <div class="acts"><button class="btn btn-p" onclick="goNext(1)">Siguiente →</button></div>
+</div>
+
+<!-- PANEL 2 -->
+<div class="panel" id="p2">
+  <div class="curr-info" id="curr-info"></div>
+  <div class="card">
+    <h3>Contenido curricular</h3>
+    <div class="g2">
+      <div class="field">
+        <label>Área del programa</label>
+        <input type="text" id="area" placeholder="Ej: Comunicación oral y escrita">
+      </div>
+      <div class="field">
+        <label>Tema / Contenido *</label>
+        <input type="text" id="tema" placeholder="Ej: La comunicación escrita — el alfabeto">
+      </div>
+    </div>
+    <div class="field">
+      <label>Competencias <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
+      <textarea id="comp_input" rows="3" placeholder="Ej: Comunicativa — Rasgo 6: Utiliza correctamente las normas gramaticales…&#10;Aprender a aprender — Rasgo 1: Autorregula su proceso de aprendizaje…"></textarea>
+    </div>
+    <div class="field">
+      <label>Contenido conceptual <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
+      <textarea id="conc" placeholder="Ej: El alfabeto en imprenta y cursiva, mayúscula y minúscula…"></textarea>
+    </div>
+    <div class="field">
+      <label>Contenido procedimental <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
+      <textarea id="proc" placeholder="Ej: Identificación de los cuidados de la comunicación escrita…"></textarea>
+    </div>
+    <div class="field">
+      <label>Contenido actitudinal <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
+      <textarea id="acti" placeholder="Ej: Esmero en la transcripción y escritura de textos…"></textarea>
+    </div>
+    <div class="field">
+      <label>Indicadores de logro <small style="font-weight:400;text-transform:none">(pegar del programa oficial)</small></label>
+      <textarea id="ind_input" rows="3" placeholder="Ej: Identifica las letras del alfabeto en imprenta y cursiva, en mayúscula y minúscula…&#10;Transcribe palabras con esmero, respetando la forma gráfica…"></textarea>
+    </div>
+  </div>
+  <div class="acts">
+    <button class="btn btn-s" onclick="goTo(1)">← Atrás</button>
+    <button class="btn btn-p" onclick="goNext(2)">Siguiente →</button>
+  </div>
+</div>
+
+<!-- PANEL 3 -->
+<div class="panel" id="p3">
+  <div class="card">
+    <h3>Estrategias metodológicas</h3>
+    <div class="curr-info" id="est-info" style="display:block;margin-bottom:10px">
+      💡 Selecciona las estrategias más adecuadas para tus indicadores de logro. Se alinearán automáticamente con las actividades de desarrollo y la evaluación.
+    </div>
+    <div class="pills" id="est">
+      <span class="pill" onclick="tp(this)">Aprendizaje cooperativo</span>
+      <span class="pill" onclick="tp(this)">Resolución de problemas</span>
+      <span class="pill" onclick="tp(this)">Juego didáctico</span>
+      <span class="pill" onclick="tp(this)">Método científico</span>
+      <span class="pill" onclick="tp(this)">Lectura comprensiva</span>
+      <span class="pill" onclick="tp(this)">ABP (proyectos)</span>
+      <span class="pill" onclick="tp(this)">Exposición oral</span>
+      <span class="pill" onclick="tp(this)">Trabajo práctico</span>
+      <span class="pill" onclick="tp(this)">Investigación</span>
+      <span class="pill" onclick="tp(this)">Mapa conceptual</span>
+      <span class="pill" onclick="tp(this)">Demostración</span>
+      <span class="pill" onclick="tp(this)">Taller de escritura</span>
+      <span class="pill" onclick="tp(this)">Juego de roles</span>
+      <span class="pill" onclick="tp(this)">Debate guiado</span>
+      <span class="pill" onclick="tp(this)">Organizador gráfico</span>
+      <span class="pill" onclick="tp(this)">Aprendizaje basado en retos</span>
+    </div>
+    <button class="btn btn-s" style="margin-top:10px;font-size:12px" onclick="sugerirEstrategias()">
+      ✦ Sugerir según indicadores
+    </button>
+  </div>
+  <div class="card">
+    <h3>Evaluación</h3>
+    <div class="g3">
+      <div class="field">
+        <label>Diagnóstica</label>
+        <select id="ed">
+          <option>Lluvia de ideas — Registro anecdótico</option>
+          <option>Pregunta oral — Observación directa</option>
+          <option>Mapa mental previo — Lista de cotejo</option>
+          <option>Actividad exploratoria — Registro anecdótico</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Formativa</label>
+        <select id="ef">
+          <option>Taller — Escala de valoración</option>
+          <option>Revisión de cuaderno — Lista de cotejo</option>
+          <option>Exposición oral — Rúbrica</option>
+          <option>Trabajo colaborativo — Escala estimativa</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Sumativa</label>
+        <select id="es">
+          <option>Producción escrita — Rúbrica analítica</option>
+          <option>Prueba escrita — Rúbrica</option>
+          <option>Exposición oral — Rúbrica</option>
+          <option>Proyecto — Rúbrica holística</option>
+        </select>
+      </div>
+    </div>
+    <div class="field" style="margin-top:6px">
+      <label>Productos a generar</label>
+      <div class="pills">
+        <span class="pill gon" id="pr1" onclick="tpg(this)">Secuencia didáctica (Formato N°4)</span>
+        <span class="pill gon" id="pr2" onclick="tpg(this)">Planes diarios detallados</span>
+      </div>
+    </div>
+  </div>
+  <div class="acts">
+    <button class="btn btn-s" onclick="goTo(2)">← Atrás</button>
+    <button class="btn btn-g" onclick="generar()">✦ Generar planeamiento</button>
+  </div>
+</div>
+
+<!-- PANEL 4 -->
+<div class="panel" id="p4">
+  <div class="load-card" id="load-box" style="display:none">
+    <div class="spin"></div>
+    <div class="load-title" id="lt">Generando planeamiento…</div>
+    <div class="load-sub" id="ls">Consultando currículo oficial MEDUCA 2026…</div>
+    <div class="load-steps" id="lsteps"></div>
+  </div>
+  <div id="err-wrap" style="display:none"></div>
+  <div id="res-box" style="display:none">
+    <div class="chips" id="res-chips"></div>
+    <div id="rpanes"></div>
+    <div class="export-bar">
+      <span class="ok-txt" id="ok-txt"></span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-s" onclick="goTo(1)">← Editar</button>
+        <button class="btn btn-s" onclick="borrarCache()">↺ Nueva sesión</button>
+        <button class="btn btn-s" onclick="exportarPDF()">⬇ PDF</button>
+        <button class="btn btn-g" id="btn-word" onclick="descargarWord()">⬇ Descargar Word</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════
+//  CURRÍCULO OFICIAL 2° GRADO — MEDUCA ACTUALIZACIÓN 2026
+// ═══════════════════════════════════════
+const CURRICULO = {
+  "Matemática":{"2° grado":{
+    areas:["Aritmética","Álgebra","Sistema de Medidas","Geometría","Estadística y Probabilidad"],
+    competencias:[
+      {nombre:"Pensamiento lógico-matemático",rasgos:[
+        "1. Resuelve operaciones fundamentales en el campo de los números reales, mediante la aplicación de los conceptos matemáticos para responder a situaciones de su entorno.",
+        "3. Utiliza estructuras básicas, conocimientos y procesos matemáticos que le permiten comprender y resolver situaciones en su vida diaria.",
+        "4. Aplica estrategias de resolución de problemas mediante el razonamiento lógico y los procesos sistemáticos para responder a exigencias concretas de su entorno.",
+        "7. Analiza la inserción de los conceptos matemáticos en situaciones prácticas de la vida cotidiana con actitud de reflexión, investigación y curiosidad epistémica."
+      ]},
+      {nombre:"Aprender a aprender",rasgos:[
+        "1. Autorregula su proceso de aprendizaje para evaluar sus avances, errores y aciertos con actitud reflexiva, crítica y constructiva.",
+        "2. Demuestra habilidad para generar nuevas ideas y estrategias para resolver situaciones matemáticas."
+      ]}
+    ],
+    indicadores:{
+      "Aritmética":[
+        "Representa gráfica y simbólicamente cantidades con números menores que 1000 en situaciones contextualizadas.",
+        "Lee números menores de 1000 en juegos y actividades con apoyo de imágenes y tecnología sencilla.",
+        "Escribe números menores de 1000 en ejercicios prácticos.",
+        "Realiza conteo progresivo y regresivo de números naturales menores de 1000 utilizando estrategias orales y escritas en situaciones cotidianas.",
+        "Ubica números naturales en la semirrecta numérica, empleando conteos progresivos o regresivos de 2 en 2, 5 en 5 y 10 en 10 en actividades lúdicas y colaborativas.",
+        "Descompone números naturales menores de 1000 utilizando materiales concretos o representaciones visuales.",
+        "Compone números menores de 1000 en actividades escritas.",
+        "Ordena números naturales menores de 1000 de forma ascendente o descendente en actividades prácticas con apoyo visual.",
+        "Compara la equivalencia de cantidades menores que 1000 mediante juegos didácticos y ejercicios lúdicos en clase.",
+        "Aplica los símbolos >, <, = en la resolución de ejercicios escritos y orales de comparación de números naturales.",
+        "Resuelve adiciones y sustracciones con totales menores de 1000 mediante el uso de representaciones gráficas y simbólicas, en situaciones contextualizadas.",
+        "Aplica estrategias para solucionar multiplicaciones con apoyo en las tablas del 1 al 6, usando patrones repetitivos y representación visual.",
+        "Relaciona números ordinales con la posición de objetos, personas y animales en diferentes contextos, para expresar ubicación y orden en su entorno cercano hasta el número 30."
+      ],
+      "Álgebra":[
+        "Identifica secuencias numéricas y figurativas hasta el 99 para determinar el patrón.",
+        "Explica la regla de formación de una secuencia de figuras y números hasta 99.",
+        "Representa mediante símbolos o expresiones numéricas diferentes secuencias.",
+        "Completa secuencia numérica ascendente hasta el 99 prediciendo números en ejercicios y juegos."
+      ],
+      "Sistema de Medidas":[
+        "Identifica la posición de las manecillas del reloj, señalando dónde deben estar ubicadas para indicar la hora (en punto, hora y media) en actividades prácticas.",
+        "Identifica recipientes cuya medida de capacidad se mide en litros en su entorno escolar y familiar.",
+        "Compara la capacidad de recipientes en litros, señalando cuál contiene más o menos durante actividades prácticas.",
+        "Resuelve sumas y restas de cantidades en litros en contextos cotidianos."
+      ],
+      "Geometría":[
+        "Identifica atributos de figuras planas como número de lados o forma de los ángulos.",
+        "Identifica visualmente el círculo y la circunferencia en dibujos y objetos de su entorno.",
+        "Representa el círculo y la circunferencia mediante trazos con regla y compás, explicando la relación entre ambos.",
+        "Explica la diferencia entre círculo y circunferencia con apoyo de ejemplos visuales o materiales manipulables."
+      ],
+      "Estadística y Probabilidad":[
+        "Realiza observaciones sencillas en su entorno, registrando datos básicos de manera oral o escrita.",
+        "Aplica observaciones o entrevistas para recolectar datos relacionados con su entorno escolar o familiar."
+      ]
+    },
+    temas:{
+      "Aritmética":["Números naturales menores de 1000: representación y valor posicional","Relación de orden: semirrecta numérica","Adición y sustracción con reagrupación","Multiplicación: tablas del 1 al 6","Números ordinales hasta el 30","Uso del dinero panameño: compra y cambio"],
+      "Álgebra":["Patrones repetitivos y aditivos hasta el 99","Regularidades numéricas y figurales"],
+      "Sistema de Medidas":["Lectura del reloj analógico y digital, hora y media hora","Medidas de capacidad: el litro"],
+      "Geometría":["Punto, recta, semirrecta y segmento","Figuras planas: triángulo, cuadrado, rectángulo, círculo","El círculo y la circunferencia"],
+      "Estadística y Probabilidad":["Técnicas de recolección de datos: observaciones y entrevistas","Tablas de frecuencias","Representación en gráficos básicos"]
+    }
+  }},
+  "Español":{"2° grado":{
+    areas:["Comunicación oral y escrita","Estructura de la lengua","Comprensión lectora","Apreciación y creación literaria"],
+    competencias:[
+      {nombre:"Comunicativa",rasgos:[
+        "6. Utiliza correctamente las normas gramaticales y de comunicación en la producción de textos coherentes y cohesionados de diferentes géneros discursivos y en distintos formatos.",
+        "9. Produce diversos tipos de textos con ideas originales, creativas e innovadoras en diversos contextos.",
+        "8. Desarrolla el hábito de la lectura para el enriquecimiento personal, cultural y profesional.",
+        "2. Es capaz de comprender y analizar información verbal y no verbal utilizando estrategias comunicativas."
+      ]},
+      {nombre:"Aprender a aprender",rasgos:[
+        "1. Autorregula su proceso de aprendizaje para evaluar sus avances, errores y aciertos con actitud reflexiva, crítica y constructiva.",
+        "6. Aplica técnicas de estudio y organización del tiempo adecuadas a su estilo cognitivo en favor de la comprensión profunda de los contenidos."
+      ]}
+    ],
+    indicadores:{
+      "Comunicación oral y escrita":[
+        "Explica de manera detallada el concepto de comunicación.",
+        "Identifica los elementos de la comunicación (emisor, receptor, mensaje y canal) en mensajes escritos de manera sencilla.",
+        "Ubica los roles de los participantes (emisor y receptor) en actos comunicativos cotidianos.",
+        "Explica con sus palabras el concepto de comunicación verbal.",
+        "Distingue las características de los mensajes verbales (claridad, orden, uso de palabras, intención comunicativa) en textos orales y escritos del entorno escolar.",
+        "Explica de forma apropiada el significado de mensajes orales y escritos vistos o escuchados en su entorno.",
+        "Explica el concepto de comunicación no verbal en situaciones cotidianas.",
+        "Identifica las técnicas de comunicación oral (conversación y diálogo), según sus funciones en situaciones cotidianas.",
+        "Distingue las características de la conversación en textos y prácticas comunicativas escolares.",
+        "Señala los elementos del diálogo en intercambios comunicativos del entorno escolar.",
+        "Identifica las letras del alfabeto en imprenta y cursiva, en mayúscula y minúscula, en actividades de observación y lectura inicial.",
+        "Transcribe palabras con esmero, respetando la forma gráfica de las letras en imprenta y cursiva durante ejercicios de copia."
+      ],
+      "Estructura de la lengua":[
+        "Identifica el nexo 'y' en oraciones simples presentadas en textos breves.",
+        "Redacta oraciones con sujeto, predicado y el nexo 'y' utilizando vocabulario conocido.",
+        "Identifica la sílaba tónica en palabras de uso común durante la lectura oral."
+      ],
+      "Comprensión lectora":[
+        "Extrae, mediante estrategias de comprensión lectora, información explícita de textos literarios y no literarios.",
+        "Identifica información explícita en textos literarios y no literarios adecuados a su edad.",
+        "Identifica en ejemplos dados los paratextos externos (título, autor e imagen de portada).",
+        "Establece en ejemplos dados las características de los textos informativos.",
+        "Establece en ejemplos dados las características de los textos expositivos.",
+        "Identifica las características de las adivinanzas mediante ejercicios prácticos."
+      ],
+      "Apreciación y creación literaria":[
+        "Identifica de manera oral o escrita las características de los textos narrativos (cuentos, anécdotas, historias).",
+        "Distingue con seguridad la secuencia narrativa de un relato.",
+        "Identifica sin dificultad la estructura de la narración oral.",
+        "Define el concepto de dramatización y sus características.",
+        "Identifica de manera detallada los elementos necesarios para realizar una dramatización (texto teatral, actores, vestuario y público).",
+        "Dramatiza de manera creativa pequeñas obras y cuentos."
+      ]
+    },
+    temas:{
+      "Comunicación oral y escrita":["Elementos de la comunicación","La conversación y el diálogo","El alfabeto: imprenta y cursiva, mayúscula y minúscula","Uso de mayúsculas","La dramatización"],
+      "Estructura de la lengua":["El sustantivo: género y número","El artículo","El pronombre personal","El verbo en oraciones simples","La oración: sujeto y predicado","El nexo 'y'","Signos de puntuación","La sílaba tónica y átona"],
+      "Comprensión lectora":["Lectura comprensiva nivel literal","Los paratextos","Textos narrativos: inicio, nudo, desenlace","Textos informativos y expositivos","Textos lúdicos: adivinanzas"],
+      "Apreciación y creación literaria":["El cuento y la fábula","La poesía: rima y declamación","Trabalenguas y adivinanzas","Creación de textos literarios sencillos","Dramatización"]
+    }
+  }},
+  "Ciencias Naturales":{"2° grado":{
+    areas:["Ciencias de la Vida","Ciencias Física y Química","Ciencias de la Tierra y el Universo"],
+    competencias:[
+      {nombre:"Conocimiento e interacción con el mundo físico",rasgos:[
+        "1. Identifica y describe los seres vivos y sus características en el entorno natural panameño.",
+        "3. Demuestra respeto y cuidado por los seres vivos y el medio ambiente.",
+        "4. Relaciona los cambios del entorno con las actividades humanas y naturales."
+      ]},
+      {nombre:"Aprender a aprender",rasgos:[
+        "1. Autorregula su proceso de aprendizaje con actitud reflexiva y crítica.",
+        "5. Es consciente y responsable de sus éxitos y equivocaciones."
+      ]}
+    ],
+    indicadores:{
+      "Ciencias de la Vida":[
+        "Identifica alimentos según su origen (animal o vegetal) y su función en la nutrición, mediante organizadores gráficos.",
+        "Explica cómo los seres vivos responden a estímulos del entorno, como la luz, el sonido o el contacto.",
+        "Clasifica alimentos según su origen y cómo ayudan al cuerpo a crecer, moverse o protegerse."
+      ],
+      "Ciencias Física y Química":[
+        "Describe los fenómenos atmosféricos (sol, lluvia, viento, nubes) y sus efectos sobre los seres vivos.",
+        "Describe fenómenos naturales relacionados con el tiempo atmosférico, tales como diferentes tipos de precipitaciones, temperatura, vientos, nubosidad.",
+        "Compara las características de la estación seca y la lluviosa, así como su relación con los cambios en el ambiente, la vegetación y las actividades de las personas."
+      ],
+      "Ciencias de la Tierra y el Universo":[
+        "Describe las características básicas de la luna, las diferencias entre sus fases y la secuencia en que ocurren, para explicar cómo influyen en las actividades humanas y en el ambiente."
+      ]
+    },
+    temas:{
+      "Ciencias de la Vida":["Características de los seres vivos: nutrición, relación, reproducción","Sistema digestivo y nutrición","Clasificación de seres vivos según estructura y locomoción","Conservación de especies"],
+      "Ciencias Física y Química":["Propagación del sonido","Fenómenos atmosféricos: sol, lluvia, viento, nubes","Estación seca y lluviosa en Panamá"],
+      "Ciencias de la Tierra y el Universo":["La Luna: características y fases","Influencia de las fases lunares en las actividades humanas"]
+    }
+  }},
+  "Ciencias Sociales":{"2° grado":{
+    areas:["Naturaleza y sociedad en el espacio","Interacción del ser humano con el ambiente natural y social","Historia, identidad y patrimonio cultural"],
+    competencias:[
+      {nombre:"Social y ciudadana",rasgos:[
+        "1. Reconoce y valora la importancia de la familia y la comunidad en su formación.",
+        "2. Identifica las características geográficas básicas de Panamá y su comunidad.",
+        "3. Practica valores de convivencia, respeto y solidaridad."
+      ]},
+      {nombre:"Autonomía e iniciativa personal",rasgos:[
+        "1. Practica la solidaridad y la democracia como forma de vida.",
+        "2. Actúa orientado por principios de honradez, responsabilidad y respeto."
+      ]}
+    ],
+    indicadores:{
+      "Naturaleza y sociedad en el espacio":[
+        "Reconoce y describe el espacio geográfico donde vive, identificando elementos naturales y sociales del entorno.",
+        "Identifica en mapas sencillos elementos básicos como la rosa de los vientos, la escala y la leyenda.",
+        "Describe las características del paisaje natural y social de su comunidad."
+      ],
+      "Interacción del ser humano con el ambiente natural y social":[
+        "Identifica las características de la familia como institución fundamental de la sociedad panameña.",
+        "Reconoce las normas de convivencia en la familia, la escuela y la comunidad.",
+        "Describe las instituciones gubernamentales y los servicios que prestan a la comunidad.",
+        "Identifica los recursos naturales de su entorno y propone acciones para su conservación."
+      ],
+      "Historia, identidad y patrimonio cultural":[
+        "Identifica los símbolos patrios de la República de Panamá y explica su significado.",
+        "Reconoce fechas cívicas importantes de la historia panameña.",
+        "Describe tradiciones y costumbres de su comunidad y región.",
+        "Explica la importancia del Canal de Panamá para el país y el mundo."
+      ]
+    },
+    temas:{
+      "Naturaleza y sociedad en el espacio":["El espacio geográfico","El mapa: elementos básicos, rosa de los vientos","Paisaje natural y social de la comunidad","Accidentes geográficos de Panamá"],
+      "Interacción del ser humano con el ambiente natural y social":["La familia: tipos y roles","Normas de convivencia","Instituciones gubernamentales y servicios","Recursos naturales y conservación"],
+      "Historia, identidad y patrimonio cultural":["Símbolos patrios","Fechas cívicas importantes","Tradiciones y costumbres panameñas","El Canal de Panamá"]
+    }
+  }},
+  "Religión, Moral y Valores":{"2° grado":{
+    areas:["Valores humanos","Convivencia","Espiritualidad"],
+    competencias:[
+      {nombre:"Social y ciudadana",rasgos:[
+        "1. Practica valores de solidaridad, honradez, respeto y tolerancia.",
+        "2. Actúa con responsabilidad en su entorno familiar, escolar y comunitario."
+      ]},
+      {nombre:"Autonomía e iniciativa personal",rasgos:[
+        "3. Manifiesta actitud perseverante hasta lograr las metas que se ha propuesto.",
+        "4. Demuestra actitud de servicio y cuidado hacia los demás."
+      ]}
+    ],
+    temas:{
+      "Valores":["La honestidad","El respeto y la tolerancia","La solidaridad","La responsabilidad"],
+      "Convivencia":["Normas de convivencia escolar","La amistad","Resolución pacífica de conflictos"]
+    }
+  }}
+};
+
+// ═══════════════════════════════════════
+//  UI HELPERS
+// ═══════════════════════════════════════
+function tp(el){el.classList.toggle('on')}
+function tpg(el){el.classList.toggle('gon')}
+function getPills(id){return Array.from(document.getElementById(id).querySelectorAll('.pill.on,.pill.gon')).map(p=>p.textContent.trim())}
+
+function goTo(n){
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('p'+i).classList.toggle('on',i===n);
+    const s=document.getElementById('s'+i);
+    s.className='stp'+(i<n?' done':i===n?' active':'');
+  });
+  document.getElementById('pb').style.width=(n*25)+'%';
+  window.scrollTo(0,0);
+}
+
+function goNext(from){
+  if(from===1&&(!document.getElementById('asig').value||!document.getElementById('grado').value)){alert('Selecciona Asignatura y Grado.');return}
+  if(from===2&&!document.getElementById('tema').value.trim()){alert('Ingresa el Tema / Contenido.');return}
+  goTo(from+1);
+}
+
+function onCurriculoChange(){
+  const a=document.getElementById('asig').value,g=document.getElementById('grado').value;
+  const info=document.getElementById('curr-info');
+  const cur=CURRICULO[a]?.[g];
+  if(cur){
+    const comp=cur.competencias.map(c=>c.nombre).join(', ');
+    const areas=cur.areas.join(', ');
+    info.innerHTML=`<strong>Currículo cargado (2026):</strong> ${a} — ${g}. Competencias: ${comp}. Áreas: ${areas}`;
+    info.style.display='block';
+  }else{info.style.display='none'}
+}
+
+function getData(){
+  const semanas = parseInt(document.getElementById('semanas').value)||2;
+  const dias = parseInt(document.getElementById('dias').value)||5;
+  const clases = parseInt(document.getElementById('clases').value)||7;
+  const minutos = parseInt(document.getElementById('minutos').value)||35;
+  const totalDias = semanas * dias;
+  const totalMinutos = semanas * clases * minutos;
+
+  return {
+    regional:document.getElementById('regional').value||'Coclé',
+    centro:document.getElementById('centro').value||'Barrigón',
+    asig:document.getElementById('asig').value,
+    grado:document.getElementById('grado').value,
+    trim:document.getElementById('trim').value,
+    tipo:document.getElementById('tipo').value,
+    semanas, dias, clases, minutos, totalDias, totalMinutos,
+    semana:document.getElementById('semana').value||'del ___ al ___ de __________ 2026',
+    docente:document.getElementById('docente').value||'________________________________',
+    area:document.getElementById('area').value,
+    tema:document.getElementById('tema').value,
+    comp_input:document.getElementById('comp_input').value,
+    conc:document.getElementById('conc').value,
+    proc:document.getElementById('proc').value,
+    acti:document.getElementById('acti').value,
+    ind_input:document.getElementById('ind_input').value,
+    estrategias:getPills('est').join(', ')||'Aprendizaje activo',
+    ed:document.getElementById('ed').value,
+    ef:document.getElementById('ef').value,
+    es:document.getElementById('es').value,
+    ctx:getPills('ctx').join(', ')||'Unigrado',
+    productos:['Secuencia didáctica (Formato N°4)','Planes diarios detallados']
+      .filter((_,i)=>document.getElementById('pr'+(i+1)).classList.contains('gon'))
+  };
+}
+
+// ── Sugerir estrategias según indicadores ──
+function sugerirEstrategias() {
+  const ind = document.getElementById('ind_input').value.toLowerCase();
+  const asig = document.getElementById('asig').value.toLowerCase();
+
+  // Desactivar todas
+  document.querySelectorAll('#est .pill').forEach(p => p.classList.remove('on'));
+
+  const sugeridas = new Set();
+
+  // Por tipo de indicador
+  if (/oral|habla|expres|comunic|diálogo|conversa/.test(ind)) sugeridas.add('Exposición oral').add('Juego de roles');
+  if (/escri|redact|produc|texto|párrafo/.test(ind)) sugeridas.add('Taller de escritura').add('Trabajo práctico');
+  if (/lee|lect|comprens|identif.*texto|extrae/.test(ind)) sugeridas.add('Lectura comprensiva').add('Organizador gráfico');
+  if (/resuelv|problem|operac|calcula|suma|resta|multiplica/.test(ind)) sugeridas.add('Resolución de problemas').add('Trabajo práctico');
+  if (/patrón|secuencia|clasifica|ordena/.test(ind)) sugeridas.add('Aprendizaje cooperativo').add('Juego didáctico');
+  if (/observ|experiment|explora|investig/.test(ind)) sugeridas.add('Método científico').add('Investigación');
+  if (/colabor|equipo|grupo/.test(ind)) sugeridas.add('Aprendizaje cooperativo');
+  if (/mapa|organiza|esquema|concep/.test(ind)) sugeridas.add('Mapa conceptual').add('Organizador gráfico');
+  if (/dramatiz|represent|obra|teatro/.test(ind)) sugeridas.add('Juego de roles').add('Exposición oral');
+  if (/proyecto|crea|diseña|elabora/.test(ind)) sugeridas.add('ABP (proyectos)').add('Aprendizaje basado en retos');
+
+  // Por asignatura si no hay indicadores
+  if (sugeridas.size === 0) {
+    if (/español/.test(asig)) { sugeridas.add('Lectura comprensiva').add('Taller de escritura').add('Exposición oral'); }
+    else if (/matemática/.test(asig)) { sugeridas.add('Resolución de problemas').add('Juego didáctico').add('Trabajo práctico'); }
+    else if (/ciencias naturales/.test(asig)) { sugeridas.add('Método científico').add('Investigación').add('Trabajo práctico'); }
+    else if (/ciencias sociales/.test(asig)) { sugeridas.add('Mapa conceptual').add('Debate guiado').add('Organizador gráfico'); }
+    else { sugeridas.add('Aprendizaje cooperativo').add('Trabajo práctico').add('Juego didáctico'); }
+  }
+
+  // Siempre agregar cooperativo como base
+  sugeridas.add('Aprendizaje cooperativo');
+
+  // Activar las sugeridas
+  document.querySelectorAll('#est .pill').forEach(p => {
+    if (sugeridas.has(p.textContent.trim())) p.classList.add('on');
+  });
+
+  document.getElementById('est-info').innerHTML =
+    `✅ ${sugeridas.size} estrategias sugeridas según tus indicadores. Puedes ajustarlas tocando cada una.`;
+}
+
+// ═══════════════════════════════════════
+//  PROMPTS
+// ═══════════════════════════════════════
+function buildPrompt(tipo,d){
+  const cur=CURRICULO[d.asig]?.[d.grado];
+  const indOficiales = cur?.indicadores?.[d.area];
+  const currCtx=cur?`
+CURRÍCULO OFICIAL MEDUCA 2026 para ${d.asig} — ${d.grado}:
+Competencias disponibles: ${cur.competencias.map(c=>`${c.nombre} (rasgos: ${c.rasgos.join(' | ')})`).join(' / ')}
+Áreas: ${cur.areas.join(', ')}
+Temas del área "${d.area}": ${cur.temas[d.area]?.join(', ')||'según programa'}
+${indOficiales?`
+INDICADORES DE LOGRO OFICIALES DEL PROGRAMA 2026 — ÁREA ${d.area} (seleccionar los relevantes al tema y copiarlos TEXTUALMENTE sin modificar):
+${indOficiales.map((ind,i)=>`${i+1}. ${ind}`).join('\n')}`:''}
+Usa estas competencias, rasgos e indicadores exactos del programa oficial.`:'';
+
+  const base=`Eres experto en planificación educativa según el currículo oficial MEDUCA Panamá (Formato N°4, Actualización 2026).
+Genera contenido REAL, específico y aplicable. Actividades concretas contextualizadas en Panamá.
+${currCtx}
+
+DATOS:
+- Centro: ${d.centro} | Regional: ${d.regional}
+- Asignatura: ${d.asig} | Grado: ${d.grado} | Trimestre: ${d.trim} | Tipo: ${d.tipo}
+- Área: ${d.area||'según programa'} | Tema: ${d.tema}
+- Estrategias: ${d.estrategias}
+- Eval. diagnóstica: ${d.ed} | Formativa: ${d.ef} | Sumativa: ${d.es}
+- Contexto: ${d.ctx} | Horas/semana: ${d.clases}
+
+ELEMENTOS OFICIALES DEL PROGRAMA (usar TEXTUALMENTE, sin modificar ni parafrasear):
+
+COMPETENCIAS (copiar exactamente como aparecen):
+${d.comp_input||'[Seleccionar del currículo oficial según área y tema]'}
+
+CONTENIDO CONCEPTUAL:
+${d.conc||'[Extraer del programa 2026 según tema]'}
+
+CONTENIDO PROCEDIMENTAL:
+${d.proc||'[Extraer del programa 2026 según tema]'}
+
+CONTENIDO ACTITUDINAL:
+${d.acti||'[Extraer del programa 2026 según tema]'}
+
+INDICADORES DE LOGRO (copiar exactamente como aparecen en el programa):
+${d.ind_input||'[Seleccionar del programa oficial según área y tema]'}
+
+REGLA FUNDAMENTAL: Los elementos oficiales de arriba se transcriben textualmente en el planeamiento.
+Los objetivos de aprendizaje los genera la IA, alineados coherentemente con las competencias, contenidos e indicadores oficiales.
+Las actividades, evidencias, criterios e instrumentos los genera la IA con total coherencia con los elementos oficiales.`;
+
+  if(tipo==='secuencia') return base+`
+
+GENERA la Secuencia Didáctica Semanal completa en Formato N°4 oficial MEDUCA.
+Usa exactamente estas secciones etiquetadas:
+
+[COMPETENCIAS]
+Transcribe TEXTUALMENTE las competencias proporcionadas, con sus rasgos exactos.
+Si no se proporcionaron, selecciona las más relevantes del currículo oficial.
+
+[OBJETIVOS]
+Genera 2-3 objetivos de aprendizaje alineados con las competencias, contenidos e indicadores oficiales.
+Estructura: verbo de acción + contenido específico + condición + finalidad.
+Deben derivarse directamente de los indicadores de logro proporcionados.
+
+[CONCEPTUAL]
+Transcribe TEXTUALMENTE el contenido conceptual proporcionado.
+Si no se proporcionó, extrae del programa oficial.
+
+[PROCEDIMENTAL]
+Transcribe TEXTUALMENTE el contenido procedimental proporcionado.
+Si no se proporcionó, extrae del programa oficial.
+
+[ACTITUDINAL]
+Transcribe TEXTUALMENTE el contenido actitudinal proporcionado.
+Si no se proporcionó, extrae del programa oficial.
+
+[INDICADORES]
+Transcribe TEXTUALMENTE los indicadores de logro proporcionados.
+Si no se proporcionaron, selecciona de la lista oficial del programa.
+
+[ACT_INICIO]
+2-3 actividades de inicio (tiempo aprox.). Concretas, con motivación y diagnóstico. Contexto panameño.
+Cada actividad: descripción detallada de lo que hace el estudiante y el docente.
+
+[ACT_DESARROLLO]
+4-5 actividades de desarrollo progresivas usando: ${d.estrategias}.
+Cada actividad: descripción paso a paso, materiales, indicador que evalúa, cómo el docente verifica.
+
+[ACT_CIERRE]
+2-3 actividades de cierre que demuestren logro de indicadores.
+Incluye: síntesis, evaluación formativa (${d.ef}), reflexión metacognitiva.
+
+[EVIDENCIAS_ENTREGABLES]
+Productos concretos que el estudiante entrega (lista •).
+
+[EVIDENCIAS_ACTUACIONES]
+Actuaciones directas observables del estudiante (lista •).
+
+[CRITERIOS]
+5-6 criterios de evaluación derivados de los indicadores (lista •).
+
+[INSTRUMENTO_LISTA]
+Lista de cotejo o escala de valoración para la evaluación diagnóstica o formativa.
+Formato tabla:
+Criterio | Sí | No
+(4-5 criterios observables)
+
+[INSTRUMENTO_RUBRICA]
+Rúbrica analítica para la evaluación sumativa (${d.es}).
+Formato tabla:
+Criterio | Logrado | En proceso | Iniciado
+(4 criterios con descripción de cada nivel)
+
+[INSTRUMENTO_REGISTRO]
+Tabla de registro anecdótico:
+Fecha | Observaciones (esmero y disposición) | Interpretación | Recomendaciones
+(dejar filas en blanco para que el docente complete)
+
+Solo las secciones etiquetadas. Sin texto adicional antes ni después.`;
+
+  // Planes diarios
+  const totalDias = d.totalDias;
+  const minPorPeriodo = d.minutos;
+  const periodosPorSemana = d.clases;
+  const diasPorSemana = d.dias;
+  const minPorDia = Math.round((periodosPorSemana / diasPorSemana) * minPorPeriodo);
+
+  // Distribución progresiva según número de días
+  const distribucion = [];
+  for(let i=1; i<=totalDias; i++){
+    const pct = (i-1)/(totalDias-1||1);
+    let fase;
+    if(pct < 0.15) fase = 'INICIO DEL TEMA';
+    else if(pct < 0.35) fase = 'DESARROLLO 1 — Exploración guiada';
+    else if(pct < 0.55) fase = 'DESARROLLO 2 — Práctica guiada';
+    else if(pct < 0.70) fase = 'DESARROLLO 3 — Práctica independiente';
+    else if(pct < 0.85) fase = 'DESARROLLO 4 — Aplicación y producción';
+    else fase = 'CIERRE — Evaluación y síntesis';
+    const semana = Math.ceil(i/diasPorSemana);
+    distribucion.push({dia:i, semana, fase});
+  }
+
+  return base+`
+
+INSTRUCCIÓN CRÍTICA: Genera EXACTAMENTE ${totalDias} planes diarios (${d.semanas} semana(s) × ${diasPorSemana} días).
+Cada día tiene ${minPorDia} minutos disponibles (${Math.round(periodosPorSemana/diasPorSemana * 10)/10} períodos × ${minPorPeriodo} min).
+
+ESTRUCTURA PROGRESIVA — El contenido evoluciona a lo largo de los días:
+${distribucion.map(({dia,semana,fase})=>`DÍA ${dia} (Semana ${semana}): ${fase}`).join('\n')}
+
+REGLAS PEDAGÓGICAS:
+1. CADA día mantiene los 3 momentos oficiales (Inicio / Desarrollo / Cierre) — estructura FIJA
+2. El INICIO de cada día (salvo el primero) retoma el cierre del día anterior con un repaso breve (5 min)
+3. El DESARROLLO de cada día corresponde a la FASE indicada arriba — el contenido avanza progresivamente
+4. El CIERRE consolida lo trabajado ese día y prepara el siguiente
+5. Las estrategias seleccionadas (${d.estrategias}) se aplican en las actividades de DESARROLLO
+6. Las estrategias se ALINEAN con los indicadores: ${d.ind_input||'según programa'}
+7. La evaluación formativa (${d.ef}) aparece en los días de DESARROLLO 2 y 3
+8. La evaluación sumativa (${d.es}) aparece en el CIERRE final
+
+FORMATO DE CADA DÍA:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+DÍA [N] — [NOMBRE DEL DÍA] | Semana [N] | ${minPorDia} min disponibles
+FASE: [nombre de la fase]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OBJETIVO DEL DÍA: (alineado al indicador trabajado hoy)
+INDICADOR QUE SE TRABAJA HOY: (textual del programa)
+
+INICIO ([X] min):
+Propósito: (activar/repasar según la fase)
+• Actividad: (descripción concreta con tiempo)
+${totalDias > 1 ? '• Repaso del día anterior: (solo desde día 2 en adelante — 5 min)' : ''}
+
+DESARROLLO ([X] min):
+Propósito: (según la fase del día)
+• Actividad 1: (usando estrategia: [estrategia elegida] — descripción detallada)
+• Actividad 2: (variación de la estrategia o complemento)
+Diferenciación: (cómo atender distintos ritmos de aprendizaje)
+
+CIERRE ([X] min):
+Propósito: (consolidar y preparar el siguiente día)
+• Actividad de cierre: (síntesis o mini-producción)
+• Evaluación: ([tipo según la fase] — instrumento: [instrumento])
+• Reflexión metacognitiva: ¿Qué aprendí? ¿Cómo lo aprendí? ¿Para qué me sirve?
+
+RECURSOS: (materiales específicos y concretos)
+EVIDENCIA DEL DÍA: (producto observable)
+TAREA: (opcional — significativa y breve)
+CONEXIÓN CON DÍA ${`SIGUIENTE`}: (qué retomará mañana)
+
+Genera los ${totalDias} días completos con contenido real y concreto, contextualizado en Barrigón, Coclé, Panamá.`;
+
+}
+
+function parseSec(txt){
+  const r={};
+  const re=/\[([A-Z_]+)\]\s*([\s\S]*?)(?=\[[A-Z_]+\]|$)/g;
+  let m;while((m=re.exec(txt))!==null)r[m[1]]=m[2].trim();
+  return r;
+}
+
+// ═══════════════════════════════════════
+//  LLAMADA AL BACKEND
+// ═══════════════════════════════════════
+async function llamarAPI(prompt,maxTokens=2000){
+  const res=await fetch('/api/generar',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({prompt,maxTokens})
+  });
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||`Error ${res.status}`)}
+  const data=await res.json();
+  return data.texto||'';
+}
+
+// ═══════════════════════════════════════
+//  LOADING UI
+// ═══════════════════════════════════════
+function setLoad(title,sub,step){
+  document.getElementById('lt').textContent=title;
+  document.getElementById('ls').textContent=sub;
+  const steps=['Cargando currículo MEDUCA 2026…','Generando Secuencia Didáctica (Formato N°4)…','Generando planes diarios detallados…','Preparando documento…'];
+  document.getElementById('lsteps').innerHTML=steps.map((s,i)=>
+    `<div class="ls ${i<step?'done-s':i===step?'active-s':''}"><div class="dot"></div>${s}</div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════
+//  DATOS GLOBALES
+// ═══════════════════════════════════════
+let wData={};
+
+// ═══════════════════════════════════════
+//  GENERACIÓN PRINCIPAL
+// ═══════════════════════════════════════
+async function generar(){
+  const d=getData();
+  if(!d.asig||!d.grado||!d.tema){alert('Completa Asignatura, Grado y Tema.');return}
+  if(d.productos.length===0){alert('Selecciona al menos un producto.');return}
+
+  goTo(4);
+  document.getElementById('load-box').style.display='block';
+  document.getElementById('res-box').style.display='none';
+  document.getElementById('err-wrap').style.display='none';
+
+  try{
+    let secuencia='',planes='';
+
+    if(d.productos.includes('Secuencia didáctica (Formato N°4)')){
+      setLoad('Generando Secuencia Didáctica…','Competencias, indicadores, actividades e instrumentos…',1);
+      const txt=await llamarAPI(buildPrompt('secuencia',d),2500);
+      const sec=parseSec(txt);
+      wData={
+        regional:d.regional,centro:d.centro,
+        asig:d.asig,grado:d.grado,trim:d.trim,tipo:d.tipo,
+        semana:d.semana,docente:d.docente,horas:d.clases,
+        area:d.area,tema:d.tema,
+        comp:sec.COMPETENCIAS||'',objs:sec.OBJETIVOS||'',
+        conc:sec.CONCEPTUAL||d.conc,proc:sec.PROCEDIMENTAL||d.proc,
+        acti:sec.ACTITUDINAL||d.acti,ind:sec.INDICADORES||'',
+        ini:sec.ACT_INICIO||'',des:sec.ACT_DESARROLLO||'',cie:sec.ACT_CIERRE||'',
+        evidEnt:sec.EVIDENCIAS_ENTREGABLES||'',evidAct:sec.EVIDENCIAS_ACTUACIONES||'',
+        crit:sec.CRITERIOS||'',
+        instrLista:sec.INSTRUMENTO_LISTA||'',
+        instrRubrica:sec.INSTRUMENTO_RUBRICA||'',
+        instrRegistro:sec.INSTRUMENTO_REGISTRO||'',
+        ed:d.ed,ef:d.ef,es:d.es,
+        productos:d.productos
+      };
+    }
+
+    if(d.productos.includes('Planes diarios detallados')){
+      setLoad('Generando planes diarios…',`Diseñando ${d.clases} planes detallados…`,2);
+      planes=await llamarAPI(buildPrompt('diarios',d),3000);
+      wData.planes=planes;
+    }
+
+    setLoad('Listo','Planeamiento generado correctamente.',3);
+    await new Promise(r=>setTimeout(r,400));
+    mostrarResultado(d);
+
+  }catch(e){
+    document.getElementById('load-box').style.display='none';
+    document.getElementById('err-wrap').style.display='block';
+    document.getElementById('err-wrap').innerHTML=`
+      <div class="err-box"><strong>Error al generar</strong><br><br>${e.message}<br><br>
+      <button class="btn btn-s" onclick="goTo(3)">← Volver e intentar</button></div>`;
+  }
+}
+
+// ═══════════════════════════════════════
+//  RENDERIZADO
+// ═══════════════════════════════════════
+function renderSecuencia(){
+  const g=wData;
+  return `MINISTERIO DE EDUCACIÓN
+DIRECCIÓN REGIONAL DE EDUCACIÓN DE ${g.regional.toUpperCase()}
+CENTRO EDUCATIVO ${g.centro.toUpperCase()}
+SECUENCIA DIDÁCTICA SEMANAL O QUINCENAL DE EDUCACIÓN PRIMARIA, PREMEDIA Y MEDIA - UNIGRADO
+
+ASIGNATURA: ${g.asig}    HORAS SEMANALES: ${g.horas}    GRADO: ${g.grado}    DOCENTE(S): ${g.docente}
+SEMANA: ${g.semana}    TRIMESTRE: ${g.trim}
+
+ÁREA: ${g.area||'_______________'}
+
+═══════════════════════════════════════════════════════════════
+COMPETENCIA(S) — Rasgos de la competencia:
+${g.comp}
+
+OBJETIVO(S) DE APRENDIZAJE:
+${g.objs}
+═══════════════════════════════════════════════════════════════
+
+CONTENIDOS:
+• Conceptual:
+${g.conc}
+
+• Procedimental:
+${g.proc}
+
+• Actitudinal:
+${g.acti}
+
+INDICADOR(ES) DE LOGRO:
+${g.ind}
+
+═══════════════════════════════════════════════════════════════
+ACTIVIDADES                           EVALUACIÓN
+═══════════════════════════════════════════════════════════════
+
+Actividad(es) de inicio:
+${g.ini}
+
+Actividad(es) de desarrollo:
+${g.des}
+
+Actividad(es) de cierre:
+${g.cie}
+
+───────────────────────────────────────────────────────────────
+EVIDENCIAS
+Entregables:
+${g.evidEnt}
+
+Actuaciones directas:
+${g.evidAct}
+
+───────────────────────────────────────────────────────────────
+CRITERIOS:
+${g.crit}
+
+───────────────────────────────────────────────────────────────
+TIPO DE EVALUACIÓN / INSTRUMENTOS:
+
+Diagnóstica: ${g.ed}
+Formativa: ${g.ef}
+Sumativa: ${g.es}
+
+═══════════════════════════════════════════════════════════════
+INSTRUMENTOS DE EVALUACIÓN
+═══════════════════════════════════════════════════════════════
+
+${g.instrLista}
+
+${g.instrRubrica}
+
+${g.instrRegistro}
+
+═══════════════════════════════════════════════════════════════
+Observaciones: _______________________________________________
+_______________________________________________
+
+Firma del (los) docente(s): ______________________________
+Firma del Coordinador o Subdirector Técnico Docente: ______________________________`;
+}
+
+function renderPlanes(){return wData.planes||''}
+
+function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+function mostrarResultado(d){
+  document.getElementById('load-box').style.display='none';
+  document.getElementById('res-box').style.display='block';
+
+  document.getElementById('res-chips').innerHTML=
+    [d.asig,d.grado,`Trim. ${d.trim}`,d.ctx,`${d.clases} hrs/sem`]
+    .map(t=>`<span class="chip">${t}</span>`).join('');
+
+  const secciones=[
+    ...(wData.comp?[{titulo:'📋 SECUENCIA DIDÁCTICA SEMANAL — FORMATO N°4',fn:renderSecuencia}]:[]),
+    ...(wData.planes?[{titulo:'🗒 PLANES DIARIOS DETALLADOS',fn:renderPlanes}]:[])
+  ];
+
+  const panesWrap=document.getElementById('rpanes');
+  panesWrap.innerHTML='';
+  const doc=document.createElement('div');
+  doc.id='doc-unico';
+
+  secciones.forEach((s,i)=>{
+    const sep=document.createElement('div');
+    sep.className='doc-sep';
+    sep.textContent=s.titulo;
+    doc.appendChild(sep);
+
+    const bloque=document.createElement('div');
+    bloque.className='out-content';
+    bloque.innerHTML=esc(s.fn());
+    doc.appendChild(bloque);
+
+    if(i<secciones.length-1){
+      const div=document.createElement('div');
+      div.className='doc-divider';
+      doc.appendChild(div);
+    }
+  });
+
+  panesWrap.appendChild(doc);
+  document.getElementById('ok-txt').textContent='Generado con Formato N°4 MEDUCA — listo para exportar';
+}
+
+// ═══════════════════════════════════════
+//  EXPORTAR PDF
+// ═══════════════════════════════════════
+function exportarPDF(){
+  const contents=document.querySelectorAll('.out-content');
+  contents.forEach(c=>{c.dataset.h=c.style.maxHeight;c.style.maxHeight='none';c.style.overflow='visible'});
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{
+      contents.forEach(c=>{c.style.maxHeight=c.dataset.h||'';c.style.overflow=''});
+    },1500);
+  },300);
+}
+
+// ═══════════════════════════════════════
+//  BORRAR CACHÉ
+// ═══════════════════════════════════════
+function borrarCache(){
+  if(confirm('¿Iniciar una nueva sesión? Se borrarán los datos actuales.')){
+    wData={};
+    ['asig','grado','area','tema','comp_input','conc','proc','acti','ind_input','semana','docente'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.value='';
+    });
+    document.getElementById('semanas').value='2';
+    document.getElementById('dias').value='5';
+    document.getElementById('clases').value='7';
+    document.getElementById('minutos').value='35';
+    document.getElementById('est-info').innerHTML='💡 Selecciona las estrategias más adecuadas para tus indicadores de logro. Se alinearán automáticamente con las actividades de desarrollo y la evaluación.';
+    document.querySelectorAll('.pill.on').forEach(p=>p.classList.remove('on'));
+    document.querySelectorAll('.pill.gon').forEach(p=>p.classList.remove('gon'));
+    ['Aprendizaje cooperativo','Juego didáctico','Unigrado'].forEach(txt=>{
+      document.querySelectorAll('.pill').forEach(p=>{if(p.textContent.trim()===txt)p.classList.add('on')});
+    });
+    document.querySelectorAll('#pr1,#pr2').forEach(p=>p.classList.add('gon'));
+    document.getElementById('curr-info').style.display='none';
+    goTo(1);
+  }
+}
+
+// ═══════════════════════════════════════
+//  DESCARGAR WORD (servidor)
+// ═══════════════════════════════════════
+async function descargarWord(){
+  const btn=document.getElementById('btn-word');
+  btn.disabled=true;btn.textContent='⏳ Generando…';
+  try{
+    const res=await fetch('/api/generar',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({accion:'word',datos:wData})
+    });
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||'Error del servidor')}
+    const blob=await res.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=`Planeamiento_${wData.asig||'MEDUCA'}_T${wData.trim||'I'}.docx`.replace(/[°\s]/g,'_');
+    a.click();
+    URL.revokeObjectURL(url);
+    btn.textContent='✓ Descargado';
+    setTimeout(()=>{btn.disabled=false;btn.textContent='⬇ Descargar Word';},3000);
+  }catch(e){
+    btn.disabled=false;btn.textContent='⬇ Descargar Word';
+    alert('Error: '+e.message);
+  }
+}
+
+// ═══════════════════════════════════════
+//  PWA
+// ═══════════════════════════════════════
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();deferredPrompt=e;
+  document.getElementById('install-banner').classList.add('show');
+});
+function instalarPWA(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('install-banner').classList.remove('show')});
+}
+window.addEventListener('appinstalled',()=>document.getElementById('install-banner').classList.remove('show'));
+</script>
+</body>
+</html>
