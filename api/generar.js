@@ -44,28 +44,38 @@ export default async function handler(req, res) {
 //  GENERADOR DE DOCX — Formato N°4 MEDUCA — Landscape
 // ════════════════════════════════════════════════════════════
 function generarDocx(g) {
-  const esc = t => String(t || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  // Limpia markdown: elimina **, *, ##, ### y convierte en texto/negrita
+  function limpiarMd(txt) {
+    return String(txt || '')
+      .replace(/^#{1,6}\s*/gm, '')        // elimina ### ## #
+      .replace(/\*\*([^*]+)\*\*/g, '$1')  // **texto** → texto
+      .replace(/\*([^*]+)\*/g, '$1')      // *texto* → texto
+      .replace(/^[-•]\s*/gm, '• ')        // normaliza bullets
+      .trim();
+  }
 
-  // Colores
-  const AZ = '1F3864', AZC = 'D6E4F0', GR = 'F2F2F2', BL = 'FFFFFF';
+  const esc = t => limpiarMd(String(t || '')).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  // Blanco y negro — sin colores, sin sombreado
+  const NEG = '000000', BL = 'FFFFFF';
 
   // Página landscape: 15840 ancho x 12240 alto (en DXA)
-  // Márgenes: 720 DXA (0.5 pulgada) = ancho disponible: 15840 - 1440 = 14400 DXA
   const W = 14400;
 
-  function borde(color = AZ, sz = 6) {
-    return `<w:top w:val="single" w:sz="${sz}" w:color="${color}"/>
-            <w:bottom w:val="single" w:sz="${sz}" w:color="${color}"/>
-            <w:left w:val="single" w:sz="${sz}" w:color="${color}"/>
-            <w:right w:val="single" w:sz="${sz}" w:color="${color}"/>`;
+  function borde(sz = 4) {
+    return `<w:top w:val="single" w:sz="${sz}" w:color="000000"/>
+            <w:bottom w:val="single" w:sz="${sz}" w:color="000000"/>
+            <w:left w:val="single" w:sz="${sz}" w:color="000000"/>
+            <w:right w:val="single" w:sz="${sz}" w:color="000000"/>`;
   }
 
   function tcPr(w, fill = BL, span = 1, vAlign = 'center') {
     const sp = span > 1 ? `<w:gridSpan w:val="${span}"/>` : '';
+    // Sin sombreado — siempre blanco
     return `<w:tcPr>
       <w:tcW w:w="${w}" w:type="dxa"/>
       ${sp}
-      <w:shd w:val="clear" w:color="auto" w:fill="${fill}"/>
+      <w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>
       <w:vAlign w:val="${vAlign}"/>
       <w:tcBorders>${borde()}</w:tcBorders>
       <w:tcMar>
@@ -91,26 +101,36 @@ function generarDocx(g) {
     </w:pPr>${runs}</w:p>`;
   }
 
+  // parTexto con detección de negritas markdown
   function parTexto(txt, bold = false, size = 16, center = false, color = '000000') {
-    const texto = String(txt || '').trim();
+    const texto = limpiarMd(String(txt || ''));
     if (!texto) return parVacio();
     const lineas = texto.split('\n');
-    if (lineas.length === 1) return par(run(texto, bold, size, color), center);
-    return lineas.map((l, i) => par(run(l || ' ', bold, size, color), center, 0, i < lineas.length - 1 ? 30 : 60)).join('');
+
+    return lineas.map((linea, i) => {
+      const spaceAfter = i < lineas.length - 1 ? 30 : 60;
+      if (!linea.trim()) return parVacio();
+
+      // Detectar si la línea original tenía **negrita** antes de limpiar
+      const lineaOrig = String(txt || '').split('\n')[i] || '';
+      const esTitulo = /^\*\*[^*]/.test(lineaOrig.trim()) || /^#{1,3}/.test(lineaOrig.trim());
+
+      return par(run(linea || ' ', bold || esTitulo, size, color), center, 0, spaceAfter);
+    }).join('');
   }
 
   function celda(contenido, anchoDxa, fill = BL, span = 1, vAlign = 'top') {
-    // Garantizar que siempre haya al menos un párrafo válido
     const contenidoFinal = contenido && contenido.trim() ? contenido : parVacio();
-    return `<w:tc>${tcPr(anchoDxa, fill, span, vAlign)}${contenidoFinal}</w:tc>`;
+    return `<w:tc>${tcPr(anchoDxa, BL, span, vAlign)}${contenidoFinal}</w:tc>`;
   }
 
   function celdaH(txt, anchoDxa, span = 1) {
-    return celda(par(run(txt || '', true, 17, BL), true), anchoDxa, AZ, span);
+    // Encabezado: texto negro en negrita, sin fondo de color
+    return `<w:tc>${tcPr(anchoDxa, BL, span, 'center')}${par(run(txt || '', true, 17, '000000'), true)}</w:tc>`;
   }
 
   function celdaInfo(label, valor, anchoDxa) {
-    return celda(par(run(label || '', true, 15) + run(valor || '', false, 15)), anchoDxa, AZC);
+    return `<w:tc>${tcPr(anchoDxa, BL, 1, 'center')}${par(run(label || '', true, 15) + run(valor || '', false, 15))}</w:tc>`;
   }
 
   function fila(...celdas) { return `<w:tr>${celdas.join('')}</w:tr>`; }
@@ -134,11 +154,11 @@ function generarDocx(g) {
   // ── Tabla encabezado institucional ──
   const tEncabezado = tabla([
     fila(celda(
-      par(run('MINISTERIO DE EDUCACIÓN', true, 20, BL), true, 0, 20) +
-      par(run(`DIRECCIÓN REGIONAL DE EDUCACIÓN DE ${g.regional.toUpperCase()}`, true, 17, BL), true, 0, 20) +
-      par(run(`CENTRO EDUCATIVO ${g.centro.toUpperCase()}`, true, 17, BL), true, 0, 20) +
-      par(run('SECUENCIA DIDÁCTICA SEMANAL O QUINCENAL DE EDUCACIÓN PRIMARIA, PREMEDIA Y MEDIA - UNIGRADO', true, 16, BL), true),
-      W, AZ
+      par(run('MINISTERIO DE EDUCACIÓN', true, 20, '000000'), true, 0, 20) +
+      par(run(`DIRECCIÓN REGIONAL DE EDUCACIÓN DE ${g.regional.toUpperCase()}`, true, 17, '000000'), true, 0, 20) +
+      par(run(`CENTRO EDUCATIVO ${g.centro.toUpperCase()}`, true, 17, '000000'), true, 0, 20) +
+      par(run('SECUENCIA DIDÁCTICA SEMANAL O QUINCENAL DE EDUCACIÓN PRIMARIA, PREMEDIA Y MEDIA - UNIGRADO', true, 16, '000000'), true),
+      W, BL
     ))
   ], [W]);
 
@@ -159,7 +179,7 @@ function generarDocx(g) {
 
   // ── Tabla área ──
   const tArea = tabla([
-    fila(celda(par(run('ÁREA: ' + (g.area || '_______________'), true, 16)), W, AZC))
+    fila(celda(par(run('ÁREA: ' + (g.area || '_______________'), true, 16)), W, BL))
   ], [W]);
 
   // ── Tabla competencias y objetivos ──
@@ -194,10 +214,10 @@ function generarDocx(g) {
   const tActEval = tabla([
     fila(celdaH('ACTIVIDADES', wAct), celdaH('EVALUACIÓN', wEvid + wCrit + wTipo, 3)),
     fila(
-      celda('', wAct, AZC),
-      celda(par(run('EVIDENCIAS', true, 15, AZ), true), wEvid, AZC),
-      celda(par(run('CRITERIOS', true, 15, AZ), true), wCrit, AZC),
-      celda(par(run('TIPO DE EVALUACIÓN / INSTRUMENTOS', true, 15, AZ), true), wTipo, AZC)
+      celda('', wAct, BL),
+      celda(par(run('EVIDENCIAS', true, 15, BL), true), wEvid, BL),
+      celda(par(run('CRITERIOS', true, 15, BL), true), wCrit, BL),
+      celda(par(run('TIPO DE EVALUACIÓN / INSTRUMENTOS', true, 15, BL), true), wTipo, BL)
     ),
     fila(
       celda(
@@ -234,8 +254,8 @@ function generarDocx(g) {
     fila(celdaH('Criterio', wIC1), celdaH('Sí', wIC2), celdaH('No', wIC3)),
     ...filasLista.map(cols => fila(
       celda(parTexto(cols[0] || '', false, 14), wIC1),
-      celda(parTexto(cols[1] || '', false, 14), wIC2, GR),
-      celda(parTexto(cols[2] || '', false, 14), wIC3, GR)
+      celda(parTexto(cols[1] || '', false, 14), wIC2, BL),
+      celda(parTexto(cols[2] || '', false, 14), wIC3, BL)
     ))
   ], [wIC1, wIC2, wIC3]) : '';
 
@@ -259,10 +279,10 @@ function generarDocx(g) {
     fila(celdaH('Registro anecdótico', W, 4)),
     fila(celdaH('Fecha', wReg1), celdaH('Observaciones (Esmero y disposición)', wReg2), celdaH('Interpretación (Nivel de compromiso)', wReg3), celdaH('Recomendaciones', wReg4)),
     fila(
-      celda(parVacio() + parVacio(), wReg1, GR),
-      celda(parVacio() + parVacio(), wReg2, GR),
-      celda(parVacio() + parVacio(), wReg3, GR),
-      celda(parVacio() + parVacio(), wReg4, GR)
+      celda(parVacio() + parVacio(), wReg1, BL),
+      celda(parVacio() + parVacio(), wReg2, BL),
+      celda(parVacio() + parVacio(), wReg3, BL),
+      celda(parVacio() + parVacio(), wReg4, BL)
     ),
     fila(
       celda(parVacio() + parVacio(), wReg1),
@@ -271,16 +291,16 @@ function generarDocx(g) {
       celda(parVacio() + parVacio(), wReg4)
     ),
     fila(
-      celda(parVacio() + parVacio(), wReg1, GR),
-      celda(parVacio() + parVacio(), wReg2, GR),
-      celda(parVacio() + parVacio(), wReg3, GR),
-      celda(parVacio() + parVacio(), wReg4, GR)
+      celda(parVacio() + parVacio(), wReg1, BL),
+      celda(parVacio() + parVacio(), wReg2, BL),
+      celda(parVacio() + parVacio(), wReg3, BL),
+      celda(parVacio() + parVacio(), wReg4, BL)
     )
   ], [wReg1, wReg2, wReg3, wReg4]);
 
   // ── Observaciones y firmas ──
   const tObsFirmas = tabla([
-    fila(celda(par(run('Observaciones: ', true, 15) + run('_______________________________________________', false, 15)), W, GR))
+    fila(celda(par(run('Observaciones: ', true, 15) + run('_______________________________________________', false, 15)), W, BL))
   ], [W]);
 
   const wF1 = Math.round(W / 2), wF2 = W - wF1;
