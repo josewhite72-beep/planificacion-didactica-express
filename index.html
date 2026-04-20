@@ -168,6 +168,7 @@ textarea{resize:vertical;min-height:68px}
           <option>Ciencias Naturales</option><option>Ciencias Sociales</option>
           <option>Inglés</option><option>Religión, Moral y Valores</option>
           <option>Expresiones Artísticas</option><option>Educación Física</option>
+          <option>Expresiones Artísticas</option><option>Educación Física</option>
         </select>
       </div>
       <div class="field">
@@ -261,11 +262,15 @@ textarea{resize:vertical;min-height:68px}
     <div class="g2">
       <div class="field">
         <label>Área del programa</label>
-        <input type="text" id="area" placeholder="Ej: Comunicación oral y escrita">
+        <select id="area" onchange="onAreaChange()">
+          <option value="">Seleccionar área…</option>
+        </select>
       </div>
       <div class="field">
         <label>Tema / Contenido *</label>
-        <input type="text" id="tema" placeholder="Ej: La comunicación escrita — el alfabeto">
+        <select id="tema" onchange="onTemaChange()">
+          <option value="">Seleccionar tema…</option>
+        </select>
       </div>
     </div>
     <div class="field">
@@ -405,7 +410,7 @@ textarea{resize:vertical;min-height:68px}
 // ═══════════════════════════════════════
 const CURRICULO = {
   "Matemática":{"2° grado":{
-    areas:["Aritmética","Álgebra","Sistema de Medidas","Geometría","Estadística y Probabilidad"],
+    areas:["Aritmética","Álgebra","Medidas","Geometría","Estadística y Probabilidad"],
     competencias:[
       {nombre:"Pensamiento lógico-matemático",rasgos:[
         "1. Resuelve operaciones fundamentales en el campo de los números reales, mediante la aplicación de los conceptos matemáticos para responder a situaciones de su entorno.",
@@ -418,6 +423,56 @@ const CURRICULO = {
         "2. Demuestra habilidad para generar nuevas ideas y estrategias para resolver situaciones matemáticas."
       ]}
     ],
+    objetivos_area:{
+      "Aritmética":[
+        "Aplica estrategias de lectura, escritura y descomposición de números naturales menores de 1000 para resolver situaciones contextualizadas, utilizando materiales concretos, gráficos y digitales.",
+        "Analiza la posición de los números naturales en la semirrecta numérica para comprender relaciones de orden y magnitud, mediante actividades de conteo progresivo, regresivo y comparación.",
+        "Emplea operaciones básicas de adición, sustracción y multiplicación con números naturales menores de 1000 para resolver situaciones contextualizadas, de forma individual o en equipo."
+      ],
+      "Álgebra":["Analiza regularidades en secuencias de figuras y números hasta el 99 para predecir elementos faltantes y establecer reglas lógicas de formación en contextos escolares y del entorno cercano."],
+      "Medidas":[
+        "Interpreta la lectura del reloj y la notación horaria (a. m. y p. m.) para relacionar el tiempo con las actividades diarias, utilizando relojes analógicos y digitales como referencia.",
+        "Resuelve situaciones contextualizadas que implican operaciones con la moneda panameña (el balboa) y el dólar estadounidense, mediante el uso de representaciones gráficas, materiales concretos y juegos de simulación.",
+        "Ejecuta mediciones de longitud, capacidad y tiempo con unidades convencionales simples para establecer relaciones cuantitativas utilizando instrumentos básicos y materiales del entorno."
+      ],
+      "Geometría":[
+        "Identifica y distingue elementos geométricos fundamentales como punto, recta, semirrecta y segmento mediante experiencias prácticas de exploración, observación y representación gráfica.",
+        "Construye figuras planas con instrumentos geométricos básicos, reconociendo sus características y clasificándolas según atributos como forma, lados y vértices.",
+        "Reconoce las diferencias entre el círculo y la circunferencia a través de actividades con materiales concretos y su aplicación en entornos reales del entorno escolar y comunitario."
+      ],
+      "Estadística y Probabilidad":["Aplicar técnicas elementales de recolección, organización y representación de datos para interpretar información proveniente de actividades escolares y comunitarias, mediante herramientas gráficas y registros sencillos."]
+    },
+    contenidos:{
+      "Aritmética":{
+        "1. El conjunto de los números naturales menores de 1000":{conceptual:"Representación gráfica y simbólica de los números menores que 1000.",procedimental:"",actitudinal:"Valoración de la utilidad de los números en situaciones contextualizadas.\nAceptación de los errores como parte del proceso de aprendizaje."},
+        "1.1 Relación de orden entre números naturales menores de 1000":{conceptual:"Lectura de números naturales hasta el 999 en forma oral y escrita.\nEscritura de numerales a partir de representaciones gráficas y verbales.",procedimental:"Identificación de patrones de conteo de 2 en 2, de 5 en 5 y de 100 en 100.\nConteo progresivo o regresivo de números naturales menores de 1000.\nUbicación de números en la semirrecta numérica.",actitudinal:"Colaboración en actividades grupales relacionadas al conteo.\nCuriosidad por descubrir patrones numéricos en la semirrecta o en secuencias."},
+        "1.2 Símbolos > (mayor que), < (menor que) o = (igual a)":{conceptual:"Comparación de números naturales utilizando los símbolos >, < o =.",procedimental:"",actitudinal:"Interés por la relación de orden entre las cantidades."},
+        "2. Valor relativo o posicional de números naturales menores de 1000":{conceptual:"Representación de cantidades en forma concreta y gráfica.\nComposición y descomposición de números menores de 1000.",procedimental:"",actitudinal:"Curiosidad por la composición y descomposición numérica."},
+        "1.1. La adición":{conceptual:"Términos.\nSituaciones contextualizadas.",procedimental:"Aplicación de la adición y la sustracción con totales menores de 1000.\nResolución de problemas simples que implican suma, resta o multiplicación.",actitudinal:"Interés por la resolución de problemas que impliquen operaciones básicas.\nConfianza en la aplicación de procedimientos para hallar soluciones matemáticas."},
+        "1.2. La sustracción":{conceptual:"Términos.\nSituaciones contextualizadas.",procedimental:"",actitudinal:""},
+        "1.3. La multiplicación como patrones de sumas repetitivas":{conceptual:"Las tablas de multiplicar del 1 al 6.\nTérminos.\nSituaciones contextualizadas.",procedimental:"Construcción de las tablas de multiplicar del 1 al 6 mediante esquemas visuales o materiales manipulables.",actitudinal:"Aplica estrategias para solucionar multiplicaciones con apoyo en las tablas del 1 al 6.\nValora el uso de los números y las operaciones en situaciones cotidianas."},
+        "2. Números ordinales hasta el 30":{conceptual:"Representación de números ordinales en contextos familiares (primer lugar, segundo, etc.).",procedimental:"Participación en juegos y dinámicas de conteo, ordenamiento y cálculo con números ordinales.\nReconocimiento de la posición de objetos, personas o animales utilizando números ordinales.",actitudinal:""}
+      },
+      "Álgebra":{
+        "1. Patrones de secuencias de figuras y números hasta 99":{conceptual:"Identificación de regularidades en secuencias numéricas y visuales.\nDescripción de la regla de formación de una secuencia.\nConstrucción y continuación de secuencias.",procedimental:"",actitudinal:"Valoración de la lógica en la construcción de patrones y series."}
+      },
+      "Medidas":{
+        "1.1. La Hora":{conceptual:"Lectura del reloj en punto y media hora.",procedimental:"",actitudinal:"Valoración del uso del tiempo en la organización personal y escolar."},
+        "2. El tiempo":{conceptual:"El día.\nLa semana.\nEl mes.\nActividades cotidianas.",procedimental:"Identificación de momentos del día usando a.m. y p.m.\nOrganización de actividades según el día, semana y mes.",actitudinal:"Valoración de la importancia de organizar rutinas diarias según los momentos del día."},
+        "3.1. Operaciones con billetes":{conceptual:"Clasificación de billetes de dólar por valor y composición de cantidades mediante sumas.\nRepresentación de equivalencias y operaciones con billetes.",procedimental:"",actitudinal:"Responsabilidad en el uso de billetes de dólar en actividades simuladas."},
+        "4. Unidades de medida de longitud":{conceptual:"Centímetro.\nMilímetro.",procedimental:"Medición de objetos usando centímetros y milímetros con ayuda de la regla.\nTrazado y comparación de segmentos de diferentes longitudes.\nOrdenación de longitudes según unidad de medida.",actitudinal:"Precisión al realizar mediciones con instrumentos.\nDisposición para colaborar en mediciones grupales."},
+        "5. Medidas de capacidad":{conceptual:"El litro.",procedimental:"Estimación y verificación de capacidad en recipientes de uso común.\nComparación de la capacidad en diferentes recipientes.\nResolución de sumas y restas de medidas de capacidad en litros.",actitudinal:"Interés por la observación de capacidades y volúmenes presentes en su entorno."}
+      },
+      "Geometría":{
+        "1.2 Figuras planas":{conceptual:"Triángulo.\nCuadrado.\nRectángulo.\nCírculo.",procedimental:"Trazado de puntos, segmentos, rectas y semirrectas en papel o pizarra.\nRepresentación del círculo mediante el uso de compás y otros objetos circulares.\nIdentificación de atributos de figuras planas (número de lados, vértices, ángulos).\nConstrucción de figuras planas utilizando instrumentos geométricos.\nClasificación de figuras según sus características geométricas.",actitudinal:"Atención y precisión en el uso de instrumentos geométricos durante el trazado.\nInterés por explorar la geometría en objetos del entorno escolar y cotidiano."},
+        "2. El círculo y la circunferencia":{conceptual:"Distinción entre círculo y circunferencia a partir de actividades prácticas.",procedimental:"",actitudinal:"Precisión en el trazado de la circunferencia y sus elementos."}
+      },
+      "Estadística y Probabilidad":{
+        "1. Técnicas de recolección de datos":{conceptual:"Observaciones.\nEntrevistas.",procedimental:"Simulación de entrevistas y observaciones en eventos del aula.\nElaboración de observaciones y entrevistas.\nRecolección de información.",actitudinal:"Respeto por las ideas de otros al realizar entrevistas o intercambiar datos.\nValoración del intercambio de información como herramienta para aprender."},
+        "2. Tablas de frecuencias":{conceptual:"Construcción de tablas de frecuencias.\nInterpretación de datos organizados en tablas y gráficas.",procedimental:"",actitudinal:"Curiosidad por descubrir patrones o comportamientos a partir de datos observados."},
+        "1. Gráficas: pictograma":{conceptual:"Representación de datos en pictogramas.",procedimental:"",actitudinal:"Disposición para registrar y compartir información con precisión."}
+      }
+    },
     indicadores:{
       "Aritmética":[
         "Representa gráfica y simbólicamente cantidades con números menores que 1000 en situaciones contextualizadas.",
@@ -425,44 +480,62 @@ const CURRICULO = {
         "Escribe números menores de 1000 en ejercicios prácticos.",
         "Realiza conteo progresivo y regresivo de números naturales menores de 1000 utilizando estrategias orales y escritas en situaciones cotidianas.",
         "Ubica números naturales en la semirrecta numérica, empleando conteos progresivos o regresivos de 2 en 2, 5 en 5 y 10 en 10 en actividades lúdicas y colaborativas.",
-        "Descompone números naturales menores de 1000 utilizando materiales concretos o representaciones visuales.",
-        "Compone números menores de 1000 en actividades escritas.",
         "Ordena números naturales menores de 1000 de forma ascendente o descendente en actividades prácticas con apoyo visual.",
         "Compara la equivalencia de cantidades menores que 1000 mediante juegos didácticos y ejercicios lúdicos en clase.",
         "Aplica los símbolos >, <, = en la resolución de ejercicios escritos y orales de comparación de números naturales.",
+        "Descompone números naturales menores de 1000 utilizando materiales concretos o representaciones visuales.",
+        "Compone números menores de 1000 en actividades escritas.",
         "Resuelve adiciones y sustracciones con totales menores de 1000 mediante el uso de representaciones gráficas y simbólicas, en situaciones contextualizadas.",
-        "Aplica estrategias para solucionar multiplicaciones con apoyo en las tablas del 1 al 6, usando patrones repetitivos y representación visual.",
+        "Resuelve multiplicaciones usando tablas del 1 al 6 en un juego de tablero o por equipos.",
         "Relaciona números ordinales con la posición de objetos, personas y animales en diferentes contextos, para expresar ubicación y orden en su entorno cercano hasta el número 30."
       ],
       "Álgebra":[
         "Identifica secuencias numéricas y figurativas hasta el 99 para determinar el patrón.",
         "Explica la regla de formación de una secuencia de figuras y números hasta 99.",
         "Representa mediante símbolos o expresiones numéricas diferentes secuencias.",
+        "Crea secuencias numéricas hasta el 99 a partir de una condición establecida, manteniendo la regularidad del patrón de forma correcta.",
         "Completa secuencia numérica ascendente hasta el 99 prediciendo números en ejercicios y juegos."
       ],
-      "Sistema de Medidas":[
-        "Identifica la posición de las manecillas del reloj, señalando dónde deben estar ubicadas para indicar la hora (en punto, hora y media) en actividades prácticas.",
+      "Medidas":[
+        "Identifica la posición de las manecillas del reloj para indicar la hora (en punto, hora y media) en actividades prácticas.",
+        "Lee horas (en punto y hora y media) en relojes analógicos y digitales en ejercicios visuales.",
+        "Escribe las horas en punto y la hora y media en actividades escritas.",
+        "Identifica eventos diarios en relación con la notación a.m. y p.m. leyendo ejemplos sencillos de horarios.",
+        "Ordena actividades según el día, la semana y el mes relacionándolos con eventos comunes.",
+        "Identifica los billetes de dólar y monedas oficiales de Panamá en diferentes denominaciones para realizar cambios simples en actividades prácticas.",
+        "Realiza operaciones básicas (suma y resta) con billetes de dólar representando cantidades de manera concreta.",
+        "Traza segmentos de una medida dada en centímetros usando la regla en ejercicios en clase.",
+        "Compara longitudes expresadas en diferentes unidades convencionales.",
+        "Ordena longitudes considerando más largo que, más corto que e igual a en diferentes contextos.",
         "Identifica recipientes cuya medida de capacidad se mide en litros en su entorno escolar y familiar.",
         "Compara la capacidad de recipientes en litros, señalando cuál contiene más o menos durante actividades prácticas.",
         "Resuelve sumas y restas de cantidades en litros en contextos cotidianos."
       ],
       "Geometría":[
         "Identifica atributos de figuras planas como número de lados o forma de los ángulos.",
+        "Representa puntos, segmentos, rectas y semirrectas en esquemas o dibujos guiados.",
+        "Construye figuras planas simples haciendo uso de la regla y el compás en situaciones contextualizadas.",
+        "Clasifica figuras geométricas planas según sus características esenciales.",
         "Identifica visualmente el círculo y la circunferencia en dibujos y objetos de su entorno.",
         "Representa el círculo y la circunferencia mediante trazos con regla y compás, explicando la relación entre ambos.",
         "Explica la diferencia entre círculo y circunferencia con apoyo de ejemplos visuales o materiales manipulables."
       ],
       "Estadística y Probabilidad":[
         "Realiza observaciones sencillas en su entorno, registrando datos básicos de manera oral o escrita.",
-        "Aplica observaciones o entrevistas para recolectar datos relacionados con su entorno escolar o familiar."
+        "Aplica observaciones o entrevistas para recolectar datos relacionados con su entorno escolar o familiar.",
+        "Organiza datos sencillos en listas o conteos previos como paso inicial para la elaboración de una tabla de frecuencias.",
+        "Registra información en listas o tablas de frecuencia con orientación del docente.",
+        "Interpreta la información contenida en tablas de frecuencias para responder preguntas y sacar conclusiones.",
+        "Representa datos en pictogramas utilizando símbolos adecuados.",
+        "Interpreta la información obtenida a través de tablas o pictogramas para responder preguntas relacionadas con experiencias cercanas."
       ]
     },
     temas:{
-      "Aritmética":["Números naturales menores de 1000: representación y valor posicional","Relación de orden: semirrecta numérica","Adición y sustracción con reagrupación","Multiplicación: tablas del 1 al 6","Números ordinales hasta el 30","Uso del dinero panameño: compra y cambio"],
-      "Álgebra":["Patrones repetitivos y aditivos hasta el 99","Regularidades numéricas y figurales"],
-      "Sistema de Medidas":["Lectura del reloj analógico y digital, hora y media hora","Medidas de capacidad: el litro"],
-      "Geometría":["Punto, recta, semirrecta y segmento","Figuras planas: triángulo, cuadrado, rectángulo, círculo","El círculo y la circunferencia"],
-      "Estadística y Probabilidad":["Técnicas de recolección de datos: observaciones y entrevistas","Tablas de frecuencias","Representación en gráficos básicos"]
+      "Aritmética":["1. El conjunto de los números naturales menores de 1000","1.1 Relación de orden entre números naturales menores de 1000","1.2 Símbolos > (mayor que), < (menor que) o = (igual a)","2. Valor relativo o posicional de números naturales menores de 1000","1.1. La adición","1.2. La sustracción","1.3. La multiplicación como patrones de sumas repetitivas","2. Números ordinales hasta el 30"],
+      "Álgebra":["1. Patrones de secuencias de figuras y números hasta 99"],
+      "Medidas":["1.1. La Hora","2. El tiempo","3.1. Operaciones con billetes","4. Unidades de medida de longitud","5. Medidas de capacidad"],
+      "Geometría":["1.2 Figuras planas","2. El círculo y la circunferencia"],
+      "Estadística y Probabilidad":["1. Técnicas de recolección de datos","2. Tablas de frecuencias","1. Gráficas: pictograma"]
     }
   }},
   "Español":{"2° grado":{
@@ -479,6 +552,83 @@ const CURRICULO = {
         "6. Aplica técnicas de estudio y organización del tiempo adecuadas a su estilo cognitivo en favor de la comprensión profunda de los contenidos."
       ]}
     ],
+    objetivos_area:{
+      "Comunicación oral y escrita":[
+        "Expresa, de manera oral y escrita, sentimientos, ideas y pensamientos utilizando lenguaje verbal y no verbal para fortalecer sus relaciones interpersonales en contextos familiares y escolares.",
+        "Emplea elementos de la comunicación en diversos textos y situaciones de su entorno para mejorar la claridad y efectividad de su interacción.",
+        "Utiliza la escritura para comunicar experiencias e ideas en diferentes situaciones de su entorno, con el fin de fortalecer sus habilidades y recursos lingüísticos.",
+        "Demuestra dominio en el uso de las letras en mayúscula, minúscula, imprenta y cursiva mediante la escritura de textos breves en diversos contextos comunicativos."
+      ],
+      "Estructura de la lengua":[
+        "Distingue los sustantivos y los artículos en oraciones y textos sencillos para aplicar correctamente la concordancia de género y número en la comunicación oral y escrita.",
+        "Emplea los pronombres personales en sustitución del sustantivo en situaciones comunicativas para evitar repeticiones y dar mayor fluidez al mensaje.",
+        "Analiza el verbo y sus características en oraciones simples para expresar con precisión acciones, estados o procesos en distintos contextos.",
+        "Construye oraciones con sujeto, predicado y el nexo \"y\" en actividades de redacción guiada para comunicar ideas completas, coherentes y cohesionadas."
+      ],
+      "Comprensión lectora":[
+        "Lee textos de distintas tipologías, adecuados a su edad, para comprenderlos y extraer mensajes significativos que enriquezcan su aprendizaje.",
+        "Extrae información explícita e implícita de lo que lee y emite su opinión sobre aspectos de la lectura para apropiarse de la información obtenida de diversas fuentes.",
+        "Compara diversas tipologías textuales según su estructura para identificar sus características y propósitos comunicativos."
+      ],
+      "Apreciación y creación literaria":[
+        "Lee diferentes textos literarios adecuados a su edad para descubrir y desarrollar su capacidad estética y creativa.",
+        "Narra cuentos, anécdotas e historias reales e imaginarias con lenguaje oral para mejorar su interacción y enriquecer su conocimiento cultural y artístico.",
+        "Crea textos literarios sencillos a partir de experiencias de su entorno para desarrollar su habilidad estética y expresiva.",
+        "Potencia su creatividad, originalidad y pensamiento crítico mediante su participación en talleres del Plan Nacional de Lectura.",
+        "Fortalece su identidad nacional a través de la lectura y análisis de obras de autores panameños."
+      ]
+    },
+    contenidos:{
+      "Comunicación oral y escrita":{
+        "1. La comunicación":{conceptual:"Construcción del concepto de comunicación mediante el análisis de casos reales.\nReconocimiento de los elementos de la comunicación (emisor, receptor, mensaje y canal) en mensajes orales y escritos sencillos.",procedimental:"",actitudinal:"Respeto por las ideas de los demás.\nValoración de la importancia de los elementos que intervienen en el proceso de la comunicación."},
+        "2. Comunicación verbal":{conceptual:"Concepto\nCaracterísticas de los mensajes verbales.",procedimental:"Reconocimiento del concepto de comunicación verbal como forma de expresar ideas mediante palabras habladas o escritas.\nIdentificación de las características de los mensajes verbales: claridad, orden, uso de palabras, intención comunicativa.\nInterpretación de mensajes orales y escritos vistos o escuchados en su entorno.",actitudinal:"Seguridad al definir los mensajes verbales.\nInterés por identificar mensajes verbales en su entorno.\nEnriquecimiento personal por medio de los mensajes verbales que recibe de su entorno."},
+        "3. La comunicación no verbal":{conceptual:"Construcción del concepto de comunicación no verbal.",procedimental:"",actitudinal:"Respeto por las diversas formas de comunicación no verbal presentes en su entorno escolar y familiar."},
+        "3.1. Mensajes con códigos no verbales":{conceptual:"Gestos\nImágenes\nSeñales\nSonidos\nColores y símbolos",procedimental:"Análisis de las características del lenguaje no verbal utilizado en las actividades diarias.\nCreación de mensajes utilizando un código no verbal (gestos, imágenes, señales, sonidos, colores y símbolos).\nAplicación del lenguaje no verbal de forma adecuada en interacciones familiares y escolares.",actitudinal:"Interés por identificar mensajes no verbales en su entorno.\nRespeto y creatividad en la elaboración de mensajes con códigos no verbales.\nEmpatía al interpretar y emitir mensajes no verbales en distintos entornos sociales."},
+        "4.1 Tipos de descripciones orales":{conceptual:"De personas\nDe objetos\nDe animales\nDe elementos de la naturaleza.",procedimental:"Construcción del concepto de descripción oral.\nClasificación de los tipos de descripción oral.\nOrganización de ideas en secuencia lógica al momento de realizar una descripción oral.",actitudinal:"Interés por identificar y comprender distintos tipos de descripciones orales.\nAtención a los detalles al realizar descripciones orales.\nInterés por participar en actividades de descripción oral mostrando entusiasmo y creatividad."},
+        "5. La narración oral":{conceptual:"Secuencia narrativa",procedimental:"Identificación de las características de los textos narrativos (cuentos, anécdotas, historias).\nAnálisis de la secuencia narrativa de un texto.\nReconocimiento de la estructura de la narración oral.\nNarración oral de cuentos, anécdotas y relatos.",actitudinal:"Interés por identificar las características de los textos narrativos.\nEntusiasmo por compartir narraciones orales con sus compañeros.\nInterés por reconocer la estructura de la narración oral."},
+        "6.1. La conversación":{conceptual:"",procedimental:"Identificación de las técnicas de comunicación oral (conversación y diálogo).\nDescripción del concepto y las características de la conversación.",actitudinal:"Disposición para aprender sobre las técnicas de comunicación oral.\nEmpatía al escuchar las intervenciones de los demás."},
+        "6.2. El diálogo":{conceptual:"",procedimental:"Análisis del concepto y las características del diálogo.",actitudinal:"Respeto y cortesía en sus intercambios comunicativos.\nTolerancia de las ideas y opiniones expresadas por los demás.\nActitud cordial para lograr soluciones mediante el diálogo."},
+        "7.1. El alfabeto":{conceptual:"Letra imprenta y cursiva,\nMayúscula y minúscula.",procedimental:"Discriminación de las letras del alfabeto español en imprenta y cursiva, en mayúscula y minúscula con su fonema correspondiente.\nUtilización del alfabeto en actividades de lectura y escritura respetando la forma gráfica correspondiente.",actitudinal:"Interés por mejorar la escritura respetando las formas de las letras.\nEsmero por realizar los trazos y grafías de las letras adecuadamente."},
+        "8. Uso de las mayúsculas":{conceptual:"En nombres propios de personas, lugares y mascotas.\nAl principio de un escrito.\nDespués de punto.\nEn el título de un texto.",procedimental:"Enumeración de los usos correctos de la mayúscula en nombres propios, al inicio de un escrito, después de punto y en títulos.\nAplicación de las mayúsculas en textos escritos respetando las normas básicas de uso.",actitudinal:"Disposición para usar adecuadamente las mayúsculas como parte de una escritura clara y ordenada.\nInterés por aplicar correctamente las normas ortográficas en sus escritos."},
+        "9.1 El punto":{conceptual:"Punto y seguido\nPunto y aparte\nPunto final",procedimental:"Aplicación del punto al finalizar oraciones, párrafos y textos breves.",actitudinal:"Responsabilidad en el uso del punto en distintos textos."},
+        "9.2. La coma":{conceptual:"",procedimental:"Empleo de la coma para separar elementos en una enumeración.",actitudinal:"Interés por aplicar correctamente la coma en sus escritos."},
+        "9.3. Los signos de interrogación":{conceptual:"",procedimental:"Utilización de los signos de interrogación para formular preguntas en oraciones.",actitudinal:"Confianza en usar los signos de interrogación en oraciones."},
+        "9.4. Los signos de exclamación":{conceptual:"",procedimental:"Utilización de los signos de exclamación para expresar emociones en oraciones.",actitudinal:"Entusiasmo por usar los signos de exclamación para expresar emociones."},
+        "9.5 Diéresis":{conceptual:"",procedimental:"Aplicación de la diéresis en las sílabas güe y güi para indicar el sonido de la u.",actitudinal:"Interés por reconocer la diéresis como signo que cambia el sonido de las sílabas güe y güi."},
+        "10.1. Sílabas tónicas y átonas":{conceptual:"",procedimental:"Identificación de la sílaba tónica en palabras mediante lectura oral y análisis auditivo.\nDiferenciación entre sílabas tónicas y átonas en palabras de uso común.",actitudinal:"Precisión y cuidado en el reconocimiento de la sílaba tónica en palabras.\nEscucha activa y reflexiva durante la pronunciación de palabras."},
+        "11.1 Acento prosódico":{conceptual:"",procedimental:"Distinción clara entre el acento prosódico y el acento ortográfico (tilde) mediante ejemplos orales y escritos.",actitudinal:"Atención para distinguir el acento prosódico del acento ortográfico o tilde."},
+        "12. El párrafo":{conceptual:"Concepto\nCaracterísticas de forma y fondo",procedimental:"Diferenciación del párrafo como unidad de texto que desarrolla una idea central.\nIdentificación de las características del contenido de un párrafo (idea principal e ideas secundarias).\nRedacción de párrafos sencillos.\nElaboración de párrafos cortos, narrativos y descriptivos.",actitudinal:"Valoración del párrafo como herramienta para expresar ideas con claridad y orden.\nInterés por redactar párrafos sencillos y comprensibles."},
+        "13.1. Elementos de la invitación":{conceptual:"Tipo de actividad\nFecha\nHora\nLugar",procedimental:"Identificación de los elementos básicos de la tarjeta de invitación.\nElaboración de una tarjeta de invitación.",actitudinal:"Entusiasmo al comunicarse con otros por medio de una tarjeta de invitación.\nOriginalidad para crear tarjetas de invitaciones."},
+        "14. Textos instructivos":{conceptual:"Receta.\nInstrucciones de un juego.",procedimental:"Interpretación del propósito de los textos instructivos en contextos cotidianos.\nRedacción de textos instructivos.",actitudinal:"Reflexión sobre la importancia de los textos instructivos.\nDisposición en la redacción de textos instructivos."}
+      },
+      "Estructura de la lengua":{
+        "1.1 Accidentes gramaticales del sustantivo":{conceptual:"Género\nNúmero",procedimental:"Clasificación de sustantivos en propios y comunes a partir de textos o listas de palabras.\nUtilización de sustantivos en la redacción de frases y oraciones.\nDiferenciación de los accidentes gramaticales del sustantivo (género y número).\nConstrucción de oraciones con sustantivos que tienen variaciones de género y número.",actitudinal:"Disposición para discriminar sustantivos en textos.\nConfianza al utilizar sustantivos en la producción textual.\nInterés por comprender los accidentes gramaticales del sustantivo."},
+        "2. El artículo":{conceptual:"Concepto.",procedimental:"Adquisición del concepto de artículo.\nIdentificación de artículos en oraciones y textos cortos.",actitudinal:"Confianza en el reconocimiento del artículo como categoría gramatical.\nPrecisión al identificar artículos."},
+        "2.1 Concordancia entre el sustantivo y el artículo":{conceptual:"",procedimental:"Aplicación correcta de la concordancia entre sustantivo y el artículo en actividades orales y escritas.",actitudinal:"Seguridad en la selección de artículos que concuerdan con el sustantivo."},
+        "3. El pronombre personal":{conceptual:"Concepto",procedimental:"Construcción del concepto de pronombre personal.\nLocalización de pronombres personales en oraciones y textos cortos.\nUtilización de los pronombres personales para reemplazar sustantivos.",actitudinal:"Confianza en el reconocimiento del pronombre como categoría gramatical.\nValoración del pronombre para incrementar su expresión oral y escrita."},
+        "4. El verbo":{conceptual:"Concepto\nCaracterísticas\nImportancia.",procedimental:"Adquisición del concepto de verbo y sus características.\nIdentificación de verbos en oraciones y textos cortos.\nCreación de oraciones orales y escritas a partir de verbos en distintos tiempos y personas gramaticales.",actitudinal:"Confianza en el reconocimiento del verbo como categoría gramatical.\nEsmero en la identificación de verbos en textos cortos.\nInterés por la utilización de verbos en expresiones orales y escritas."},
+        "5.1. Partes de la oración":{conceptual:"Sujeto\nPredicado.",procedimental:"Producción de oraciones con sujeto y predicado, tanto en forma oral como escrita, aplicando coherencia y concordancia.",actitudinal:"Precisión en la distinción del sujeto y el predicado en oraciones."},
+        "6. Nexo \"y\"":{conceptual:"",procedimental:"Empleo del nexo \"y\" para unir palabras y expresiones.",actitudinal:"Valoración del conocimiento del nexo \"y\" para potenciar su expresión oral y escrita."}
+      },
+      "Comprensión lectora":{
+        "1. Lectura comprensiva":{conceptual:"Nivel literal de manera sencilla",procedimental:"Aplicación de estrategias básicas de comprensión lectora.",actitudinal:"Interés por la comprensión del sentido de diferentes textos.\nManifiesta disposición positiva y respeto durante la actividad de lectura y escritura."},
+        "2. Los paratextos":{conceptual:"Externos (título, autor, imagen de portada, editorial).",procedimental:"Reconocimiento de paratextos externos (título, autor, imagen de portada).\nDistingue los paratextos internos (imágenes, títulos y subtítulos) en textos adecuados a su edad.",actitudinal:"Interés por la exploración de los paratextos externos."},
+        "3. Textos literarios y no literarios":{conceptual:"Ficción\nNo ficción",procedimental:"Reconocimiento de las características de los textos de ficción y de no ficción.\nDiferenciación de textos de ficción y no ficción según sus temas y propósitos.",actitudinal:"Interés por el reconocimiento de las características de los textos de ficción y no ficción."},
+        "Textos narrativos":{conceptual:"",procedimental:"Observación de modelos de textos narrativos, informativos y expositivos.\nIdentificación de las características de los textos narrativos.",actitudinal:"Interés por la lectura de textos narrativos.\nEspíritu crítico ante las características y el contenido de los textos narrativos."},
+        "Textos informativos":{conceptual:"",procedimental:"Identificación de las características de los textos informativos.",actitudinal:"Confianza en la identificación de las características de los textos informativos."},
+        "Textos expositivos":{conceptual:"",procedimental:"Identificación de las características de los textos expositivos.",actitudinal:"Interés y cuidado en la caracterización de los textos expositivos."}
+      },
+      "Apreciación y creación literaria":{
+        "1. Textos lúdicos (adivinanzas)":{conceptual:"",procedimental:"Reconocimiento de las características de los textos lúdicos (adivinanzas).\nParticipación en la lectura e interpretación de textos lúdicos.",actitudinal:"Respeto y tolerancia al compartir textos lúdicos.\nEntusiasmo y espontaneidad en la interpretación de textos lúdicos."},
+        "2.1. Estructura de los textos narrativos":{conceptual:"Inicio\nNudo\nDesenlace",procedimental:"Identificación de las partes que componen la estructura de un texto narrativo (inicio, nudo y desenlace).\nRedacción de textos narrativos breves.",actitudinal:"Precisión en la identificación de las partes del texto narrativo.\nCreatividad en la elaboración de textos narrativos."},
+        "2.2. Elementos de los textos narrativos":{conceptual:"Personajes\nAcciones\nLugar\nTiempo",procedimental:"Distinción de los principales elementos del texto narrativo (personajes, acciones, lugar y tiempo).",actitudinal:"Esfuerzo en la identificación de mensajes dentro de los elementos del texto narrativo."},
+        "3. El cuento":{conceptual:"Concepto\nCaracterísticas\nEl cuento como texto narrativo.",procedimental:"Definición del concepto de cuento y sus características.\nDistinción del cuento como un texto narrativo.\nElaboración de cuentos cortos aplicando elementos básicos de la narración.",actitudinal:"Disposición para definir el concepto de cuento.\nValoración del cuento como texto narrativo.\nConstancia en la elaboración de cuentos cortos."},
+        "4. El poema":{conceptual:"Concepto\nCaracterísticas",procedimental:"Definición del concepto de poema y sus características.\nElaboración de poemas a partir de palabras, ilustraciones o temas.",actitudinal:"Sensibilidad y gozo en la lectura de poemas de autores panameños."},
+        "4.1. Estructura del poema":{conceptual:"Verso\nEstrofa",procedimental:"Identificación de los versos y las estrofas de un poema.",actitudinal:"Confianza en el reconocimiento de los versos y las estrofas de un poema."},
+        "5.1. Elementos de la dramatización":{conceptual:"Texto teatral, actores, vestuario y público.",procedimental:"Reconocimiento de los elementos de una dramatización.\nIdentificación de los elementos necesarios para realizar una dramatización.",actitudinal:"Interés por conocer los elementos de una dramatización.\nEntusiasmo en la participación de dramatizaciones."},
+        "5.2. Montaje de una dramatización":{conceptual:"",procedimental:"Dramatización de pequeñas obras y cuentos.",actitudinal:""}
+      }
+    },
     indicadores:{
       "Comunicación oral y escrita":[
         "Explica de manera detallada el concepto de comunicación.",
@@ -488,43 +638,78 @@ const CURRICULO = {
         "Distingue las características de los mensajes verbales (claridad, orden, uso de palabras, intención comunicativa) en textos orales y escritos del entorno escolar.",
         "Explica de forma apropiada el significado de mensajes orales y escritos vistos o escuchados en su entorno.",
         "Explica el concepto de comunicación no verbal en situaciones cotidianas.",
+        "Distingue con seguridad las características de los mensajes no verbales.",
+        "Clasifica mensajes según el código no verbal utilizado en diversos contextos.",
         "Identifica las técnicas de comunicación oral (conversación y diálogo), según sus funciones en situaciones cotidianas.",
         "Distingue las características de la conversación en textos y prácticas comunicativas escolares.",
         "Señala los elementos del diálogo en intercambios comunicativos del entorno escolar.",
         "Identifica las letras del alfabeto en imprenta y cursiva, en mayúscula y minúscula, en actividades de observación y lectura inicial.",
-        "Transcribe palabras con esmero, respetando la forma gráfica de las letras en imprenta y cursiva durante ejercicios de copia."
+        "Escribe letras y palabras aplicando mayúscula y minúscula en ejercicios de copia guiada en su cuaderno.",
+        "Transcribe palabras con esmero, respetando la forma gráfica de las letras en imprenta y cursiva durante ejercicios de copia.",
+        "Identifica las palabras que deben escribirse con mayúscula en oraciones que contienen nombres propios de personas, lugares y mascotas.",
+        "Escribe oraciones y textos breves utilizando letras mayúsculas al inicio de un escrito, después de punto y en títulos.",
+        "Redacta párrafos que inicien con mayúscula y terminen con punto en textos sobre experiencias personales.",
+        "Escribe párrafos con idea principal e ideas secundarias en situaciones cotidianas del entorno escolar.",
+        "Produce párrafos cortos de tipo narrativo y descriptivo, organizando las ideas con coherencia y claridad."
       ],
       "Estructura de la lengua":[
-        "Identifica el nexo 'y' en oraciones simples presentadas en textos breves.",
-        "Redacta oraciones con sujeto, predicado y el nexo 'y' utilizando vocabulario conocido.",
-        "Identifica la sílaba tónica en palabras de uso común durante la lectura oral."
+        "Define de manera oral el concepto de sustantivo.",
+        "Clasifica sustantivos propios y comunes en oraciones dadas, según su tipo.",
+        "Identifica en ejemplos dados los accidentes gramaticales del sustantivo.",
+        "Señala sustantivos con variaciones de género y número en oraciones dadas.",
+        "Construye oraciones sencillas utilizando sustantivos con variaciones de género y número.",
+        "Define el concepto de artículo a partir de una actividad colaborativa guiada.",
+        "Identifica artículos en oraciones y textos breves presentados en clase.",
+        "Emplea artículos adecuados según el género y número del sustantivo en producciones orales y escritas.",
+        "Describe el concepto de pronombre personal a partir de ejemplos concretos.",
+        "Señala pronombres personales en oraciones y textos breves.",
+        "Completa oraciones escritas utilizando pronombres personales que sustituyen a los sustantivos.",
+        "Explica con sus palabras el concepto de verbo y sus características.",
+        "Identifica verbos en oraciones y textos cortos.",
+        "Construye oraciones orales y escritas a partir de verbos en distintos tiempos y personas gramaticales.",
+        "Explica el concepto de oración utilizando ejemplos sencillos.",
+        "Identifica el sujeto y el predicado en oraciones simples.",
+        "Redacta oraciones con sujeto y predicado en forma oral y escrita.",
+        "Identifica el nexo \"y\" en oraciones simples presentadas en textos breves.",
+        "Redacta oraciones con sujeto, predicado y el nexo \"y\" utilizando vocabulario conocido.",
+        "Identifica la sílaba tónica en palabras de uso común durante la lectura oral.",
+        "Distingue la diferencia entre sílaba tónica y sílabas átonas en palabras sencillas."
       ],
       "Comprensión lectora":[
         "Extrae, mediante estrategias de comprensión lectora, información explícita de textos literarios y no literarios.",
-        "Identifica información explícita en textos literarios y no literarios adecuados a su edad.",
         "Identifica en ejemplos dados los paratextos externos (título, autor e imagen de portada).",
+        "Establece con seguridad las características de los textos de ficción y los de no ficción.",
+        "Distingue con precisión textos de ficción de textos de no ficción.",
+        "Lee textos narrativos, informativos y expositivos adecuados para su edad.",
+        "Establece en ejemplos dados las características de los textos narrativos.",
         "Establece en ejemplos dados las características de los textos informativos.",
-        "Establece en ejemplos dados las características de los textos expositivos.",
-        "Identifica las características de las adivinanzas mediante ejercicios prácticos."
+        "Establece en ejemplos dados las características de los textos expositivos."
       ],
       "Apreciación y creación literaria":[
-        "Identifica de manera oral o escrita las características de los textos narrativos (cuentos, anécdotas, historias).",
-        "Distingue con seguridad la secuencia narrativa de un relato.",
-        "Identifica sin dificultad la estructura de la narración oral.",
-        "Define el concepto de dramatización y sus características.",
-        "Identifica de manera detallada los elementos necesarios para realizar una dramatización (texto teatral, actores, vestuario y público).",
+        "Identifica las características de las adivinanzas mediante ejercicios prácticos.",
+        "Explica de forma acertada el concepto y las características de los textos narrativos.",
+        "Identifica las partes que componen la estructura de un texto narrativo (inicio, nudo y desenlace).",
+        "Crea textos narrativos breves aplicando normas ortográficas y de puntuación.",
+        "Reconoce en ejemplos dados los principales elementos del texto narrativo (personajes, acciones, lugar y tiempo).",
+        "Identifica con acierto el cuento como un texto narrativo.",
+        "Construye con sus palabras el concepto de cuento y sus características.",
+        "Escribe cuentos cortos aplicando normas ortográficas y de puntuación.",
+        "Elabora de manera oral y escrita el concepto de poema y sus características.",
+        "Crea poemas a partir de una palabra (acrósticos), de una ilustración o de temas como efemérides y celebraciones escolares.",
+        "Distingue en ejemplos dados los versos y las estrofas de un poema.",
+        "Identifica los elementos necesarios para realizar una dramatización (texto teatral, actores, vestuario y público).",
         "Dramatiza de manera creativa pequeñas obras y cuentos."
       ]
     },
     temas:{
-      "Comunicación oral y escrita":["Elementos de la comunicación","La conversación y el diálogo","El alfabeto: imprenta y cursiva, mayúscula y minúscula","Uso de mayúsculas","La dramatización"],
-      "Estructura de la lengua":["El sustantivo: género y número","El artículo","El pronombre personal","El verbo en oraciones simples","La oración: sujeto y predicado","El nexo 'y'","Signos de puntuación","La sílaba tónica y átona"],
-      "Comprensión lectora":["Lectura comprensiva nivel literal","Los paratextos","Textos narrativos: inicio, nudo, desenlace","Textos informativos y expositivos","Textos lúdicos: adivinanzas"],
-      "Apreciación y creación literaria":["El cuento y la fábula","La poesía: rima y declamación","Trabalenguas y adivinanzas","Creación de textos literarios sencillos","Dramatización"]
+      "Comunicación oral y escrita":["1. La comunicación","2. Comunicación verbal","3. La comunicación no verbal","3.1. Mensajes con códigos no verbales","4.1 Tipos de descripciones orales","5. La narración oral","6.1. La conversación","6.2. El diálogo","7.1. El alfabeto","8. Uso de las mayúsculas","9.1 El punto","9.2. La coma","9.3. Los signos de interrogación","9.4. Los signos de exclamación","9.5 Diéresis","10.1. Sílabas tónicas y átonas","11.1 Acento prosódico","12. El párrafo","13.1. Elementos de la invitación","14. Textos instructivos"],
+      "Estructura de la lengua":["1.1 Accidentes gramaticales del sustantivo","2. El artículo","2.1 Concordancia entre el sustantivo y el artículo","3. El pronombre personal","4. El verbo","5.1. Partes de la oración","6. Nexo \"y\""],
+      "Comprensión lectora":["1. Lectura comprensiva","2. Los paratextos","3. Textos literarios y no literarios","Textos narrativos","Textos informativos","Textos expositivos"],
+      "Apreciación y creación literaria":["1. Textos lúdicos (adivinanzas)","2.1. Estructura de los textos narrativos","2.2. Elementos de los textos narrativos","3. El cuento","4. El poema","4.1. Estructura del poema","5.1. Elementos de la dramatización","5.2. Montaje de una dramatización"]
     }
   }},
   "Ciencias Naturales":{"2° grado":{
-    areas:["Ciencias de la Vida","Ciencias Física y Química","Ciencias de la Tierra y el Universo"],
+    areas:["Ciencias de la Vida","Ciencias Físicas y Químicas","Ciencias de la Tierra y el Universo"],
     competencias:[
       {nombre:"Conocimiento e interacción con el mundo físico",rasgos:[
         "1. Identifica y describe los seres vivos y sus características en el entorno natural panameño.",
@@ -536,29 +721,80 @@ const CURRICULO = {
         "5. Es consciente y responsable de sus éxitos y equivocaciones."
       ]}
     ],
-    indicadores:{
+    objetivos_area:{
       "Ciencias de la Vida":[
-        "Identifica alimentos según su origen (animal o vegetal) y su función en la nutrición, mediante organizadores gráficos.",
-        "Explica cómo los seres vivos responden a estímulos del entorno, como la luz, el sonido o el contacto.",
-        "Clasifica alimentos según su origen y cómo ayudan al cuerpo a crecer, moverse o protegerse."
+        "Explica los procesos vitales de los seres vivos: nutrición, relación y reproducción como mecanismos biológicos para la supervivencia y conservación de su especie.",
+        "Explica la función del sistema digestivo y cómo sus órganos participan en la nutrición, a través de ejemplos cotidianos simples, para mantener un sistema digestivo saludable.",
+        "Clasifica seres vivos según sus estructuras externas, formas de locomoción y lugar donde habitan con el propósito de promover acciones de conservación y cuidado de las especies en su entorno."
       ],
-      "Ciencias Física y Química":[
-        "Describe los fenómenos atmosféricos (sol, lluvia, viento, nubes) y sus efectos sobre los seres vivos.",
-        "Describe fenómenos naturales relacionados con el tiempo atmosférico, tales como diferentes tipos de precipitaciones, temperatura, vientos, nubosidad.",
-        "Compara las características de la estación seca y la lluviosa, así como su relación con los cambios en el ambiente, la vegetación y las actividades de las personas."
+      "Ciencias Físicas y Químicas":[
+        "Describe las características de los estados de la materia (sólido y líquido), a partir de la observación y manipulación de materiales de uso cotidiano, reconociendo su presencia en la vida diaria.",
+        "Distingue las características del sonido a partir de experiencias auditivas, para reconocer y manejar adecuadamente las fuentes y medios que lo propagan.",
+        "Distingue las características de las estaciones, fenómenos climáticos y atmosféricos, señalando sus efectos en la vida cotidiana para tomar acciones en el cuidado del entorno natural."
       ],
       "Ciencias de la Tierra y el Universo":[
         "Describe las características básicas de la luna, las diferencias entre sus fases y la secuencia en que ocurren, para explicar cómo influyen en las actividades humanas y en el ambiente."
       ]
     },
+    contenidos:{
+      "Ciencias de la Vida":{
+        "1.1. Procesos que realizan los seres vivos":{conceptual:"Nutrición.\nRelación.\nReproducción.",procedimental:"Descripción de cómo los seres vivos obtienen y utilizan el alimento para crecer y mantenerse con vida.\nDescripción de cómo los seres vivos responden a estímulos del entorno, como la luz, el sonido o el contacto.\nDistinción de la reproducción de seres vivos mediante la observación de ejemplos sencillos en animales y plantas.",actitudinal:"Demuestra disposición para aprender cómo se alimentan los seres vivos y la importancia de una alimentación saludable.\nCuriosidad por explorar cómo los seres vivos reaccionan a lo que ocurre a su alrededor.\nInterés por los procesos naturales de los seres vivos, como el nacimiento y el crecimiento."},
+        "2.1 Órganos principales del sistema digestivo":{conceptual:"",procedimental:"Identificación de los principales órganos del sistema digestivo mediante la observación de láminas o modelos.",actitudinal:"Curiosidad por aprender sobre el funcionamiento del cuerpo humano."},
+        "2.2 Alimentos según función":{conceptual:"",procedimental:"Clasificación de los alimentos de acuerdo con su función en el cuerpo (energéticos, constructores y reguladores), mediante esquemas o cuadros.",actitudinal:"Interés por mantener una alimentación equilibrada y hábitos saludables."},
+        "2.3 Hábitos saludables":{conceptual:"",procedimental:"Representación de hábitos saludables que favorecen una buena digestión.",actitudinal:"Participación en actividades de grupo con respeto y responsabilidad."},
+        "3.1 Animales: piel, plumas, escamas, garras y caparazón":{conceptual:"",procedimental:"Descripción de las partes externas de diferentes animales y plantas de su entorno.\nIdentificación de las cubiertas corporales de los animales (piel, plumas, escamas, caparazón) y su función protectora.",actitudinal:"Respeto al observar animales y plantas que le rodean.\nCuriosidad por la diversidad de los animales y conciencia de la adaptación de sus cuerpos para protegerse."},
+        "3.2 Formas de locomoción en animales":{conceptual:"",procedimental:"Clasificación de animales según la forma en que se desplazan (correr, caminar, volar, nadar o reptar).",actitudinal:"Interés por las formas en que los animales se mueven y respeto a su diversidad."},
+        "3.3 Plantas: Raíces, tallo, hojas, flores":{conceptual:"",procedimental:"Representación mediante dibujos o modelos de las estructuras externas principales de una planta (raíces, tallo, hojas y flores).\nComparación de las estructuras de diversas plantas.",actitudinal:"Valora la diversidad de las plantas y disposición para conocer sus características."}
+      },
+      "Ciencias Físicas y Químicas":{
+        "4.1 Características: Forma, volumen, rigidez y fluidez":{conceptual:"Comparación de materiales del entorno que se presentan en estado sólido y líquido.\nExploración de cambios simples para identificar diferencias entre sólidos y líquidos.\nClasificación de objetos o sustancias según sus características físicas.",procedimental:"",actitudinal:"Curiosidad por explorar materiales de su entorno.\nDisposición para realizar observaciones detalladas.\nInterés por trabajar en grupo con respeto y colaboración durante las experiencias prácticas."},
+        "5.1 Características del sonido":{conceptual:"Fuerte y suave.\nAgudo y grave.\nLargo y corto.",procedimental:"Exploración de sonidos cotidianos en el aula, escuela o entorno natural, para identificar sus características.",actitudinal:"Apreciación de la diversidad de sonidos que se producen en su entorno."},
+        "5.2 Fuentes del sonido":{conceptual:"",procedimental:"Simulación de sonidos producidos por diversas fuentes usando objetos del entorno y reconocimiento de sus características.",actitudinal:"Muestra interés por escuchar, explorar y experimentar las diferentes fuentes de sonido del entorno."},
+        "5.3 Propagación del sonido":{conceptual:"",procedimental:"Experimentación de la propagación del sonido a través de distintos medios (aire, objetos sólidos y líquidos), mediante actividades prácticas simples.",actitudinal:"Interés por imitar o simular los sonidos de diversas fuentes del entorno."},
+        "6.1 Efectos de los fenómenos atmosféricos sobre los seres vivos":{conceptual:"Observación de los cambios del tiempo atmosférico (sol, lluvia, viento, nubes) en el entorno cercano.",procedimental:"",actitudinal:"Disposición para la observación sistemática de los fenómenos atmosféricos y valoración de sus efectos sobre los seres vivos y el entorno."},
+        "6.2 Estación seca y lluviosa":{conceptual:"",procedimental:"Comparación de las características de la estación seca y la estación lluviosa a partir de experiencias u observaciones directas.\nIdentificación de los efectos de los fenómenos atmosféricos sobre plantas, animales y las actividades humanas.",actitudinal:""}
+      },
+      "Ciencias de la Tierra y el Universo":{
+        "7.1 Apariencia de la Luna":{conceptual:"Luna nueva.\nLuna llena.\nCuarto menguante.\nCuarto creciente.",procedimental:"Observación sistemática de la apariencia de la Luna durante varias noches y registro de sus cambios.\nDescripción de las diferentes fases de la Luna mediante la observación y el uso de imágenes o modelos.",actitudinal:"Manifiesta curiosidad y aprecio por conocer las fases de la Luna y su influencia en las actividades humanas y el ambiente."}
+      }
+    },
+    indicadores:{
+      "Ciencias de la Vida":[
+        "Identifica alimentos según su origen (animal o vegetal) y su función en la nutrición, mediante organizadores gráficos.",
+        "Explica cómo los seres vivos responden a estímulos del entorno, como la luz, el sonido o el movimiento mediante dibujos o esquemas.",
+        "Describe, mediante una secuencia ilustrada, cómo se reproducen los animales o plantas.",
+        "Describe los órganos principales del sistema digestivo y su función, utilizando modelos o representaciones visuales.",
+        "Clasifica los alimentos según su función en el organismo (energéticos, constructores y reguladores), explicando su importancia para el crecimiento y la salud.",
+        "Reconoce y aplica hábitos saludables relacionados con la digestión, como el lavado de manos, la masticación adecuada y el consumo de frutas y verduras.",
+        "Describe las partes externas de distintos animales y plantas del entorno, reconociendo su forma y función.",
+        "Identifica las cubiertas corporales de los animales (piel, plumas, escamas, caparazón), relacionándolas con la protección y adaptación al medio.",
+        "Clasifica animales según su forma de locomoción (caminar, correr, volar, nadar o reptar).",
+        "Reconoce las partes principales de una planta (raíces, tallo, hojas y flores) y explica la función de cada parte."
+      ],
+      "Ciencias Físicas y Químicas":[
+        "Describe las características de los estados sólido y líquido, reconociendo diferencias en forma, volumen, rigidez y fluidez mediante la observación y manipulación de materiales del entorno.",
+        "Clasifica objetos y sustancias en sólidos y líquidos, explicando con sus propias palabras cómo se comportan al tocarlos o moverlos.",
+        "Identifica las características y fuentes del sonido mediante experiencias auditivas y el uso de materiales del entorno.",
+        "Clasifica los sonidos según sus características, fuentes y medios de propagación, reconociendo su impacto en la salud y el ambiente.",
+        "Realiza experimentos para medir la propagación del sonido mediante actividades.",
+        "Describe los fenómenos atmosféricos (sol, lluvia, viento, nubes) y sus efectos sobre los seres vivos.",
+        "Describe fenómenos naturales relacionados con el tiempo atmosférico, tales como diferentes tipos de precipitaciones, temperatura, vientos, nubosidad.",
+        "Compara las características de la estación seca y la lluviosa, así como su relación con los cambios en el ambiente, la vegetación y las actividades de las personas."
+      ],
+      "Ciencias de la Tierra y el Universo":[
+        "Describe las fases de la Luna (nueva, llena, cuarto creciente y cuarto menguante), reconociendo los cambios en su forma y brillo mediante observación directa o con imágenes.",
+        "Desarrolla la observación sistemática de la apariencia de la Luna y registra sus cambios durante varias noches en un calendario lunar escolar.",
+        "Compara las fases de la Luna utilizando dibujos, modelos o dramatizaciones para representar los cambios observados."
+      ]
+    },
     temas:{
-      "Ciencias de la Vida":["Características de los seres vivos: nutrición, relación, reproducción","Sistema digestivo y nutrición","Clasificación de seres vivos según estructura y locomoción","Conservación de especies"],
-      "Ciencias Física y Química":["Propagación del sonido","Fenómenos atmosféricos: sol, lluvia, viento, nubes","Estación seca y lluviosa en Panamá"],
-      "Ciencias de la Tierra y el Universo":["La Luna: características y fases","Influencia de las fases lunares en las actividades humanas"]
+      "Ciencias de la Vida":["1.1. Procesos que realizan los seres vivos","2.1 Órganos principales del sistema digestivo","2.2 Alimentos según función","2.3 Hábitos saludables","3.1 Animales: piel, plumas, escamas, garras y caparazón","3.2 Formas de locomoción en animales","3.3 Plantas: Raíces, tallo, hojas, flores"],
+      "Ciencias Físicas y Químicas":["4.1 Características: Forma, volumen, rigidez y fluidez","5.1 Características del sonido","5.2 Fuentes del sonido","5.3 Propagación del sonido","6.1 Efectos de los fenómenos atmosféricos sobre los seres vivos","6.2 Estación seca y lluviosa"],
+      "Ciencias de la Tierra y el Universo":["7.1 Apariencia de la Luna"]
     }
   }},
   "Ciencias Sociales":{"2° grado":{
-    areas:["Naturaleza y sociedad en el espacio","Interacción del ser humano con el ambiente natural y social","Historia, identidad y patrimonio cultural"],
+    areas:["Naturaleza y sociedad en el espacio","Interacción del ser humano con el ambiente natural y social","Acontecimientos cívicos, ciudadanos e históricos de los pueblos"],
     competencias:[
       {nombre:"Social y ciudadana",rasgos:[
         "1. Reconoce y valora la importancia de la familia y la comunidad en su formación.",
@@ -570,33 +806,76 @@ const CURRICULO = {
         "2. Actúa orientado por principios de honradez, responsabilidad y respeto."
       ]}
     ],
+    objetivos_area:{
+      "Naturaleza y sociedad en el espacio":["Identifica con seguridad el espacio geográfico, los paisajes naturales y culturales, y la estructura del gobierno del corregimiento, para reconocer la importancia de su corregimiento y sus autoridades locales."],
+      "Interacción del ser humano con el ambiente natural y social":[
+        "Identifica con respeto los diferentes grupos humanos del corregimiento y cómo se relacionan entre sí con el fin de valorar la diversidad y la cooperación comunitaria.",
+        "Describe con actitud positiva las actividades económicas primarias, secundarias y ocupaciones presentes en el corregimiento para fomentar el respeto por el trabajo y los recursos naturales.",
+        "Identifica con seguridad las vías de comunicación, medios de transporte y normas de circulación vial para el tránsito correcto en el corregimiento."
+      ],
+      "Acontecimientos cívicos, ciudadanos e históricos de los pueblos":[
+        "Describe con interés los principales acontecimientos históricos y tradiciones del corregimiento y de la nación para fortalecer su identidad local y nacional.",
+        "Analiza con actitud reflexiva y respetuosa, los deberes y derechos de los miembros del corregimiento para valorar su rol en la construcción de una comunidad armoniosa."
+      ]
+    },
+    contenidos:{
+      "Naturaleza y sociedad en el espacio":{
+        "1. Espacio geográfico del corregimiento":{conceptual:"Concepto.\nOrientación y representación del espacio.\nPuntos cardinales.\nMapas, croquis y planos.\nCaracterísticas físicas: forma, superficie, ubicación y límites.\nDivisión política.",procedimental:"Reconocimiento de la forma, tamaño y límites del corregimiento según los puntos cardinales.\nIdentificación del paisaje natural (relieve e hidrografía) y cultural del corregimiento.",actitudinal:"Curiosidad por conocer el tamaño y los límites del corregimiento.\nAprecio por el paisaje natural y cultural del corregimiento."},
+        "2. Paisaje natural y cultural del corregimiento":{conceptual:"Paisaje natural: hidrografía, relieve, accidentes costeros, clima, flora y fauna.\nPaisaje cultural: puentes, edificios, carreteras, otros.",procedimental:"Identificación de los elementos del paisaje natural y cultural del corregimiento.",actitudinal:"Muestra interés por los cambios que han ocurrido en el espacio geográfico del corregimiento."},
+        "3. Estructura del Gobierno del Corregimiento":{conceptual:"Principales autoridades y sus funciones: representante, junta comunal, juez de paz.\nOrganizaciones que contribuyen al progreso del corregimiento: sociales, cívicas, deportivas, salud, otras.",procedimental:"Debate acerca de las funciones de las autoridades y organizaciones cívicas, sociales y deportivas del corregimiento.",actitudinal:"Muestra respeto por las autoridades y organizaciones cívicas, sociales y deportivas del corregimiento."}
+      },
+      "Interacción del ser humano con el ambiente natural y social":{
+        "1. Los grupos humanos del corregimiento":{conceptual:"Grupos originarios.\nAfrodescendientes.\nOtros.\nImportancia.\nCaracterísticas culturales.",procedimental:"Reconocimiento de las manifestaciones culturales de los diferentes grupos humanos del corregimiento.",actitudinal:"Valoración de las culturas y las tradiciones de los diferentes grupos humanos del corregimiento."},
+        "2. Relación entre comunidades del corregimiento":{conceptual:"Económicas.\nSociales.\nCulturales.\nDeportivas.\nOtras.",procedimental:"Diferenciación de las relaciones entre las comunidades del corregimiento.",actitudinal:"Interés por el tipo de relaciones entre las comunidades del corregimiento."},
+        "3. Ocupaciones de los miembros del corregimiento":{conceptual:"",procedimental:"Representación de las ocupaciones de los miembros del corregimiento.",actitudinal:"Valoración de las ocupaciones de los miembros del corregimiento."},
+        "4. Recursos naturales de nuestro corregimiento":{conceptual:"Concepto.\nBeneficios: agua, suelo, flora, fauna, energía solar, energía del viento.\nConservación de los recursos naturales del corregimiento.",procedimental:"Reconocimiento de los recursos naturales que hay en el corregimiento.\nDescripción del uso de los recursos naturales en las actividades del corregimiento.",actitudinal:"Interés por conocer sobre la importancia y conservación de los recursos naturales."},
+        "5. Actividades económicas del corregimiento":{conceptual:"Agricultura, pesca, ganadería, apicultura, industria, comercio.",procedimental:"Reconocimiento de las actividades económicas del corregimiento.",actitudinal:"Valoración de las actividades económicas del corregimiento."},
+        "6. Medios de transporte y vías de comunicación en el corregimiento":{conceptual:"Concepto, importancia y clasificación.\nMedios de transporte: aéreos, terrestres y acuáticos.\nVías de comunicación: aéreas, terrestres y acuáticas.",procedimental:"Reconocimiento de los medios de transporte que circulan por el corregimiento.\nIdentificación de las diversas vías de comunicación que existen en el corregimiento.",actitudinal:"Aprecio por los medios de transporte que circulan por el corregimiento."},
+        "7. Circulación vial":{conceptual:"Concepto.\nNormas de comportamiento de circulación para peatones, conductores, ciclistas y pasajeros.\nSeñales preventivas, informativas y reglamentarias.",procedimental:"Aplicación de las normas de comportamiento vial reconociendo las principales señales de tránsito.",actitudinal:"Curiosidad por conocer las normas de comportamiento para peatones, conductores, pasajeros y ciclistas."}
+      },
+      "Acontecimientos cívicos, ciudadanos e históricos de los pueblos":{
+        "1. Acontecimientos históricos del corregimiento":{conceptual:"Origen, fundación del corregimiento, primeros pobladores, personajes relevantes y manifestaciones culturales.",procedimental:"Comentario sobre el origen del corregimiento y la procedencia de los grupos étnicos.\nRepresentación de los primeros pobladores y personajes destacados del corregimiento.",actitudinal:"Interés por mantener el legado histórico y cultural del corregimiento."},
+        "2. Deberes y derechos de los miembros del corregimiento":{conceptual:"Antecedentes, concepto.\nDeberes y derechos de cada miembro de la familia en el hogar, escuela y corregimiento.\nValores éticos y morales.",procedimental:"Reconocimiento de los deberes y derechos de los miembros de la familia.\nPráctica de valores éticos y morales en su vida diaria.",actitudinal:"Constancia en la práctica de los deberes y derechos para la convivencia armónica."},
+        "3. Símbolos de la Nación":{conceptual:"La Bandera, el Escudo y el Himno Nacional.",procedimental:"Reconocimiento de los Símbolos Patrios como elementos representativos de la nación.\nDescripción del significado de los elementos que componen la Bandera Nacional.",actitudinal:"Respeto y amor por los Símbolos de la Nación."},
+        "4. Elementos representativos de la nacionalidad":{conceptual:"Flor del Espíritu Santo, la moneda, la pollera, el águila arpía.",procedimental:"Reconocimiento de los elementos representativos de la nacionalidad.",actitudinal:"Valoración de los elementos representativos de la nacionalidad."}
+      }
+    },
     indicadores:{
       "Naturaleza y sociedad en el espacio":[
-        "Reconoce y describe el espacio geográfico donde vive, identificando elementos naturales y sociales del entorno.",
-        "Identifica en mapas sencillos elementos básicos como la rosa de los vientos, la escala y la leyenda.",
-        "Describe las características del paisaje natural y social de su comunidad."
+        "Distingue claramente los elementos propios del paisaje natural y cultural de la comunidad.",
+        "Diferencia con seguridad entre un mapa, un croquis y un plano.",
+        "Relaciona con claridad el paisaje natural con el cultural del corregimiento.",
+        "Describe con claridad las funciones y responsabilidades de las autoridades e instituciones del corregimiento."
       ],
       "Interacción del ser humano con el ambiente natural y social":[
-        "Identifica las características de la familia como institución fundamental de la sociedad panameña.",
-        "Reconoce las normas de convivencia en la familia, la escuela y la comunidad.",
-        "Describe las instituciones gubernamentales y los servicios que prestan a la comunidad.",
-        "Identifica los recursos naturales de su entorno y propone acciones para su conservación."
+        "Identifica los diferentes grupos humanos del corregimiento al observar imágenes y fotografías de personas en su comunidad.",
+        "Identifica actividades comunes entre comunidades del corregimiento con disposición para participar y convivir en armonía.",
+        "Identifica con aprecio y respeto las diferentes ocupaciones y profesiones que existen en el corregimiento.",
+        "Explica con certeza qué es el trabajo y su importancia para el desarrollo personal y del corregimiento.",
+        "Identifica con precisión los recursos naturales que hay en el corregimiento.",
+        "Reconoce de forma clara acciones que promueven la conservación y uso racional de los recursos naturales del corregimiento.",
+        "Reconoce en detalle las principales actividades económicas de su corregimiento.",
+        "Clasifica con exactitud las vías de comunicación, los medios de transporte y su importancia para el desarrollo del corregimiento.",
+        "Nombra con precisión las principales señales de tránsito y normas de comportamiento para peatones, conductores, pasajeros y ciclistas del corregimiento."
       ],
-      "Historia, identidad y patrimonio cultural":[
-        "Identifica los símbolos patrios de la República de Panamá y explica su significado.",
-        "Reconoce fechas cívicas importantes de la historia panameña.",
-        "Describe tradiciones y costumbres de su comunidad y región.",
-        "Explica la importancia del Canal de Panamá para el país y el mundo."
+      "Acontecimientos cívicos, ciudadanos e históricos de los pueblos":[
+        "Identifica con facilidad la procedencia de la población, manifestaciones culturales y personajes destacados del corregimiento.",
+        "Identifica con precisión los conceptos de deberes y derechos.",
+        "Explica adecuadamente los derechos y deberes de las familias que viven en el corregimiento.",
+        "Practica de manera coherente valores éticos y morales en su vida diaria.",
+        "Identifica los Símbolos de la Nación (Bandera, Escudo, Himno Nacional) en láminas o espacios cívicos.",
+        "Explica el significado de los colores y elementos de la Bandera Nacional.",
+        "Identifica con seguridad los elementos representativos de la nacionalidad."
       ]
     },
     temas:{
-      "Naturaleza y sociedad en el espacio":["El espacio geográfico","El mapa: elementos básicos, rosa de los vientos","Paisaje natural y social de la comunidad","Accidentes geográficos de Panamá"],
-      "Interacción del ser humano con el ambiente natural y social":["La familia: tipos y roles","Normas de convivencia","Instituciones gubernamentales y servicios","Recursos naturales y conservación"],
-      "Historia, identidad y patrimonio cultural":["Símbolos patrios","Fechas cívicas importantes","Tradiciones y costumbres panameñas","El Canal de Panamá"]
+      "Naturaleza y sociedad en el espacio":["1. Espacio geográfico del corregimiento","2. Paisaje natural y cultural del corregimiento","3. Estructura del Gobierno del Corregimiento"],
+      "Interacción del ser humano con el ambiente natural y social":["1. Los grupos humanos del corregimiento","2. Relación entre comunidades del corregimiento","3. Ocupaciones de los miembros del corregimiento","4. Recursos naturales de nuestro corregimiento","5. Actividades económicas del corregimiento","6. Medios de transporte y vías de comunicación en el corregimiento","7. Circulación vial"],
+      "Acontecimientos cívicos, ciudadanos e históricos de los pueblos":["1. Acontecimientos históricos del corregimiento","2. Deberes y derechos de los miembros del corregimiento","3. Símbolos de la Nación","4. Elementos representativos de la nacionalidad"]
     }
   }},
-  "Religión, Moral y Valores":{"2° grado":{
-    areas:["Valores humanos","Convivencia","Espiritualidad"],
+    "Religión, Moral y Valores":{"2° grado":{
+    areas:["Persona","Familia, Comunidad, Escuela e Iglesia","Naturaleza y Dios"],
     competencias:[
       {nombre:"Social y ciudadana",rasgos:[
         "1. Practica valores de solidaridad, honradez, respeto y tolerancia.",
@@ -607,9 +886,264 @@ const CURRICULO = {
         "4. Demuestra actitud de servicio y cuidado hacia los demás."
       ]}
     ],
+    objetivos_area:{
+      "Persona":[
+        "Representa la igualdad de valor y dignidad de niños y niñas, como creación divina, mediante dibujos o dramatizaciones sencillas, para fomentar y practicar el respeto, la amistad y la inclusión hacia todos sus compañeros y compañeras.",
+        "Identifica con claridad las emociones básicas propias para regular la expresión de manera constructiva, manifestando gratitud a Dios por la vida y por los sentimientos que favorecen el crecimiento personal.",
+        "Visualiza con claridad los valores personales y sociales fundamentales, inspirados en los Diez Mandamientos, para promover el respeto, la tolerancia y la solidaridad en su entorno."
+      ],
+      "Familia, Comunidad, Escuela e Iglesia":[
+        "Describe el rol del núcleo familiar como espacio de amor y diálogo, mediante la identificación de sus integrantes y sus expresiones de afecto, para proponer y aplicar acciones sencillas que fortalezcan la unidad y el respeto mutuo.",
+        "Explica el significado de las principales fiestas cristianas (Adviento, Navidad, Cuaresma y Pascua), mediante la narración de sus historias o la elaboración de un mural, para comprenderlas como momentos de encuentro especial con Dios y la comunidad.",
+        "Demuestra con sencillez el respeto, la ayuda mutua y el perdón en el contexto familiar, para participar con alegría y responsabilidad en la oración familiar como el Padre Nuestro."
+      ],
+      "Naturaleza y Dios":[
+        "Desarrolla actividades concretas para el cuidado del medio ambiente (Creación de Dios), con acciones prácticas que fomenten el respeto y el agradecimiento por la vida.",
+        "Practica hábitos de conservación y cuidado del ambiente, a través de actividades escolares y comunitarias para la protección de la naturaleza en Panamá.",
+        "Valora la naturaleza (plantas y animales) como un regalo de Dios, a través de su descripción, para aplicar acciones sencillas de cuidado y respeto."
+      ]
+    },
+    contenidos:{
+      "Persona":{
+        "1. Hombres y mujeres creados a imagen y semejanza de Dios":{conceptual:"Comprensión de lectura y comentario del relato bíblico sobre la creación del ser humano. Gn 2,26-28.",procedimental:"",actitudinal:"Valoración consciente de sí mismo y de los demás como creación de Dios."},
+        "1.2. Acciones de respeto a la dignidad humana":{conceptual:"Descripción de acciones que fomentan la dignidad humana en diferentes contextos.",procedimental:"",actitudinal:"Práctica constante del respeto, la tolerancia y la solidaridad en el aula."},
+        "1.3. Acciones que van en contra de la dignidad humana":{conceptual:"Participar de acoso escolar a los compañeros y mayores.\nDiscriminar a los demás.\nDecir mentira sobre los demás.",procedimental:"Dramatización de escenas que fomenten el respeto y diálogo con los demás.",actitudinal:"Demostración de honestidad y responsabilidad en las propias acciones."},
+        "2.1. Valores personales":{conceptual:"Respeto a padre y madre.\nHonradez.\nCuidado personal.\nAmabilidad.",procedimental:"Relación de los mandamientos con acciones concretas de la vida diaria.",actitudinal:"Promoción de la convivencia pacífica y del trabajo en equipo con aceptación y expresión respetuosa de las emociones."},
+        "2.2. Aplicación de valores sociales":{conceptual:"La empatía.\nEl compartir.\nSolidaridad.\nCooperación.",procedimental:"Descripción de algunos valores personales y sociales que fomentan el desarrollo personal y la sana convivencia.",actitudinal:""},
+        "3.1. Emociones positivas y negativas":{conceptual:"Alegría vs tristeza.\nAmor vs enojo.\nHumildad vs orgullo.\nSeguridad vs miedo.",procedimental:"Expresión de sentimientos de forma adecuada y consciente en diferentes contextos (verbal y no verbal).",actitudinal:"Expresión de gratitud a Dios por la vida, los valores y las emociones que favorecen el crecimiento personal."},
+        "3.2. Expresión y manejo emocional":{conceptual:"Frases de refuerzos positivos: soy valiente, yo puedo, etc.\nLa oración cristiana.",procedimental:"Reflexión sobre valores y emociones presentes en la parábola del Hijo pródigo.",actitudinal:""},
+        "3.3 Emociones y actitudes de la parábola del hijo pródigo":{conceptual:"Miedo.\nArrepentimiento.\nTristeza.\nVergüenza.\nAlegría.\nAmor.\nPerdón.",procedimental:"",actitudinal:""}
+      },
+      "Familia, Comunidad, Escuela e Iglesia":{
+        "1. La familia como lugar de amor y fe":{conceptual:"Lectura y comentario de textos bíblicos sobre la familia y los valores cristianos.",procedimental:"",actitudinal:"Valoración de la familia como regalo divino y fuente de amor y cuidado."},
+        "1.1. Comunicación con Dios y entre los miembros":{conceptual:"",procedimental:"Representación de dramatizaciones o dibujos de los valores vividos en la familia.",actitudinal:"Práctica de la obediencia, la ayuda mutua, la reconciliación y el respeto en el hogar y la escuela."},
+        "2.1. Orar juntos como muestra de fe":{conceptual:"",procedimental:"Práctica del diálogo como herramienta para resolver conflictos.",actitudinal:"Participación activa y alegre en la oración familiar y las celebraciones cristianas con conciencia espiritual."},
+        "2.2. El Padre Nuestro":{conceptual:"",procedimental:"Aprendizaje y recitación grupal del Padre Nuestro.",actitudinal:"Expresión constante de gratitud hacia Dios por la vida, la familia y la comunidad."},
+        "3. Fiestas Cristianas del año":{conceptual:"Adviento.\nCuaresma y Pasión.\nPascua.\nNavidad.",procedimental:"Investigación y socialización sobre las fiestas que celebra la comunidad.\nIdentificación de los colores, símbolos, lugares y personajes asociados a las fiestas cristianas.",actitudinal:"Apreciación de las fiestas cristianas como expresiones de la riqueza religiosa panameña."}
+      },
+      "Naturaleza y Dios":{
+        "1.1. Dios nos cuida a través de la naturaleza":{conceptual:"Observación y descripción de la naturaleza como manifestación del amor divino. Mateo 6,26. Sal. 19,1",procedimental:"",actitudinal:"Valoración consciente de la naturaleza como obra de Dios y fuente de vida."},
+        "1.2. La naturaleza es un regalo de Dios que debemos cuidar":{conceptual:"",procedimental:"Participación en acciones colectivas de limpieza y orden en el aula, escuela y comunidad.",actitudinal:"Constancia en la práctica de acciones positivas frente al medio ambiente."},
+        "3.1. Organizaciones que protegen el medio ambiente en Panamá":{conceptual:"Miambiente.\nAncón.\nArap.\nMinsa.\nNatura.\nOtras.",procedimental:"Investigación y socialización de información sobre instituciones ambientales en Panamá.\nParticipación en actividades escolares de reciclaje y limpieza.\nElaboración de carteles escolares sobre la conservación ambiental.",actitudinal:"Reconocimiento del trabajo de las instituciones que protegen la naturaleza."},
+        "3.2. Acciones comunitarias para proteger la naturaleza":{conceptual:"Siembra de árboles.\nReciclaje.\nCreación de viveros.\nLimpieza de mares y reciclaje.\nCuidado de áreas verdes.\nCreación de grupos ecológicos.",procedimental:"",actitudinal:""}
+      }
+    },
+    indicadores:{
+      "Persona":[
+        "Participa en un comentario del relato bíblico sobre la creación del ser humano y expresa el valor de la igualdad y la dignidad de las personas.",
+        "Demuestra, a través de asignaciones de trabajos en equipo, valores como el respeto, la tolerancia y la solidaridad con sus compañeros en el aula.",
+        "Explica sobre comportamientos como la tolerancia y el respeto a las opiniones de los demás.",
+        "Reconoce la importancia de los valores personales y sociales inspirados en los 10 Mandamientos y los aplica en acciones cotidianas para favorecer la convivencia pacífica y el respeto hacia los demás.",
+        "Identifica, a través de imágenes, los estados emocionales y su adecuada gestión.",
+        "Descripción de algunos valores y emociones en torno a la parábola del hijo pródigo.",
+        "Identificación de estados emocionales mediante imágenes, expresándolos de forma no verbal."
+      ],
+      "Familia, Comunidad, Escuela e Iglesia":[
+        "Lee textos bíblicos que traten sobre la familia.",
+        "Representa, a través de dramatizaciones o dibujos, los valores cristianos de obediencia, ayuda mutua y diálogo respetuoso.",
+        "Participa activamente en las oraciones escolares, familiares y en las celebraciones cristianas, recitando el Padre Nuestro con los demás.",
+        "Menciona cuál es la oración que reza la familia.",
+        "Dramatiza una escena relacionada con la cuaresma y la pascua."
+      ],
+      "Naturaleza y Dios":[
+        "Describe la belleza y diversidad de la naturaleza.",
+        "Explica con ejemplos que el cuidado de la naturaleza es tarea de todos (familia, escuela y comunidad).",
+        "Investiga las instituciones gubernamentales y organizaciones en Panamá que protegen el medio ambiente.",
+        "Participa activamente en la reforestación y cuidado ambiental de su escuela."
+      ]
+    },
     temas:{
-      "Valores":["La honestidad","El respeto y la tolerancia","La solidaridad","La responsabilidad"],
-      "Convivencia":["Normas de convivencia escolar","La amistad","Resolución pacífica de conflictos"]
+      "Persona":["1. Hombres y mujeres creados a imagen y semejanza de Dios","1.2. Acciones de respeto a la dignidad humana","1.3. Acciones que van en contra de la dignidad humana","2.1. Valores personales","2.2. Aplicación de valores sociales","3.1. Emociones positivas y negativas","3.2. Expresión y manejo emocional","3.3 Emociones y actitudes de la parábola del hijo pródigo"],
+      "Familia, Comunidad, Escuela e Iglesia":["1. La familia como lugar de amor y fe","1.1. Comunicación con Dios y entre los miembros","2.1. Orar juntos como muestra de fe","2.2. El Padre Nuestro","3. Fiestas Cristianas del año"],
+      "Naturaleza y Dios":["1.1. Dios nos cuida a través de la naturaleza","1.2. La naturaleza es un regalo de Dios que debemos cuidar","3.1. Organizaciones que protegen el medio ambiente en Panamá","3.2. Acciones comunitarias para proteger la naturaleza"]
+    }
+  }},
+  "Expresiones Artísticas":{"2° grado":{
+    areas:["Creatividad y artes visuales","Lenguaje corporal en la danza y expresión teatral","Lenguaje musical"],
+    competencias:[
+      {nombre:"Comunicativa",rasgos:[
+        "4. Utiliza el lenguaje de manera artística para expresar su visión personal y su manera particular de comprender el mundo.",
+        "9. Produce diversos tipos de textos con ideas originales, creativas e innovadoras en diversos contextos."
+      ]},
+      {nombre:"Aprender a aprender",rasgos:[
+        "6. Pone en funcionamiento la iniciativa, la imaginación y la creatividad para expresarse mediante códigos artísticos.",
+        "1. Autorregula su proceso de aprendizaje con actitud reflexiva, crítica y constructiva."
+      ]}
+    ],
+    objetivos_area:{
+      "Creatividad y artes visuales":[
+        "Desarrolla la habilidad con la práctica de dibujo y pintura con modelos de su entorno.",
+        "Aplica, mediante el dibujo y la pintura, las diversas tonalidades para estimular su capacidad creadora.",
+        "Construye proyectos sencillos con materiales del entorno para expresar sentimientos y mediante la aplicación de técnicas y proteger el ambiente."
+      ],
+      "Lenguaje corporal en la danza y expresión teatral":[
+        "Fortalece la capacidad y habilidad de la flexibilidad del rango de movimiento para la ejecución de la danza, folclórica y regional."
+      ],
+      "Lenguaje musical":[
+        "Entona cantos y rondas infantiles valorando las tradiciones de su entorno y sus posibilidades vocales.",
+        "Valora las cualidades del sonido mediante cantos infantiles e instrumentos sonoros para el desarrollo de habilidades sensoriales."
+      ]
+    },
+    contenidos:{
+      "Creatividad y artes visuales":{
+        "1. Dibujo":{conceptual:"La línea y su clasificación.\nEl claroscuro.\nVolumen.\nEscala y tonalidad.\nTema: paisaje (rural, urbano, marino o de fantasía).\nTécnicas: marcadores y grafito.",procedimental:"Demostración del dibujo con el tema de paisajes rurales o urbanos a través del trazo de tramas, garabateo y puntos.\nRepresentación de colores con la técnica del puntillismo en temas ecológicos de flora y fauna.",actitudinal:"Participación en panel de juicios estéticos de las obras personales o de sus compañeros.\nGusto por aprender diferentes efectos con la técnica de rotuladores."},
+        "2. Pintura":{conceptual:"Colores primarios y secundarios.\nTema: autorretratos, paisajes y collage.\nMovimientos referentes: Cubismo y Fauvismo.\nArtistas: Pablo Ruiz Picasso, Henri Matisse.",procedimental:"Aplicación de los colores primarios y secundarios en temas de paisajes.\nCreación de collage con elementos reciclados en unión con la pintura al estilo Picasso.\nRepresentación de un autorretrato al estilo fauvista o cubista.",actitudinal:"Valoración y esmero al confeccionar collages creativos y retratos.\nExpresa emociones y experiencias personales a través de la pintura y el collage."},
+        "3. Modelado con plastilina":{conceptual:"De expresión libre, sugerida o relacionada con los movimientos estudiados.\nTemas: mitología, los astros, superhéroes.",procedimental:"Confección de bocetos para sus representaciones tridimensionales.\nCreación de personajes con la técnica de plastilina.",actitudinal:"Manifiesta entusiasmo y curiosidad al participar en actividades de modelado.\nValora el arte como medio para expresar emociones, historias y sueños."},
+        "4. Las Actividades Manuales":{conceptual:"Métodos de doblado.\nConcepto de simetría y asimetría.\nConfección de carritos, lapiceros, floreros, canastas, otros.",procedimental:"Construcción de objetos útiles mediante técnicas básicas de corte, pegado y ensamblaje.\nAplicación de principios de simetría, forma y color en la confección de objetos decorativos.",actitudinal:"Valoración del trabajo manual como expresión de creatividad y esfuerzo personal.\nReconocimiento del trabajo colaborativo como parte del proceso artístico."},
+        "5. Mosaiquillos":{conceptual:"Con papel construcción.\nCon revistas con texturas diversas.",procedimental:"Organización de formas, colores y texturas en composiciones visuales.\nAplicación de técnicas de recorte, pegado y distribución espacial.",actitudinal:"Valoración del arte como medio de expresión personal y grupal.\nFortalecimiento de la autoestima a través de la exposición de sus obras."}
+      },
+      "Lenguaje corporal en la danza y expresión teatral":{
+        "1. Bailes folclóricos regionales":{conceptual:"Pasos básicos: zapateo, vuelta, paseo y seguidilla.\nBaile El punto.\nJuego de rondas: El florón, la pájara pinta, la cinta, las papayas.\nGato Bebón.",procedimental:"Ejecución rítmica de los pasos básicos del baile folclórico panameño.\nEjecución de juegos de rondas dramatizadas de manera colectiva.\nReconocimiento de la estructura musical y coreográfica del baile El Punto.",actitudinal:"Valoración de los bailes folclóricos como parte de la identidad cultural.\nFortalecimiento de la autoestima mediante la participación en presentaciones."},
+        "2. Caracterización simple":{conceptual:"Diálogo básico.\nUso de objetos imaginarios.\nSecuencias narrativas.\nEmociones y gestos.\nPantomima.",procedimental:"Construcción de personajes mediante el uso de objetos, gestos y emociones.\nOrganización de secuencias narrativas simples con inicio, desarrollo y cierre.\nEjercitación de la expresión corporal a través de la pantomima.",actitudinal:"Valoración del juego dramático como medio de expresión y comunicación.\nFortalecimiento de la confianza al participar en dramatizaciones."}
+      },
+      "Lenguaje musical":{
+        "1. La expresión vocal y el canto":{conceptual:"Higiene vocal.\nEl canto y la expresión vocal.\nCantos infantiles, patrióticos y navideños.\nRepertorio: Himno a la Bandera, Soy panameño, Campana sobre campana, Los peces en el río, Mi burrito sabanero, Noche de paz.",procedimental:"Aplicación de hábitos de higiene vocal antes y después del canto.\nInterpretación de cantos infantiles, patrióticos y navideños con intención expresiva.\nExploración de las propiedades del sonido: intensidad, duración, timbre y altura.",actitudinal:"Valoración del canto como forma de comunicación y celebración cultural.\nFortalecimiento de la confianza al participar en cantos colectivos."},
+        "2. Apreciación Musical":{conceptual:"El sonido y sus propiedades.\nEl ritmo.\nPercusión.\nMarcha rítmica.",procedimental:"Identificación de ritmos simples mediante percusión corporal y objetos cotidianos.\nInterpretación de marchas rítmicas con desplazamientos y coordinación grupal.",actitudinal:"Fomento de la atención y el respeto durante la escucha musical.\nDisfrute del ritmo como forma de juego, movimiento y expresión."}
+      }
+    },
+    indicadores:{
+      "Creatividad y artes visuales":[
+        "Traza diferentes tipos de líneas y las combina en el dibujo.",
+        "Identifica líneas relacionándolas en diferentes objetos de su entorno.",
+        "Representa en forma lineal paisajes lineales o con puntillismo.",
+        "Reconoce los colores primarios y secundarios en obras propias y ajenas.",
+        "Aplica los colores primarios y secundarios en la creación de autorretratos, paisajes y collages.",
+        "Identifica características básicas del cubismo y el fauvismo en imágenes y producciones artísticas.",
+        "Explora la plastilina como medio de expresión artística y emocional.",
+        "Modela figuras relacionadas con mitología, astros y superhéroes usando formas básicas y colores diversos.",
+        "Utiliza materiales diversos para confeccionar objetos útiles y decorativos.",
+        "Aplica técnicas básicas de corte, pegado y ensamblaje en sus producciones.",
+        "Recorta formas variadas en papel construcción, revistas y materiales de textura.",
+        "Aplica técnicas básicas de mosaico en la elaboración de imágenes decorativas."
+      ],
+      "Lenguaje corporal en la danza y expresión teatral":[
+        "Realiza pasos básicos de bailes folclóricos con coordinación y entusiasmo.",
+        "Participa en rondas tradicionales respetando el ritmo y la dinámica grupal.",
+        "Reconoce el nombre y características de los juegos de ronda y bailes regionales.",
+        "Representa personajes simples usando gestos, objetos y emociones.",
+        "Organiza secuencias narrativas con coherencia y creatividad.",
+        "Participa en juegos de pantomima con entusiasmo y respeto."
+      ],
+      "Lenguaje musical":[
+        "Practica hábitos básicos de higiene vocal antes de cantar.",
+        "Interpreta cantos infantiles, patrióticos y navideños con entusiasmo y claridad.",
+        "Participa en actividades vocales grupales respetando el ritmo y la melodía.",
+        "Identifica ritmos simples mediante percusión corporal y objetos.",
+        "Participa en marchas rítmicas con coordinación y alegría.",
+        "Valora la música como parte de su entorno y como medio de expresión."
+      ]
+    },
+    temas:{
+      "Creatividad y artes visuales":["1. Dibujo","2. Pintura","3. Modelado con plastilina","4. Las Actividades Manuales","5. Mosaiquillos"],
+      "Lenguaje corporal en la danza y expresión teatral":["1. Bailes folclóricos regionales","2. Caracterización simple"],
+      "Lenguaje musical":["1. La expresión vocal y el canto","2. Apreciación Musical"]
+    }
+  }},
+  "Educación Física":{"2° grado":{
+    areas:["Recreación y desarrollo motor","Fisiología e higiene para la salud y la actividad física","Educación corporal y de movimiento","Bailes y danzas folklóricas","Educación deportiva"],
+    competencias:[
+      {nombre:"Conocimiento e interacción con el mundo físico",rasgos:[
+        "1. Se conoce y se valora a sí mismo y a la familia como institución. Es consciente de sus fortalezas, limitaciones y de las debilidades de su desarrollo.",
+        "5. Mantiene y promueve su salud física, mental y emocional mediante la práctica de hábitos alimenticios, higiénicos y deportivos para fortalecerlas."
+      ]},
+      {nombre:"Social y ciudadana",rasgos:[
+        "1. Practica la solidaridad y la democracia como forma de vida.",
+        "2. Actúa orientado por principios de honradez, responsabilidad, respeto y tolerancia."
+      ]}
+    ],
+    objetivos_area:{
+      "Recreación y desarrollo motor":[
+        "Participa de forma activa y colaborativa en actividades recreativas organizadas, respetando reglas y reconociendo el valor del entorno natural como espacio de juego.",
+        "Reconoce y practica las normas básicas de seguridad al momento de jugar en espacios abiertos y cerrados.",
+        "Realiza diferentes juegos lúdicos mostrando respeto hacia sus compañeros y cuidado de los materiales."
+      ],
+      "Fisiología e higiene para la salud y la actividad física":[
+        "Reconocer y aplicar hábitos de higiene personal, corporal y postural antes, durante y después de la actividad física.",
+        "Identificar señales corporales relacionadas con el esfuerzo físico, el cansancio y la necesidad de descanso.",
+        "Valorar la importancia del autocuidado para el desarrollo saludable del cuerpo durante el crecimiento."
+      ],
+      "Educación corporal y de movimiento":[
+        "Ampliar el repertorio motor mediante actividades que integren la coordinación, lateralidad, ritmo, orientación espacial y el esquema corporal.",
+        "Ejecutar desplazamientos variados y secuencias simples de movimiento, aplicando nociones espaciales básicas como adelante, atrás, arriba y abajo.",
+        "Desarrollar el control postural y la coordinación visomotriz a través de juegos y actividades que incluyan giros, saltos, detenciones y el uso de objetos."
+      ],
+      "Bailes y danzas folklóricas":[
+        "Reconocer la diversidad cultural panameña mediante la ejecución de danzas folklóricas básicas con sentido rítmico y coordinación grupal.",
+        "Identificar pasos, secuencias rítmicas y trajes típicos básicos presentes en danzas folklóricas panameñas.",
+        "Ejecutar de forma sencilla movimientos y estructuras rítmicas en bailes folklóricos, participando en actividades grupales con respeto y entusiasmo."
+      ],
+      "Educación deportiva":[
+        "Aplicar habilidades motrices básicas en contextos de juegos con reglas, favoreciendo el trabajo en equipo y el respeto a los compañeros.",
+        "Reconocer las reglas básicas y la importancia del juego limpio al participar en juegos predeportivos individuales y colectivos.",
+        "Participar en juegos adaptados mostrando coordinación en los desplazamientos, respeto a los compañeros y uso adecuado de los espacios y materiales."
+      ]
+    },
+    contenidos:{
+      "Recreación y desarrollo motor":{
+        "1. Juegos al aire libre y en espacios cerrados":{conceptual:"Bufos, rondas y normas de seguridad básica.\nActividades lúdicas: juegos de carreras y relevos, lanzar y atrapar, coordinación, memoria y asociación.",procedimental:"Realización de juegos en espacios abiertos y cerrados.\nParticipación colaborativa en juegos grupales, respetando reglas y turnos.",actitudinal:"Expresa interés por cuidar el entorno en actividades al aire libre.\nAplica normas de convivencia y seguridad mostrando entusiasmo en actividades recreativas."}
+      },
+      "Fisiología e higiene para la salud y la actividad física":{
+        "1. Higiene personal básica":{conceptual:"",procedimental:"Aplicación de hábitos de higiene antes y después de la actividad.",actitudinal:"Responsabilidad en el cuidado de la higiene personal."},
+        "2. Importancia del descanso y la hidratación":{conceptual:"",procedimental:"Participación en momentos de pausa, hidratación y relajación.",actitudinal:"Valoración de la hidratación como parte de la salud física."},
+        "3. Alimentación saludable":{conceptual:"",procedimental:"Identificación de los alimentos según su función nutricional (energéticos, constructores y reguladores), relacionándolos con su impacto en la actividad física.",actitudinal:"Interés por una alimentación saludable como parte de un estilo de vida sano."},
+        "4. Posturas corporales adecuadas":{conceptual:"De pie, al caminar, al sentarse, al moverse.",procedimental:"Ejecución de posturas corporales correctas en reposo y en movimiento.",actitudinal:"Disposición para corregir su postura."}
+      },
+      "Educación corporal y de movimiento":{
+        "1. Esquema corporal: articulaciones y segmentos corporales":{conceptual:"",procedimental:"Ejecución de desplazamientos variados en diferentes direcciones y niveles.",actitudinal:"Valoración del cuerpo y sus posibilidades de movimiento."},
+        "2. Consolidación de la lateralidad":{conceptual:"",procedimental:"Reproducción de secuencias simples de movimiento corporal.",actitudinal:"Constancia en la mejora de sus habilidades motrices."},
+        "7. Ejercicios de orden":{conceptual:"En fila, en columna, distanciamientos, numeraciones (corrida), formación (círculo, semicírculo).",procedimental:"Ejecución de distintas formas de ubicarse en el espacio.\nRealización de diferentes distanciamientos básicos desde distintas formaciones.",actitudinal:"Se interesa en ejecutar las diversas formaciones básicas.\nSe preocupa en realizar distanciamientos básicos para evitar accidentes."}
+      },
+      "Bailes y danzas folklóricas":{
+        "1. Danzas folklóricas representativas de Panamá":{conceptual:"",procedimental:"Ejecución de secuencias de pasos de danzas folklóricas propias del entorno regional.",actitudinal:"Apreciación del valor cultural de las danzas folklóricas panameñas."},
+        "4. Trajes típicos en danzas folklóricas":{conceptual:"",procedimental:"Representación creativa de una danza folklórica mediante dramatización o desfile.",actitudinal:"Aceptación de las diferencias culturales expresadas en diversas danzas."}
+      },
+      "Educación deportiva":{
+        "1. Juegos predeportivos individuales y colectivos":{conceptual:"Concepto de trabajo en equipo y sus beneficios.\nReglas básicas de juegos deportivos adaptados (mini fútbol, mini baloncesto, otros).\nImportancia del juego limpio y el respeto en la actividad deportiva.\nElementos básicos de orientación espacial y temporal en los juegos.",procedimental:"Aplicación de estrategias básicas en juegos predeportivos.\nEjecución de desplazamientos coordinados en juegos en grupo.\nOrganización de juegos adaptados respetando las reglas.",actitudinal:"Actitudes de respeto en juegos grupales.\nValoración del trabajo colaborativo en equipo.\nDemostración de responsabilidad en el uso de materiales deportivos."}
+      }
+    },
+    indicadores:{
+      "Recreación y desarrollo motor":[
+        "Participa en juegos recreativos de cooperación y en caminatas escolares aplicando las normas de seguridad.",
+        "Representa experiencias recreativas a través de dibujos, redacción de cuentos, dramatización y cantos propios."
+      ],
+      "Fisiología e higiene para la salud y la actividad física":[
+        "Aplica rutinas básicas de higiene personal antes, durante y después de la actividad física y en su vida diaria.",
+        "Reconoce cuándo necesita descansar o hidratarse durante la actividad física.",
+        "Participa activamente en los momentos de pausa, hidratación y relajación con conciencia y responsabilidad.",
+        "Reconoce los alimentos según su función en la actividad física, comprendiendo su importancia para el aporte de energía y la recuperación.",
+        "Mantiene posturas adecuadas en reposo y durante el movimiento con guía docente.",
+        "Utiliza implementos de forma segura y los devuelve ordenadamente al finalizar la clase."
+      ],
+      "Educación corporal y de movimiento":[
+        "Realiza desplazamientos con mayor control y fluidez en espacios variados.",
+        "Demuestra coordinación motriz en ejercicios de combinación de movimientos.",
+        "Aplica movimientos básicos de lateralidad en ejercicios motrices.",
+        "Participa activamente en dinámicas grupales de expresión corporal.",
+        "Utiliza el espacio personal y grupal en actividades físicas con respeto.",
+        "Identifica algunos tipos de formaciones básicas utilizadas en clases.",
+        "Distingue los distanciamientos básicos en diversas formaciones."
+      ],
+      "Bailes y danzas folklóricas":[
+        "Ejecuta coordinadamente movimientos básicos de danzas folklóricas panameñas.",
+        "Describe verbalmente los elementos característicos de una danza típica (música, trajes, región).",
+        "Participa en ensayos y presentaciones grupales de baile típico.",
+        "Describe elementos tradicionales como música, vestimenta y ubicación geográfica de las danzas folklóricas.",
+        "Ejecuta correctamente una secuencia de pasos básicos en pareja o grupo."
+      ],
+      "Educación deportiva":[
+        "Describe las características elementales de juegos predeportivos conocidos.",
+        "Ejecuta secuencias motoras simples dentro de actividades deportivas adaptadas.",
+        "Aplica normas básicas de juego en actividades reglamentadas sencillas.",
+        "Muestra respeto, tolerancia y compañerismo en situaciones de juego en equipo.",
+        "Participa con responsabilidad y constancia en las actividades deportivas escolares."
+      ]
+    },
+    temas:{
+      "Recreación y desarrollo motor":["1. Juegos al aire libre y en espacios cerrados"],
+      "Fisiología e higiene para la salud y la actividad física":["1. Higiene personal básica","2. Importancia del descanso y la hidratación","3. Alimentación saludable","4. Posturas corporales adecuadas"],
+      "Educación corporal y de movimiento":["1. Esquema corporal: articulaciones y segmentos corporales","2. Consolidación de la lateralidad","7. Ejercicios de orden"],
+      "Bailes y danzas folklóricas":["1. Danzas folklóricas representativas de Panamá","4. Trajes típicos en danzas folklóricas"],
+      "Educación deportiva":["1. Juegos predeportivos individuales y colectivos"]
     }
   }}
 };
@@ -641,12 +1175,75 @@ function onCurriculoChange(){
   const a=document.getElementById('asig').value,g=document.getElementById('grado').value;
   const info=document.getElementById('curr-info');
   const cur=CURRICULO[a]?.[g];
+
+  // Llenar selector de áreas
+  const areaSelect=document.getElementById('area');
+  areaSelect.innerHTML='<option value="">Seleccionar área…</option>';
+  const temaSelect=document.getElementById('tema');
+  temaSelect.innerHTML='<option value="">Seleccionar tema…</option>';
+
   if(cur){
+    cur.areas.forEach(ar=>{
+      const opt=document.createElement('option');
+      opt.value=ar; opt.textContent=ar;
+      areaSelect.appendChild(opt);
+    });
     const comp=cur.competencias.map(c=>c.nombre).join(', ');
-    const areas=cur.areas.join(', ');
-    info.innerHTML=`<strong>Currículo cargado (2026):</strong> ${a} — ${g}. Competencias: ${comp}. Áreas: ${areas}`;
+    info.innerHTML=`<strong>Currículo 2026 cargado:</strong> ${a} — ${g} | Áreas: ${cur.areas.join(', ')}`;
     info.style.display='block';
-  }else{info.style.display='none'}
+  }else{
+    info.style.display='none';
+  }
+}
+
+function onAreaChange(){
+  const a=document.getElementById('asig').value;
+  const g=document.getElementById('grado').value;
+  const area=document.getElementById('area').value;
+  const cur=CURRICULO[a]?.[g];
+  if(!cur||!area) return;
+
+  // Llenar selector de temas
+  const temas=cur.temas?.[area]||cur.contenidos?.[area];
+  const temaSelect=document.getElementById('tema');
+  if(temas && temaSelect.tagName==='SELECT'){
+    temaSelect.innerHTML='<option value="">Seleccionar tema…</option>';
+    const keys=Array.isArray(temas)?temas:Object.keys(temas);
+    keys.forEach(t=>{
+      const opt=document.createElement('option');
+      opt.value=t; opt.textContent=t;
+      temaSelect.appendChild(opt);
+    });
+  }
+
+  // Autocompletar objetivos del área
+  const objArea=cur.objetivos_area?.[area];
+  if(objArea){
+    document.getElementById('obj_input').value=objArea.join('\n');
+  }
+}
+
+function onTemaChange(){
+  const a=document.getElementById('asig').value;
+  const g=document.getElementById('grado').value;
+  const area=document.getElementById('area').value;
+  const tema=document.getElementById('tema').value;
+  const cur=CURRICULO[a]?.[g];
+  if(!cur||!area||!tema) return;
+
+  // Autocompletar contenidos del tema
+  const cont=cur.contenidos?.[area]?.[tema];
+  if(cont){
+    if(cont.conceptual) document.getElementById('conc').value=cont.conceptual;
+    if(cont.procedimental) document.getElementById('proc').value=cont.procedimental;
+    if(cont.actitudinal) document.getElementById('acti').value=cont.actitudinal;
+  }
+
+  // Autocompletar indicadores del área (todos disponibles — docente selecciona los relevantes)
+  const inds=cur.indicadores?.[area];
+  if(inds && !document.getElementById('ind_input').value){
+    document.getElementById('ind_input').value=inds.join('\n');
+  }
 }
 
 function getData(){
@@ -1200,9 +1797,14 @@ function exportarPDF(){
 function borrarCache(){
   if(confirm('¿Iniciar una nueva sesión? Se borrarán los datos actuales.')){
     wData={};
-    ['asig','grado','area','tema','obj_input','comp_input','conc','proc','acti','ind_input','semana','docente'].forEach(id=>{
+    ['obj_input','comp_input','conc','proc','acti','ind_input','semana','docente'].forEach(id=>{
       const el=document.getElementById(id);if(el)el.value='';
     });
+    ['asig','grado'].forEach(id=>{
+      const el=document.getElementById(id);if(el)el.value='';
+    });
+    document.getElementById('area').innerHTML='<option value="">Seleccionar área…</option>';
+    document.getElementById('tema').innerHTML='<option value="">Seleccionar tema…</option>';
     document.getElementById('semanas').value='2';
     document.getElementById('dias').value='5';
     document.getElementById('clases').value='7';
