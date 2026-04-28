@@ -262,15 +262,13 @@ textarea{resize:vertical;min-height:68px}
     <div class="g2">
       <div class="field">
         <label>Área del programa</label>
-        <select id="area" onchange="onAreaChange()">
-          <option value="">Seleccionar área…</option>
-        </select>
+        <input type="text" id="area" list="area-list" placeholder="Seleccionar o escribir área…" onchange="onAreaChange()" oninput="onAreaChange()">
+        <datalist id="area-list"></datalist>
       </div>
       <div class="field">
         <label>Tema / Contenido *</label>
-        <select id="tema" onchange="onTemaChange()">
-          <option value="">Seleccionar tema…</option>
-        </select>
+        <input type="text" id="tema" list="tema-list" placeholder="Seleccionar o escribir tema…" onchange="onTemaChange()" oninput="onTemaChange()">
+        <datalist id="tema-list"></datalist>
       </div>
     </div>
     <div class="field">
@@ -1225,27 +1223,23 @@ function onCurriculoChange(){
   const info=document.getElementById('curr-info');
   const cur=CURRICULO[a]?.[g];
 
-  const areaSelect=document.getElementById('area');
-  const temaSelect=document.getElementById('tema');
-  areaSelect.innerHTML='<option value="">Seleccionar área…</option>';
-  temaSelect.innerHTML='<option value="">Seleccionar tema…</option>';
+  // Reset inputs and datalists
+  document.getElementById('area').value='';
+  document.getElementById('tema').value='';
+  document.getElementById('area-list').innerHTML='';
+  document.getElementById('tema-list').innerHTML='';
 
   if(cur){
     cur.areas.forEach(ar=>{
       const opt=document.createElement('option');
-      opt.value=ar; opt.textContent=ar;
-      areaSelect.appendChild(opt);
+      opt.value=ar;
+      document.getElementById('area-list').appendChild(opt);
     });
     info.innerHTML=`<strong>Currículo 2026 cargado:</strong> ${a} — ${g} | Áreas: ${cur.areas.join(', ')}`;
     info.style.display='block';
   }else{
-    // No curriculo for this grade — allow free text
-    info.innerHTML=`<strong>Nota:</strong> Currículo de ${g} no cargado aún. Completa los campos manualmente.`;
+    info.innerHTML=`<strong>Nota:</strong> Currículo de ${g} no disponible. Escribe el área y tema manualmente.`;
     info.style.display='block';
-    // Add a free-text option so user can type
-    const opt=document.createElement('option');
-    opt.value='Libre'; opt.textContent='Escribir manualmente…';
-    areaSelect.appendChild(opt);
   }
 }
 
@@ -1254,23 +1248,18 @@ function onAreaChange(){
   const g=document.getElementById('grado').value;
   const area=document.getElementById('area').value;
   const cur=CURRICULO[a]?.[g];
-  const temaSelect=document.getElementById('tema');
-  temaSelect.innerHTML='<option value="">Seleccionar tema…</option>';
 
-  if(!cur||!area||area==='Libre'){
-    // Add a free text option
-    const opt=document.createElement('option');
-    opt.value='Libre'; opt.textContent='Escribir manualmente…';
-    temaSelect.appendChild(opt);
-    return;
-  }
+  document.getElementById('tema').value='';
+  document.getElementById('tema-list').innerHTML='';
+
+  if(!cur||!area) return;
 
   const temas=cur.temas?.[area];
   if(temas){
     temas.forEach(t=>{
       const opt=document.createElement('option');
-      opt.value=t; opt.textContent=t;
-      temaSelect.appendChild(opt);
+      opt.value=t;
+      document.getElementById('tema-list').appendChild(opt);
     });
   }
 
@@ -1860,14 +1849,14 @@ function exportarPDF(){
 function borrarCache(){
   if(confirm('¿Iniciar una nueva sesión? Se borrarán los datos actuales.')){
     wData={};
-    ['obj_input','comp_input','conc','proc','acti','ind_input','semana','docente'].forEach(id=>{
+    ['obj_input','comp_input','conc','proc','acti','ind_input','semana','docente','area','tema'].forEach(id=>{
       const el=document.getElementById(id);if(el)el.value='';
     });
     ['asig','grado'].forEach(id=>{
       const el=document.getElementById(id);if(el)el.value='';
     });
-    document.getElementById('area').innerHTML='<option value="">Seleccionar área…</option>';
-    document.getElementById('tema').innerHTML='<option value="">Seleccionar tema…</option>';
+    document.getElementById('area-list').innerHTML='';
+    document.getElementById('tema-list').innerHTML='';
     document.getElementById('semanas').value='2';
     document.getElementById('dias').value='5';
     document.getElementById('clases').value='7';
