@@ -1216,7 +1216,7 @@ function goTo(n){
 
 function goNext(from){
   if(from===1&&(!document.getElementById('asig').value||!document.getElementById('grado').value)){alert('Selecciona Asignatura y Grado.');return}
-  if(from===2&&!document.getElementById('tema').value.trim()){alert('Ingresa el Tema / Contenido.');return}
+  if(from===2&&!document.getElementById('tema').value){alert('Selecciona o ingresa el Tema / Contenido.');return}
   goTo(from+1);
 }
 
@@ -1225,10 +1225,9 @@ function onCurriculoChange(){
   const info=document.getElementById('curr-info');
   const cur=CURRICULO[a]?.[g];
 
-  // Llenar selector de áreas
   const areaSelect=document.getElementById('area');
-  areaSelect.innerHTML='<option value="">Seleccionar área…</option>';
   const temaSelect=document.getElementById('tema');
+  areaSelect.innerHTML='<option value="">Seleccionar área…</option>';
   temaSelect.innerHTML='<option value="">Seleccionar tema…</option>';
 
   if(cur){
@@ -1237,11 +1236,16 @@ function onCurriculoChange(){
       opt.value=ar; opt.textContent=ar;
       areaSelect.appendChild(opt);
     });
-    const comp=cur.competencias.map(c=>c.nombre).join(', ');
     info.innerHTML=`<strong>Currículo 2026 cargado:</strong> ${a} — ${g} | Áreas: ${cur.areas.join(', ')}`;
     info.style.display='block';
   }else{
-    info.style.display='none';
+    // No curriculo for this grade — allow free text
+    info.innerHTML=`<strong>Nota:</strong> Currículo de ${g} no cargado aún. Completa los campos manualmente.`;
+    info.style.display='block';
+    // Add a free-text option so user can type
+    const opt=document.createElement('option');
+    opt.value='Libre'; opt.textContent='Escribir manualmente…';
+    areaSelect.appendChild(opt);
   }
 }
 
@@ -1250,15 +1254,20 @@ function onAreaChange(){
   const g=document.getElementById('grado').value;
   const area=document.getElementById('area').value;
   const cur=CURRICULO[a]?.[g];
-  if(!cur||!area) return;
-
-  // Llenar selector de temas
-  const temas=cur.temas?.[area]||cur.contenidos?.[area];
   const temaSelect=document.getElementById('tema');
-  if(temas && temaSelect.tagName==='SELECT'){
-    temaSelect.innerHTML='<option value="">Seleccionar tema…</option>';
-    const keys=Array.isArray(temas)?temas:Object.keys(temas);
-    keys.forEach(t=>{
+  temaSelect.innerHTML='<option value="">Seleccionar tema…</option>';
+
+  if(!cur||!area||area==='Libre'){
+    // Add a free text option
+    const opt=document.createElement('option');
+    opt.value='Libre'; opt.textContent='Escribir manualmente…';
+    temaSelect.appendChild(opt);
+    return;
+  }
+
+  const temas=cur.temas?.[area];
+  if(temas){
+    temas.forEach(t=>{
       const opt=document.createElement('option');
       opt.value=t; opt.textContent=t;
       temaSelect.appendChild(opt);
@@ -1267,9 +1276,7 @@ function onAreaChange(){
 
   // Autocompletar objetivos del área
   const objArea=cur.objetivos_area?.[area];
-  if(objArea){
-    document.getElementById('obj_input').value=objArea.join('\n');
-  }
+  if(objArea) document.getElementById('obj_input').value=objArea.join('\n');
 }
 
 function onTemaChange(){
