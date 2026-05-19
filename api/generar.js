@@ -1,27 +1,27 @@
 // api/generar.js — Vercel Function
-// Maneja generación de texto con Claude Y exportación a Word con tablas
+// Maneja generación de texto con DeepSeek Y exportación a Word con tablas
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
   }
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.DEEPSEEK_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'API key no configurada' });
 
   const { accion, prompt, maxTokens, datos } = req.body;
 
-  // ── Acción: generar texto con Claude ──
+  // ── Acción: generar texto con DeepSeek ──
   if (!accion || accion === 'generar') {
     if (!prompt) return res.status(400).json({ error: 'Falta el prompt' });
     try {
-      const r = await fetch('https://api.anthropic.com/v1/messages', {
+      const r = await fetch('https://api.deepseek.com/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: maxTokens || 1800, messages: [{ role: 'user', content: prompt }] })
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({ model: 'deepseek-chat', max_tokens: maxTokens || 1800, messages: [{ role: 'user', content: prompt }] })
       });
-      if (!r.ok) { const e = await r.text(); return res.status(r.status).json({ error: `Error Anthropic: ${e}` }); }
+      if (!r.ok) { const e = await r.text(); return res.status(r.status).json({ error: `Error DeepSeek: ${e}` }); }
       const data = await r.json();
-      return res.status(200).json({ texto: data.content?.map(b => b.text || '').join('') || '' });
+      return res.status(200).json({ texto: data.choices?.[0]?.message?.content || '' });
     } catch (e) { return res.status(500).json({ error: e.message }); }
   }
 
@@ -44,22 +44,18 @@ export default async function handler(req, res) {
 //  GENERADOR DE DOCX — Formato N°4 MEDUCA — Landscape
 // ════════════════════════════════════════════════════════════
 function generarDocx(g) {
-  // Limpia markdown: elimina **, *, ##, ### y convierte en texto/negrita
   function limpiarMd(txt) {
     return String(txt || '')
-      .replace(/^#{1,6}\s*/gm, '')        // elimina ### ## #
-      .replace(/\*\*([^*]+)\*\*/g, '$1')  // **texto** → texto
-      .replace(/\*([^*]+)\*/g, '$1')      // *texto* → texto
-      .replace(/^[-•]\s*/gm, '• ')        // normaliza bullets
+      .replace(/^#{1,6}\s*/gm, '')
+      .replace(/\*\*([^*]+)\*\*/g, '$1')
+      .replace(/\*([^*]+)\*/g, '$1')
+      .replace(/^[-•]\s*/gm, '• ')
       .trim();
   }
 
   const esc = t => limpiarMd(String(t || '')).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-  // Blanco y negro — sin colores, sin sombreado
   const NEG = '000000', BL = 'FFFFFF';
-
-  // Página landscape: 15840 ancho x 12240 alto (en DXA)
   const W = 14400;
 
   function borde(sz = 4) {
@@ -71,7 +67,6 @@ function generarDocx(g) {
 
   function tcPr(w, fill = BL, span = 1, vAlign = 'center') {
     const sp = span > 1 ? `<w:gridSpan w:val="${span}"/>` : '';
-    // Sin sombreado — siempre blanco
     return `<w:tcPr>
       <w:tcW w:w="${w}" w:type="dxa"/>
       ${sp}
@@ -101,20 +96,15 @@ function generarDocx(g) {
     </w:pPr>${runs}</w:p>`;
   }
 
-  // parTexto con detección de negritas markdown
   function parTexto(txt, bold = false, size = 16, center = false, color = '000000') {
     const texto = limpiarMd(String(txt || ''));
     if (!texto) return parVacio();
     const lineas = texto.split('\n');
-
     return lineas.map((linea, i) => {
       const spaceAfter = i < lineas.length - 1 ? 30 : 60;
       if (!linea.trim()) return parVacio();
-
-      // Detectar si la línea original tenía **negrita** antes de limpiar
       const lineaOrig = String(txt || '').split('\n')[i] || '';
       const esTitulo = /^\*\*[^*]/.test(lineaOrig.trim()) || /^#{1,3}/.test(lineaOrig.trim());
-
       return par(run(linea || ' ', bold || esTitulo, size, color), center, 0, spaceAfter);
     }).join('');
   }
@@ -125,7 +115,6 @@ function generarDocx(g) {
   }
 
   function celdaH(txt, anchoDxa, span = 1) {
-    // Encabezado: texto negro en negrita, sin fondo de color
     return `<w:tc>${tcPr(anchoDxa, BL, span, 'center')}${par(run(txt || '', true, 17, '000000'), true)}</w:tc>`;
   }
 
@@ -151,7 +140,6 @@ function generarDocx(g) {
 
   function parVacio() { return '<w:p><w:pPr><w:spacing w:after="60"/></w:pPr></w:p>'; }
 
-  // ── Tabla encabezado institucional ──
   const tEncabezado = tabla([
     fila(celda(
       par(run('MINISTERIO DE EDUCACIÓN', true, 20, '000000'), true, 0, 20) +
@@ -162,7 +150,6 @@ function generarDocx(g) {
     ))
   ], [W]);
 
-  // ── Tabla datos informativos ──
   const w1 = Math.round(W * 0.25), w2 = Math.round(W * 0.15), w3 = Math.round(W * 0.15), w4 = Math.round(W * 0.45);
   const tDatos = tabla([
     fila(
@@ -177,12 +164,10 @@ function generarDocx(g) {
     )
   ], [w1, w2, w3, w4]);
 
-  // ── Tabla área ──
   const tArea = tabla([
     fila(celda(par(run('ÁREA: ' + (g.area || '_______________'), true, 16)), W, BL))
   ], [W]);
 
-  // ── Tabla competencias y objetivos ──
   const mitad = Math.round(W / 2);
   const tCompObj = tabla([
     fila(celdaH('COMPETENCIA(S) - Rasgo(s) de la competencia:', mitad), celdaH('OBJETIVO(S) DE APRENDIZAJE:', mitad)),
@@ -192,7 +177,6 @@ function generarDocx(g) {
     )
   ], [mitad, mitad]);
 
-  // ── Tabla contenidos e indicadores ──
   const tContInd = tabla([
     fila(celdaH('CONTENIDOS:', mitad), celdaH('INDICADOR(ES) DE LOGRO:', mitad)),
     fila(
@@ -206,7 +190,6 @@ function generarDocx(g) {
     )
   ], [mitad, mitad]);
 
-  // ── Tabla actividades y evaluación ──
   const wAct = Math.round(W * 0.40);
   const wEvid = Math.round(W * 0.20);
   const wCrit = Math.round(W * 0.20);
@@ -241,12 +224,10 @@ function generarDocx(g) {
     )
   ], [wAct, wEvid, wCrit, wTipo]);
 
-  // ── Instrumentos de evaluación ──
   const tInstrH = tabla([
     fila(celdaH('INSTRUMENTOS DE EVALUACIÓN', W))
   ], [W]);
 
-  // Lista de cotejo
   const wIC1 = Math.round(W * 0.6), wIC2 = Math.round(W * 0.2), wIC3 = W - wIC1 - wIC2;
   const filasLista = parsearTablaMarkdown(g.instrLista || '');
   const tLista = filasLista.length > 0 ? tabla([
@@ -259,7 +240,6 @@ function generarDocx(g) {
     ))
   ], [wIC1, wIC2, wIC3]) : '';
 
-  // Rúbrica
   const wR1 = Math.round(W * 0.28), wR2 = Math.round(W * 0.24), wR3 = Math.round(W * 0.24), wR4 = W - wR1 - wR2 - wR3;
   const filasRubrica = parsearTablaMarkdown(g.instrRubrica || '');
   const tRubrica = filasRubrica.length > 0 ? tabla([
@@ -273,7 +253,6 @@ function generarDocx(g) {
     ))
   ], [wR1, wR2, wR3, wR4]) : '';
 
-  // Registro anecdótico
   const wReg1 = Math.round(W * 0.15), wReg2 = Math.round(W * 0.30), wReg3 = Math.round(W * 0.30), wReg4 = W - wReg1 - wReg2 - wReg3;
   const tRegistro = tabla([
     fila(celdaH('Registro anecdótico', W, 4)),
@@ -298,7 +277,6 @@ function generarDocx(g) {
     )
   ], [wReg1, wReg2, wReg3, wReg4]);
 
-  // ── Observaciones y firmas ──
   const tObsFirmas = tabla([
     fila(celda(par(run('Observaciones: ', true, 15) + run('_______________________________________________', false, 15)), W, BL))
   ], [W]);
@@ -311,7 +289,6 @@ function generarDocx(g) {
     )
   ], [wF1, wF2]);
 
-  // ── Planes diarios ──
   let planesXml = '';
   if (g.planes) {
     planesXml = `
@@ -322,7 +299,6 @@ function generarDocx(g) {
     `;
   }
 
-  // ── XML del documento completo ──
   const docXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -353,13 +329,12 @@ function generarDocx(g) {
   return crearZip(docXml);
 }
 
-// ── Parser de tablas Markdown ──
 function parsearTablaMarkdown(txt) {
   if (!txt) return [];
   const lineas = txt.split('\n').filter(l => l.includes('|'));
   const filas = [];
   for (const linea of lineas) {
-    if (linea.match(/^\s*\|[-:\s|]+\|\s*$/)) continue; // separador
+    if (linea.match(/^\s*\|[-:\s|]+\|\s*$/)) continue;
     const cols = linea.split('|')
       .filter((_, i, a) => i > 0 && i < a.length - 1)
       .map(c => c.trim() || ' ');
@@ -367,13 +342,9 @@ function parsearTablaMarkdown(txt) {
       filas.push(cols);
     }
   }
-  // Saltar primera fila si es encabezado repetido
   return filas.length > 1 ? filas.slice(1) : filas;
 }
 
-// ════════════════════════════════════════════════════════════
-//  CREADOR DE ZIP/DOCX sin dependencias externas
-// ════════════════════════════════════════════════════════════
 function crearZip(documentXml) {
   const archivos = {
     '[Content_Types].xml': `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
