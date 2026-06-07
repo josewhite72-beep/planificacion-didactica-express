@@ -130,7 +130,7 @@ textarea{resize:vertical;min-height:68px}
 <div class="hdr">
   <div class="hdr-badges">
     <span class="badge">Formato N°4 — MEDUCA</span>
-    <span class="badge">Currículo 2° grado — Actualización 2026</span>
+    <span class="badge">Currículo 2° y 4° grado — Actualización 2026</span>
     <span class="badge">Exporta a PDF</span>
   </div>
   <h1>Generador de Planeamientos</h1>
@@ -167,8 +167,10 @@ textarea{resize:vertical;min-height:68px}
           <option>Matemática</option><option>Español</option>
           <option>Ciencias Naturales</option><option>Ciencias Sociales</option>
           <option>Inglés</option><option>Religión, Moral y Valores</option>
-          <option>Expresiones Artísticas</option><option>Educación Física</option>
-          <option>Expresiones Artísticas</option><option>Educación Física</option>
+          <option>Familia y Desarrollo Comunitario</option>
+          <option>Agropecuaria</option>
+          <option>Expresiones Artísticas</option>
+          <option>Educación Física</option>
         </select>
       </div>
       <div class="field">
@@ -993,6 +995,244 @@ const CURRICULO = {
     indicadores:{"Persona":["Identifica situaciones cotidianas donde Dios actúa como protector.","Describe cómo se siente acompañado por Dios.","Explica la importancia de confiar en su cuidado.","Reconoce a Jesús como amigo y modelo de vida.","Analiza actitudes de amistad de Jesús en los Evangelios.","Relaciona la amistad de Jesús con su vida diaria.","Describe cómo y cuándo puede hablar con Dios.","Aplica momentos de oración en tu vida cotidiana.","Valora la oración como comunicación con Dios.","Reconoce comportamientos de respeto, obediencia y honestidad en la convivencia diaria.","Demuestra disposición a ayudar y colaborar con sus compañeros y amigos en diferentes contextos.","Reconoce y expresa sus cualidades, emociones y el valor de su vida como creación de Dios.","Identifica y comunica su propósito personal mediante actividades creativas y reflexivas."],"Familia, Comunidad, Escuela e Iglesia":["Reconoce y explica la importancia de la familia en su vida y en la vida de Jesús.","Demuestra actitudes de amor, respeto y cuidado hacia los miembros de su familia.","Aplica comportamientos de escucha, respeto y ayuda en la interacción con compañeros y familiares.","Demuestra mediante palabras y acciones el valor del amor en la convivencia diaria.","Reconoce la importancia de la unidad y la solidaridad en su comunidad y en la Iglesia.","Participa activamente en acciones que promuevan la fe, la ayuda mutua y el bien común."],"Naturaleza y Dios":["Reconoce acciones que promuevan el cuidado de la Tierra y de los seres vivos.","Participa activamente en iniciativas de reciclaje, ahorro de recursos y reforestación como expresión de amor a la creación.","Explica los efectos de la contaminación, la deforestación y el mal uso de los recursos en la creación y en las personas más pobres.","Propone y aplica acciones responsables para reducir los daños ambientales y promover la justicia ecológica.","Reconoce y expresa emociones de empatía ante el daño a la naturaleza.","Aplica acciones concretas y responsables que promuevan la justicia ambiental y el cuidado de la creación."]},
     temas:{"Persona":["1. Dios me ama y me acompaña","2. Aprendo a vivir con los demás","3. Soy valioso y único"],"Familia, Comunidad, Escuela e Iglesia":["1. La familia es un regalo de Dios","2. Aprendo a convivir con amor","3. Dios está presente en mi comunidad"],"Naturaleza y Dios":["1. Dios nos confía el cuidado de la casa común","2. El pecado ecológico daña la creación de Dios","3. Mis emociones y actitudes hacia la creación"]}
   }},
+  "Familia y Desarrollo Comunitario":{"4° grado":{
+  areas:["Administración del Hogar","Alimentación y Nutrición","Desarrollo Humano","Vivienda y su Ambiente","Vestuario y Textiles"],
+  competencias:[
+    {nombre:"Social y ciudadana",rasgos:[
+      "Toma decisiones acertadas que le permitan mejorar su calidad de vida familiar y comunitaria.",
+      "Aplica principios de Administración del Hogar relacionados con los recursos materiales y financieros.",
+      "Aplica principios y prácticas para una adecuada alimentación y nutrición considerando los recursos disponibles.",
+      "Valora la importancia de contribuir a la conservación y uso racional de los recursos del medio ambiente."
+    ]},
+    {nombre:"Autonomía e iniciativa personal",rasgos:[
+      "Desarrolla habilidades y destrezas útiles para insertarse en el mundo tecnológico y laboral.",
+      "Demuestra capacidades para la selección, confección y cuidado de la ropa de la familia según la ocasión.",
+      "Demuestra capacidades para organizar y conservar la vivienda en las mejores condiciones físicas y estéticas."
+    ]}
+  ],
+  objetivos_area:{
+    "Administración del Hogar":[
+      "Emplea de forma adecuada la higiene postural para la ejecución de actividades cotidianas cuidando su bienestar.",
+      "Asume el concepto de compra y los diferentes tipos de transacciones para aplicarlos de manera informada y responsable en situaciones cotidianas de consumo.",
+      "Investiga las consecuencias de los hábitos de consumo para realizar compras responsables."
+    ],
+    "Alimentación y Nutrición":[
+      "Identifica los nutrientes y sus funciones al elegir alimentos saludables para cuidar su bienestar personal.",
+      "Crea menús equilibrados, utilizando el Plato del Buen Comer, distribuyendo los alimentos en porciones adecuadas para mejorar los hábitos alimentarios."
+    ],
+    "Desarrollo Humano":[
+      "Explica el concepto de personalidad y su importancia, valorando su propia forma de ser y la de los demás, e incorporando hábitos de cuidado personal para convivir en armonía."
+    ],
+    "Vivienda y su Ambiente":[
+      "Distingue los espacios de la vivienda y su mobiliario, para el cuidado responsable del hogar a través de actividades escolares."
+    ],
+    "Vestuario y Textiles":[
+      "Elige el vestuario adecuado, haciendo un registro de medidas y usando de forma responsable el equipo básico de costura para lograr un ajuste y presentación adecuada de las prendas."
+    ]
+  },
+  contenidos:{
+    "Administración del Hogar":{
+      "1. Higiene postural":{
+        conceptual:"1. Higiene postural\n• Concepto\n• Proceso\n• Asertividad",
+        procedimental:"• Aplicación de las posturas correctas en actividades cotidianas, dentro de los contextos escolares y domésticos.\n• Reconocimiento de los pasos necesarios para adoptar una postura correcta según la actividad realizada.\n• Demostración de comportamientos posturales en contextos escolares y domésticos.",
+        actitudinal:"• Disposición para adquirir hábitos posturales saludables en todas las actividades que realiza.\n• Interés por el mejoramiento de su bienestar físico mediante buenas prácticas posturales.\n• Conciencia por la salud postural en un ambiente de respeto y cuidado colectivo."
+      },
+      "1.2. Las compras":{
+        conceptual:"1.2. Las compras\n• Conceptos\n• Tipos de transacciones",
+        procedimental:"• Descripción de los elementos básicos de una compra y los pasos para realizarla de manera responsable.\n• Identificación de los diferentes tipos de transacciones existentes y su aplicación según el contexto de la persona.",
+        actitudinal:"• Responsabilidad al realizar la compra, con actitud reflexiva y crítica, priorizando necesidades sobre deseos.\n• Preocupación por adaptarse a las nuevas formas de compra y pago promoviendo la transparencia y respeto durante las transacciones."
+      },
+      "1.3. Hábitos de consumo":{
+        conceptual:"1.3. Hábitos de consumo\n• Necesidades\n• Oferta y demanda",
+        procedimental:"• Clasificación de las necesidades personales y familiares y su impacto en los hábitos de consumo.\n• Interpretación de la oferta y la demanda, su influencia y variación en los precios del mercado.",
+        actitudinal:"• Valoración de las necesidades y deseos como base para el consumo responsable, cuidando recursos personales y familiares.\n• Interés por el funcionamiento del mercado y su impacto en las compras y los precios de los diversos productos."
+      }
+    },
+    "Alimentación y Nutrición":{
+      "2. Los nutrientes":{
+        conceptual:"2. Los nutrientes\n• Concepto\n• Funciones\n• Fuentes",
+        procedimental:"• Definición de los nutrientes básicos y su importancia en la alimentación equilibrada.\n• Agrupación de los diferentes tipos de nutrientes según las funciones que cumplen en el cuerpo.\n• Elección de los alimentos según el tipo de nutriente que aportan cada uno de ellos.",
+        actitudinal:"• Conciencia del uso responsable de los nutrientes, para la obtención de una alimentación adecuada, fortaleciendo el bienestar personal.\n• Hábitos de alimentación saludable a través del conocimiento de los nutrientes y sus funciones.\n• Conciencia de incluir alimentos variados, nutritivos y frescos en la dieta diaria."
+      },
+      "2.1. Planificación de la dieta":{
+        conceptual:"2.1. Planificación de la dieta\n• Plato del buen comer\n• Porciones diarias de los alimentos\n2.2. Menú",
+        procedimental:"• Aplicación de los principios del plato del buen comer en la planificación de menús saludables.\n• Distribución de las porciones diarias de los alimentos utilizando las recomendaciones del plato del buen comer.\n• Elaboración de menús equilibrados que incluyan alimentos de los distintos grupos, adaptados a las necesidades del grupo familiar.",
+        actitudinal:"• Valoración del plato del buen comer como guía saludable en la elaboración de la alimentación, en el hogar y en su entorno educativo.\n• Compromiso con la planificación de las comidas de forma saludable y balanceada, como complemento del bienestar familiar."
+      }
+    },
+    "Desarrollo Humano":{
+      "3. La personalidad":{
+        conceptual:"3. La personalidad\n• Concepto\n• Importancia\n• Apariencia personal",
+        procedimental:"• Definición del concepto de personalidad y las características que la componen.\n• Identificación de la personalidad en sus relaciones interpersonales y decisiones.\n• Interiorización de hábitos de higiene y cuidado personal como parte de su imagen diaria.",
+        actitudinal:"• Valoración de su forma de ser y la de los demás, respetando las diferencias individuales.\n• Reconocimiento de la importancia de cultivar una personalidad equilibrada para convivir en armonía.\n• Sensibilización por el cuidado de su apariencia como parte del respeto propio."
+      }
+    },
+    "Vivienda y su Ambiente":{
+      "4. Composición de la residencia":{
+        conceptual:"4. Composición de la residencia\n• Espacios interiores y exteriores\n• Equipos y mobiliario",
+        procedimental:"• Reconocimiento de los diferentes espacios que componen una vivienda y las funciones que cumplen dentro del hogar.\n• Elección de los equipos esenciales y mobiliario que requiere cada espacio de la casa.",
+        actitudinal:"• Demostración de hábitos de orden y respeto por los ambientes que comparte con otros.\n• Responsabilidad en el uso y cuidado del mobiliario y los equipos del hogar."
+      }
+    },
+    "Vestuario y Textiles":{
+      "5. El vestuario":{
+        conceptual:"5. El vestuario\n• Principios del diseño\n  - Colores\n  - Formas\n  - Estilos\n• Equipo básico de costura\n• Las medidas",
+        procedimental:"• Selección de vestuario utilizando guías basadas en colores, formas y estilos.\n• Reconocimiento de los implementos básicos de costura y el uso correcto de los mismos.\n• Registro de medidas corporales esenciales para la confección o ajuste de prendas.",
+        actitudinal:"• Valorar la importancia de elegir un vestuario adecuado para cada ocasión.\n• Compromiso con el uso adecuado de los implementos básicos de costura y el cuidado que requieren.\n• Asumir con responsabilidad el registro de medidas corporales, consciente de su importancia en el ajuste o confección de las prendas."
+      }
+    }
+  },
+  indicadores:{
+    "Administración del Hogar":[
+      "Aplica los pasos necesarios para mantener una postura correcta en sus actividades cotidianas, demostrando asertividad al corregir posturas inadecuadas y promoviendo con disposición prácticas de higiene postural junto a docentes y compañeros.",
+      "Utiliza los elementos básicos de una compra en situaciones de consumo cotidiano con una actitud responsable y crítica en la aplicación de diferentes transacciones.",
+      "Reconoce y utiliza los diferentes tipos de transacciones en situaciones de compra y venta de la vida cotidiana.",
+      "Distingue los tipos de transacciones, aplicándolos en ejemplos prácticos de compra y consumo responsable.",
+      "Valora la importancia de diferenciar entre necesidades y deseos, aplicándolo en ejemplos prácticos de consumo sostenible.",
+      "Utiliza el concepto de oferta y demanda al analizar su influencia en la variación de los precios de los productos cotidianos.",
+      "Analiza el funcionamiento del mercado y su impacto en las compras familiares."
+    ],
+    "Alimentación y Nutrición":[
+      "Define los nutrientes básicos y explica su importancia para una alimentación equilibrada, identificando alimentos de consumo diario según el nutriente que aportan.",
+      "Clasifica los nutrientes según sus funciones en el cuerpo y los aplica en la selección de alimentos variados y frescos, promoviendo hábitos de alimentación saludable.",
+      "Demuestra compromiso con la planificación de comidas balanceadas para el bienestar familiar, distribuyendo adecuadamente las porciones diarias de alimentos según las recomendaciones nutricionales.",
+      "Elabora menús equilibrados según las necesidades familiares, aplicando los principios de 'El Plato del Buen Comer', valorando su utilidad para mejorar los hábitos alimentarios en la escuela y el hogar."
+    ],
+    "Desarrollo Humano":[
+      "Explica el concepto de personalidad y reconoce sus características principales, aplicándolas en situaciones cotidianas de convivencia e interacción social.",
+      "Analiza la importancia de la personalidad en las relaciones interpersonales y la toma de decisiones.",
+      "Integra hábitos de higiene y cuidado personal en su vida diaria, fortaleciendo una imagen positiva y demostrando sensibilidad hacia su apariencia como parte del respeto propio y la sana convivencia."
+    ],
+    "Vivienda y su Ambiente":[
+      "Identifica los espacios interiores y exteriores de una vivienda y explica las funciones que cumplen dentro del hogar.",
+      "Distingue y explica los cuidados de los equipos y mobiliarios esenciales de cada espacio de la vivienda, relacionándola con las funciones que allí se realiza."
+    ],
+    "Vestuario y Textiles":[
+      "Utiliza las guías de selección del vestuario (colores, formas y estilos) y las aplica en la elección de prendas adecuadas para distintas ocasiones.",
+      "Nombra los implementos básicos de costura y describe el uso correcto y el cuidado responsable para cada uno.",
+      "Explica la importancia de registrar medidas corporales correctas para el ajuste o confección de prendas."
+    ]
+  },
+  temas:{
+    "Administración del Hogar":["1. Higiene postural","1.2. Las compras","1.3. Hábitos de consumo"],
+    "Alimentación y Nutrición":["2. Los nutrientes","2.1. Planificación de la dieta"],
+    "Desarrollo Humano":["3. La personalidad"],
+    "Vivienda y su Ambiente":["4. Composición de la residencia"],
+    "Vestuario y Textiles":["5. El vestuario"]
+  }
+}},
+
+"Agropecuaria":{"4° grado":{
+  areas:["Jardín y Especies Vegetales","Tecnología Práctica y Funcional","Producción de Alimentos para el Consumo Humano","Ambiente y Agricultura Sostenible"],
+  competencias:[
+    {nombre:"Conocimiento e interacción con el mundo físico",rasgos:[
+      "Mostrar interés y entusiasmo por las actividades agropecuarias.",
+      "Practicar hábitos de laboriosidad, cooperación y responsabilidad a través de las actividades agrícolas.",
+      "Aplicar conocimientos y experiencias prácticas necesarias para el cultivo técnico y científico de especies de la estación.",
+      "Utilizar racionalmente los recursos naturales procurando la conservación del ambiente."
+    ]},
+    {nombre:"Social y ciudadana",rasgos:[
+      "Contribuir, mediante la producción agropecuaria, a la alimentación de la familia panameña.",
+      "Compartir conocimientos técnicos de trabajos agrícolas para ayudar al mejoramiento y condiciones de vida de los habitantes de la comunidad.",
+      "Reconocer que existe una forma de producir alimentos sanos sin contaminantes químicos."
+    ]}
+  ],
+  objetivos_area:{
+    "Jardín y Especies Vegetales":[
+      "Clasifica los tipos de jardines ornamentales según las características de flores y follaje para aplicar principios de dibujo y biodiversidad en proyectos interdisciplinarios con Ciencia y Arte, a partir de la observación real en los jardines del entorno.",
+      "Clasifica los hábitos de crecimiento de las plantas (erguidas, trepadoras, colgantes y rastreras) para reconocer cómo se adaptan a su entorno y cómo pueden usarse en jardines o huertos escolares.",
+      "Valora la importancia de los jardines ornamentales para el embellecimiento y bienestar del entorno escolar y familiar."
+    ],
+    "Tecnología Práctica y Funcional":[
+      "Clasifica herramientas manuales agrícolas, según su uso y función, mediante la observación y manipulación supervisada, para promover el aprendizaje de su aplicación en actividades del huerto escolar.",
+      "Demuestra técnicas correctas de agarre y uso de herramientas manuales para realizar actividades prácticas de forma segura.",
+      "Valora el uso de herramientas manuales en la agricultura escolar, expresando actitudes de responsabilidad y disposición para el trabajo en equipo."
+    ],
+    "Producción de Alimentos para el Consumo Humano":[
+      "Identifica los beneficios del huerto escolar, distinguiendo sus aportes en lo económico, nutritivo y comunitario.",
+      "Comprende los métodos tradicionales de producción agrícola para valorar las prácticas culturales y su relación con el entorno.",
+      "Aprecia el aporte del huerto escolar y la producción agrícola a la comunidad educativa."
+    ],
+    "Ambiente y Agricultura Sostenible":[
+      "Distingue la diferencia entre materia orgánica e inorgánica para comprender su impacto en el ambiente.",
+      "Clasifica residuos del entorno escolar en materia orgánica e inorgánica para fomentar hábitos de cuidado ambiental.",
+      "Identifica los horizontes del perfil del suelo con el fin de comprender su composición y función.",
+      "Valora la importancia de los horizontes del suelo para fomentar el respeto, responsabilidad y compromiso por el ambiente."
+    ]
+  },
+  contenidos:{
+    "Jardín y Especies Vegetales":{
+      "1. Jardines ornamentales":{
+        conceptual:"1. Jardines ornamentales\n1.1 Concepto\n1.2 Tipos\n• Con flores\n• Follaje\n1.3 Características\n1.4 Importancia estética",
+        procedimental:"• Descripción del concepto de jardín ornamental a partir de ejemplos observados en imágenes o espacios reales.\n• Clasificación de plantas ornamentales mediante la observación en los jardines.\n• Participación de los estudiantes en actividades prácticas de jardinería.",
+        actitudinal:"• Se interesa por los jardines como medio de conservación de especies.\n• Responsabilidad en el cuidado del jardín escolar y de las plantas asignadas.\n• Compromiso con el embellecimiento del aula o escuela mediante plantas ornamentales.\n• Valora la importancia de embellecer el aula o escuela mediante plantas ornamentales."
+      },
+      "2. Hábitos de crecimiento de las plantas":{
+        conceptual:"2. Hábitos de crecimiento de las plantas\n• Erguidas\n• Trepadoras\n• Colgantes\n• Rastreras",
+        procedimental:"• Clasificación de las plantas según su hábito de crecimiento.",
+        actitudinal:"• Valoración de la diversidad vegetal de plantas asignadas dentro del jardín escolar."
+      }
+    },
+    "Tecnología Práctica y Funcional":{
+      "1. Herramientas manuales":{
+        conceptual:"1. Herramientas manuales\n1.1 Tipos\n• Machete\n• Hacha\n• Azadón\n• Piqueta\n• Rastrillo\n• Azada\n• Pala\n• Coa\n1.2 Uso\n1.3 Agarre",
+        procedimental:"• Explicación sobre las clases de herramientas.\n• Manipulación correcta de las herramientas agrícolas manuales.",
+        actitudinal:"• Interés por aprender sobre el uso adecuado de las herramientas agrícolas manuales en el huerto escolar."
+      }
+    },
+    "Producción de Alimentos para el Consumo Humano":{
+      "1. Beneficios del huerto escolar":{
+        conceptual:"1. Beneficios del huerto escolar\n1.1 Concepto\n• Beneficios económicos\n• Beneficios nutritivos\n• Beneficio a la comunidad educativa\n1.2 Importancia del huerto escolar en la vida estudiantil",
+        procedimental:"• Clasificación de beneficios del huerto escolar en categorías: económicos, nutritivos y comunitario.\n• Implementación de actividades en el huerto escolar.",
+        actitudinal:"• Reconocimiento de los beneficios del huerto escolar al clasificarlos en económicos, nutritivos y comunitarios.\n• Conciencia sobre la calidad de los alimentos al comparar los productos del huerto con los comprados.\n• Apreciación del huerto escolar como espacio para aprender y cuidar la naturaleza."
+      },
+      "2. Métodos de producción":{
+        conceptual:"2. Métodos de producción\n• Método tradicional\n  - Corta y quema\n  - Chuzo\n  - Otros",
+        procedimental:"• Explicación de las técnicas del método tradicional.",
+        actitudinal:"• Respeto por las formas tradicionales de cultivo usadas por las comunidades.\n• Interés por aprender cómo se cultiva la tierra con herramientas sencillas."
+      }
+    },
+    "Ambiente y Agricultura Sostenible":{
+      "1. Agricultura agrostenible":{
+        conceptual:"1. Agricultura agrostenible\n1.1 Cuidados del medio ambiente\n• Concepto de ambiente\n• Importancia\n• Uso equilibrado de la materia:\n  - Orgánica\n  - Inorgánica",
+        procedimental:"• Clasificación de residuos.\n• Identificación de horizontes.\n• Valoración de impactos ambientales.\n• Uso de materia orgánica e inorgánica.",
+        actitudinal:"• Interés por el cuidado del ambiente escolar.\n• Responsabilidad en la separación de residuos.\n• Curiosidad por la estructura del suelo."
+      }
+    }
+  },
+  indicadores:{
+    "Jardín y Especies Vegetales":[
+      "Define el concepto de jardín ornamental a partir de imágenes o espacios observados.",
+      "Clasifica plantas ornamentales (con flores y follaje) mediante la observación en jardines o láminas.",
+      "Explica la importancia estética de los jardines ornamentales en el contexto escolar y familiar.",
+      "Demuestra responsabilidad en el cuidado de plantas asignadas dentro del jardín escolar.",
+      "Distingue los hábitos de crecimiento de las plantas mediante la observación directa o de imágenes para clasificarlas en el aula."
+    ],
+    "Tecnología Práctica y Funcional":[
+      "Clasifica las herramientas manuales agrícolas según su uso en actividades prácticas del huerto escolar.",
+      "Demuestra el agarre correcto de herramientas manuales durante la manipulación supervisada en el aula o huerto escolar."
+    ],
+    "Producción de Alimentos para el Consumo Humano":[
+      "Clasifica los beneficios del huerto escolar en categorías económicas, nutritivas y comunitarias al realizar un cuadro comparativo.",
+      "Explica la importancia del huerto escolar como espacio de aprendizaje y cultivo al participar en una exposición grupal.",
+      "Valora el aporte del huerto escolar a la comunidad educativa al compartir reflexiones en una actividad grupal.",
+      "Identifica los métodos tradicionales de producción agrícola al observar imágenes o explicaciones en clase.",
+      "Explica los efectos del método tradicional sobre la naturaleza al compartir ejemplos en clase."
+    ],
+    "Ambiente y Agricultura Sostenible":[
+      "Distingue los residuos escolares bajo criterios orgánicos e inorgánicos mediante la observación en su entorno inmediato.",
+      "Clasifica los residuos del aula con base en su composición en una actividad grupal.",
+      "Identifica los horizontes del perfil del suelo mediante la observación directa durante una salida de campo o imágenes.",
+      "Aplica criterios de clasificación de residuos en la creación de un sistema de reciclaje escolar."
+    ]
+  },
+  temas:{
+    "Jardín y Especies Vegetales":["1. Jardines ornamentales","2. Hábitos de crecimiento de las plantas"],
+    "Tecnología Práctica y Funcional":["1. Herramientas manuales"],
+    "Producción de Alimentos para el Consumo Humano":["1. Beneficios del huerto escolar","2. Métodos de producción"],
+    "Ambiente y Agricultura Sostenible":["1. Agricultura agrostenible"]
+  }
+}},
   "Expresiones Artísticas":{"2° grado":{
     areas:["Creatividad y artes visuales","Lenguaje corporal en la danza y expresión teatral","Lenguaje musical"],
     competencias:[
