@@ -2207,14 +2207,13 @@ async function llamarAPI(prompt,maxTokens=2000){
 // ═══════════════════════════════════════
 //  LOADING UI
 // ═══════════════════════════════════════
-function setLoad(title,sub,step){
+function setLoad(title,sub,step,customSteps){
   document.getElementById('lt').textContent=title;
   document.getElementById('ls').textContent=sub;
-  const steps=[
+  const steps=customSteps || [
     'Cargando currículo MEDUCA 2026…',
     'Generando Secuencia Didáctica (Formato N°4)…',
-    'Generando planes diarios — Semana 1…',
-    'Generando planes diarios — Semana 2…',
+    'Generando planes diarios…',
     'Preparando documento…'
   ];
   document.getElementById('lsteps').innerHTML=steps.map((s,i)=>
@@ -2271,25 +2270,26 @@ async function generar(){
         area:d.area,tema:d.tema,ed:d.ed,ef:d.ef,es:d.es,productos:d.productos};
     }
 
-    // ── LLAMADAS 2 y 3: Planes diarios por semana ──
+    // ── LLAMADAS 2+: Planes diarios — una llamada por día ──
     if(d.productos.includes('Planes diarios detallados')){
-      let planesCompletos='';
-
-      // Semana 1
-      setLoad('Generando planes diarios…',`Semana 1 de ${d.semanas} (días 1–${d.dias})…`,2);
-      const dSem1={...d, semanaNum:1, diaInicio:1, diaFin:d.dias};
-      const sem1=await llamarAPI(buildPrompt('diarios',dSem1),7500);
-      planesCompletos+=sem1;
-
-      // Semana 2 (si aplica)
-      if(d.semanas >= 2){
-        setLoad('Generando planes diarios…',`Semana 2 de ${d.semanas} (días ${d.dias+1}–${d.totalDias})…`,3);
-        const dSem2={...d, semanaNum:2, diaInicio:d.dias+1, diaFin:d.totalDias};
-        const sem2=await llamarAPI(buildPrompt('diarios',dSem2),7500);
-        planesCompletos+='\n\n'+sem2;
+      const diasNombres=['Lunes','Martes','Miércoles','Jueves','Viernes'];
+      const stepsBase=['Cargando currículo MEDUCA 2026…','Generando Secuencia Didáctica (Formato N°4)…'];
+      const stepsDias=[];
+      for(let dia=1; dia<=d.totalDias; dia++){
+        stepsDias.push(`Generando plan diario — Día ${dia} (${diasNombres[(dia-1)%diasNombres.length]})…`);
       }
+      const stepsAll=[...stepsBase,...stepsDias,'Preparando documento…'];
 
-      wData.planes=planesCompletos;
+      const planesPorDia=[];
+      for(let dia=1; dia<=d.totalDias; dia++){
+        const semanaNum = Math.ceil(dia/d.dias);
+        const nombreDia = diasNombres[(dia-1)%diasNombres.length];
+        setLoad('Generando planes diarios…',`Día ${dia} de ${d.totalDias} (${nombreDia})…`,2+(dia-1),stepsAll);
+        const dDia={...d, semanaNum, diaInicio:dia, diaFin:dia};
+        const texto=await llamarAPI(buildPrompt('diarios',dDia),2200);
+        planesPorDia.push({dia,nombre:nombreDia,texto});
+      }
+      wData.planesPorDia=planesPorDia;
     }
 
     setLoad('Listo','Planeamiento generado correctamente.',4);
@@ -2391,7 +2391,14 @@ Firma del (los) docente(s): ______________________________
 Firma del Coordinador o Subdirector Técnico Docente: ______________________________`;
 }
 
-function renderPlanes(){return wData.planes||''}
+function renderPlanes(){
+  if(Array.isArray(wData.planesPorDia) && wData.planesPorDia.length){
+    return wData.planesPorDia.map(d=>
+      `\n═══════════ DÍA ${d.dia} — ${(d.nombre||'').toUpperCase()} ═══════════\n\n${d.texto}`
+    ).join('\n\n');
+  }
+  return wData.planes||'';
+}
 
 function esc(t){return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
 
@@ -2405,7 +2412,7 @@ function mostrarResultado(d){
 
   const secciones=[
     ...(wData.comp?[{titulo:'📋 SECUENCIA DIDÁCTICA SEMANAL — FORMATO N°4',fn:renderSecuencia}]:[]),
-    ...(wData.planes?[{titulo:'🗒 PLANES DIARIOS DETALLADOS',fn:renderPlanes}]:[])
+    ...(wData.planesPorDia||wData.planes?[{titulo:'🗒 PLANES DIARIOS DETALLADOS',fn:renderPlanes}]:[])
   ];
 
   const panesWrap=document.getElementById('rpanes');
