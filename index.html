@@ -2245,7 +2245,7 @@ async function generar(){
     // ── LLAMADA 1: Secuencia Didáctica ──
     if(d.productos.includes('Secuencia didáctica (Formato N°4)')){
       setLoad('Generando Secuencia Didáctica…','Competencias, indicadores, actividades e instrumentos…',1);
-      const tokensSecuencia = d.semanas >= 2 ? 3500 : 2500;
+      const tokensSecuencia = d.semanas >= 2 ? 6000 : 4500;
       const txt=await llamarAPI(buildPrompt('secuencia',d),tokensSecuencia);
       const sec=parseSec(txt);
       wData={
@@ -2278,14 +2278,14 @@ async function generar(){
       // Semana 1
       setLoad('Generando planes diarios…',`Semana 1 de ${d.semanas} (días 1–${d.dias})…`,2);
       const dSem1={...d, semanaNum:1, diaInicio:1, diaFin:d.dias};
-      const sem1=await llamarAPI(buildPrompt('diarios',dSem1),3500);
+      const sem1=await llamarAPI(buildPrompt('diarios',dSem1),7500);
       planesCompletos+=sem1;
 
       // Semana 2 (si aplica)
       if(d.semanas >= 2){
         setLoad('Generando planes diarios…',`Semana 2 de ${d.semanas} (días ${d.dias+1}–${d.totalDias})…`,3);
         const dSem2={...d, semanaNum:2, diaInicio:d.dias+1, diaFin:d.totalDias};
-        const sem2=await llamarAPI(buildPrompt('diarios',dSem2),3500);
+        const sem2=await llamarAPI(buildPrompt('diarios',dSem2),7500);
         planesCompletos+='\n\n'+sem2;
       }
 
