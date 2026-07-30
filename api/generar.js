@@ -1,6 +1,12 @@
 // api/generar.js — Vercel Function
 // Maneja generación de texto con DeepSeek Y exportación a Word con tablas
 
+// Duración máxima permitida para esta función (por defecto Vercel corta a los 10s).
+// 60 es el máximo en el plan Hobby sin Fluid Compute. Si sigue dando 504,
+// hay que activar Fluid Compute en el proyecto (Settings → Functions) o
+// dividir la generación de planes diarios en llamadas más pequeñas (por día).
+export const config = { maxDuration: 60 };
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Método no permitido' });
