@@ -2136,11 +2136,15 @@ Solo las secciones etiquetadas. Sin texto adicional antes ni después.`;
 
   return base+`
 
-GENERA EXACTAMENTE ${diasBloque.length} planes diarios — SEMANA ${semanaNum} (días ${diaInicio} al ${diaFin} de ${totalDias} totales).
-Tiempo disponible por día: ${minPorDia} minutos (${Math.round(periodosPorSemana/diasPorSemana*10)/10} períodos × ${minPorPeriodo} min).
+IMPORTANTE — FORMATO DE RESPUESTA (sigue esto estrictamente):
+- NO agregues ningún texto de introducción, saludo o explicación antes del contenido (nada de "Aquí tienes el plan diario solicitado...").
+- NO repitas los "ELEMENTOS OFICIALES DEL PROGRAMA" (objetivo, competencias, contenidos, indicadores) — ya están documentados en otra sección del planeamiento, no hace falta transcribirlos de nuevo aquí.
+- NO agregues encabezados de título como "DÍA X — NOMBRE", ni líneas separadoras (━━━), ni tablas de "datos generales" — el sistema ya los agrega automáticamente.
+- Tu respuesta debe iniciar EXACTAMENTE en "OBJETIVO DEL DÍA:" y terminar en "CONEXIÓN CON DÍA SIGUIENTE:". Nada antes, nada después.
 
-PLAN DE LA SEMANA ${semanaNum}:
-${diasBloque.map(({dia,nombre,fase})=>`DÍA ${dia} — ${nombre.toUpperCase()}: ${fase}`).join('\n')}
+GENERA EXACTAMENTE ${diasBloque.length} plan(es) diario(s) — SEMANA ${semanaNum} (día(s) ${diaInicio} al ${diaFin} de ${totalDias} totales).
+Tiempo disponible por día: ${minPorDia} minutos (${Math.round(periodosPorSemana/diasPorSemana*10)/10} períodos × ${minPorPeriodo} min).
+Fase de este/estos día(s): ${diasBloque.map(({dia,fase})=>`Día ${dia}: ${fase}`).join(' | ')}
 
 REGLAS PEDAGÓGICAS:
 1. Cada día mantiene los 3 momentos oficiales: Inicio / Desarrollo / Cierre
@@ -2153,10 +2157,6 @@ REGLAS PEDAGÓGICAS:
 8. Actividades concretas y contextualizadas en Barrigón, Coclé, Panamá
 
 ${diasBloque.map(({dia,nombre,fase})=>`
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-DÍA ${dia} — ${nombre.toUpperCase()} | Semana ${semanaNum} | ${minPorDia} min
-FASE: ${fase}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 OBJETIVO DEL DÍA: (alineado al indicador y la fase)
 INDICADOR QUE SE TRABAJA HOY: (del programa oficial)
 
@@ -2180,7 +2180,7 @@ Propósito: consolidar y preparar el día siguiente
 RECURSOS: (materiales concretos y accesibles en escuela rural)
 EVIDENCIA DEL DÍA: (producto observable y registrable)
 TAREA: (breve y significativa, o N/A)
-CONEXIÓN CON DÍA SIGUIENTE: (qué retomará mañana)`).join('\n')}`;
+CONEXIÓN CON DÍA SIGUIENTE: (qué retomará mañana)`).join('\n\n---SIGUIENTE DÍA---\n\n')}`;
 
 }
 
@@ -2280,13 +2280,32 @@ async function generar(){
       }
       const stepsAll=[...stepsBase,...stepsDias,'Preparando documento…'];
 
+      // Quita cualquier preámbulo antes de "OBJETIVO DEL DÍA:" por si el modelo
+      // igual agrega texto introductorio pese a la instrucción.
+      function limpiarRespuestaDia(texto){
+        const idx = texto.search(/OBJETIVO DEL D[IÍ]A\s*:/i);
+        return idx > 0 ? texto.slice(idx) : texto;
+      }
+
+      async function generarDia(dDia){
+        let texto = limpiarRespuestaDia(await llamarAPI(buildPrompt('diarios',dDia),3200));
+        // Reintento único si el día llega vacío o sospechosamente corto (posible fallo silencioso)
+        if(!texto || texto.trim().length < 150){
+          texto = limpiarRespuestaDia(await llamarAPI(buildPrompt('diarios',dDia),3200));
+        }
+        return texto;
+      }
+
       const planesPorDia=[];
       for(let dia=1; dia<=d.totalDias; dia++){
         const semanaNum = Math.ceil(dia/d.dias);
         const nombreDia = diasNombres[(dia-1)%diasNombres.length];
         setLoad('Generando planes diarios…',`Día ${dia} de ${d.totalDias} (${nombreDia})…`,2+(dia-1),stepsAll);
         const dDia={...d, semanaNum, diaInicio:dia, diaFin:dia};
-        const texto=await llamarAPI(buildPrompt('diarios',dDia),2200);
+        const texto=await generarDia(dDia);
+        if(!texto || texto.trim().length < 150){
+          throw new Error(`El plan del Día ${dia} (${nombreDia}) llegó vacío o incompleto tras reintentar. Intenta generar de nuevo.`);
+        }
         planesPorDia.push({dia,nombre:nombreDia,texto});
       }
       wData.planesPorDia=planesPorDia;
