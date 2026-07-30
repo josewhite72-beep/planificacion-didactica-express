@@ -115,6 +115,10 @@ function generarDocx(g) {
     }).join('');
   }
 
+  function saltoPagina() {
+    return `<w:p><w:r><w:br w:type="page"/></w:r></w:p>`;
+  }
+
   function celda(contenido, anchoDxa, fill = BL, span = 1, vAlign = 'top') {
     const contenidoFinal = contenido && contenido.trim() ? contenido : parVacio();
     return `<w:tc>${tcPr(anchoDxa, BL, span, vAlign)}${contenidoFinal}</w:tc>`;
@@ -296,7 +300,18 @@ function generarDocx(g) {
   ], [wF1, wF2]);
 
   let planesXml = '';
-  if (g.planes) {
+  if (Array.isArray(g.planesPorDia) && g.planesPorDia.length > 0) {
+    // Formato nuevo: 1 llamada por día → 1 hoja por día
+    planesXml = saltoPagina() +
+      tabla([fila(celdaH('PLANES DIARIOS DETALLADOS', W))], [W]) +
+      parVacio() +
+      g.planesPorDia.map((d, i) => `
+        ${i > 0 ? saltoPagina() : ''}
+        ${par(run(`DÍA ${d.dia}${d.nombre ? ' — ' + d.nombre.toUpperCase() : ''}`, true, 18, '1F3864'), true, 100, 150)}
+        ${parTexto(d.texto, false, 15)}
+      `).join('');
+  } else if (g.planes) {
+    // Formato antiguo (texto único, sin saltos de página) — por compatibilidad
     planesXml = `
       ${parVacio()}
       ${tabla([fila(celdaH('PLANES DIARIOS DETALLADOS', W))], [W])}
