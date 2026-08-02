@@ -2227,6 +2227,30 @@ function setLoad(title,sub,step,customSteps){
 let wData={};
 
 // ═══════════════════════════════════════
+//  PERSISTENCIA DE PROGRESO (localStorage)
+//  Permite reanudar la generación de planes
+//  diarios si se corta a mitad de camino.
+// ═══════════════════════════════════════
+function progresoKey(d){
+  const raw=`${d.asig}|${d.grado}|${d.tema}|${d.totalDias}|${d.dias}|${d.semanas}`;
+  return 'plan_progreso_'+raw.replace(/[^a-zA-Z0-9]+/g,'_');
+}
+function guardarProgreso(key,d,wDataActual,planesPorDia){
+  try{
+    localStorage.setItem(key,JSON.stringify({d,wData:wDataActual,planesPorDia,savedAt:Date.now()}));
+  }catch(e){ /* localStorage lleno o no disponible: se continúa sin persistencia */ }
+}
+function borrarProgreso(key){
+  try{ localStorage.removeItem(key) }catch(e){}
+}
+function cargarProgreso(key){
+  try{
+    const raw=localStorage.getItem(key);
+    return raw?JSON.parse(raw):null;
+  }catch(e){ return null }
+}
+
+// ═══════════════════════════════════════
 //  GENERACIÓN PRINCIPAL — 3 llamadas
 // ═══════════════════════════════════════
 async function generar(){
@@ -2234,12 +2258,41 @@ async function generar(){
   if(!d.asig||!d.grado||!d.tema){alert('Completa Asignatura, Grado y Tema.');return}
   if(d.productos.length===0){alert('Selecciona al menos un producto.');return}
 
+  const key=progresoKey(d);
+  let planesPorDia=[];
+  let diaInicioLoop=1;
+  let progresoRestaurado=null;
+
+  if(d.productos.includes('Planes diarios detallados')){
+    const guardado=cargarProgreso(key);
+    if(guardado && Array.isArray(guardado.planesPorDia) && guardado.planesPorDia.length && guardado.planesPorDia.length<d.totalDias){
+      const continuar=confirm(
+        `Se encontró una generación incompleta de "${d.tema}" (${d.grado}, ${d.asig}):\n`+
+        `Días 1–${guardado.planesPorDia.length} de ${d.totalDias} ya generados.\n\n`+
+        `Aceptar = reanudar desde el Día ${guardado.planesPorDia.length+1}\n`+
+        `Cancelar = empezar de nuevo (se perderá el progreso guardado)`
+      );
+      if(continuar){
+        progresoRestaurado=guardado;
+        planesPorDia=guardado.planesPorDia.slice();
+        diaInicioLoop=guardado.planesPorDia.length+1;
+      }else{
+        borrarProgreso(key);
+      }
+    }
+  }
+
   goTo(4);
   document.getElementById('load-box').style.display='block';
   document.getElementById('res-box').style.display='none';
   document.getElementById('err-wrap').style.display='none';
 
   try{
+
+    if(progresoRestaurado){
+      // Reanudando: ya tenemos la Secuencia Didáctica guardada, no se vuelve a pedir.
+      wData=progresoRestaurado.wData;
+    }else
 
     // ── LLAMADA 1: Secuencia Didáctica ──
     if(d.productos.includes('Secuencia didáctica (Formato N°4)')){
@@ -2296,21 +2349,23 @@ async function generar(){
         return texto;
       }
 
-      const planesPorDia=[];
-      for(let dia=1; dia<=d.totalDias; dia++){
+      for(let dia=diaInicioLoop; dia<=d.totalDias; dia++){
         const semanaNum = Math.ceil(dia/d.dias);
         const nombreDia = diasNombres[(dia-1)%diasNombres.length];
         setLoad('Generando planes diarios…',`Día ${dia} de ${d.totalDias} (${nombreDia})…`,2+(dia-1),stepsAll);
         const dDia={...d, semanaNum, diaInicio:dia, diaFin:dia};
         const texto=await generarDia(dDia);
         if(!texto || texto.trim().length < 150){
-          throw new Error(`El plan del Día ${dia} (${nombreDia}) llegó vacío o incompleto tras reintentar. Intenta generar de nuevo.`);
+          guardarProgreso(key,d,wData,planesPorDia);
+          throw new Error(`El plan del Día ${dia} (${nombreDia}) llegó vacío o incompleto tras reintentar. Tu progreso hasta el Día ${dia-1} quedó guardado: vuelve a presionar "Generar" con los mismos datos para reanudar desde aquí.`);
         }
         planesPorDia.push({dia,nombre:nombreDia,texto});
+        guardarProgreso(key,d,wData,planesPorDia);
       }
       wData.planesPorDia=planesPorDia;
     }
 
+    borrarProgreso(key);
     setLoad('Listo','Planeamiento generado correctamente.',4);
     await new Promise(r=>setTimeout(r,400));
     mostrarResultado(d);
@@ -2318,8 +2373,11 @@ async function generar(){
   }catch(e){
     document.getElementById('load-box').style.display='none';
     document.getElementById('err-wrap').style.display='block';
+    const avisoProgreso = planesPorDia.length
+      ? `<br><br><em>Se guardaron ${planesPorDia.length} de ${d.totalDias} día(s). Presiona "Generar" de nuevo con los mismos datos (asignatura, grado y tema) para reanudar.</em>`
+      : '';
     document.getElementById('err-wrap').innerHTML=`
-      <div class="err-box"><strong>Error al generar</strong><br><br>${e.message}<br><br>
+      <div class="err-box"><strong>Error al generar</strong><br><br>${e.message}${avisoProgreso}<br><br>
       <button class="btn btn-s" onclick="goTo(3)">← Volver e intentar</button></div>`;
   }
 }
