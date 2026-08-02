@@ -27,7 +27,12 @@ export default async function handler(req, res) {
       });
       if (!r.ok) { const e = await r.text(); return res.status(r.status).json({ error: `Error DeepSeek: ${e}` }); }
       const data = await r.json();
-      return res.status(200).json({ texto: data.choices?.[0]?.message?.content || '' });
+      const choice = data.choices?.[0];
+      const texto = choice?.message?.content || '';
+      const finishReason = choice?.finish_reason || null;
+      // Si viene vacío, devolvemos también el motivo para poder diagnosticar
+      // (p.ej. 'length' = se quedó sin tokens antes de escribir contenido visible).
+      return res.status(200).json({ texto, finishReason: texto ? finishReason : (finishReason || 'desconocido') });
     } catch (e) { return res.status(500).json({ error: e.message }); }
   }
 
