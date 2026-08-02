@@ -2194,14 +2194,17 @@ function parseSec(txt){
 // ═══════════════════════════════════════
 //  LLAMADA AL BACKEND
 // ═══════════════════════════════════════
-async function llamarAPI(prompt,maxTokens=2000){
+async function llamarAPIFull(prompt,maxTokens=2000){
   const res=await fetch('/api/generar',{
     method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({prompt,maxTokens})
   });
   if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error||`Error ${res.status}`)}
   const data=await res.json();
-  return data.texto||'';
+  return {texto:data.texto||'', finishReason:data.finishReason||null};
+}
+async function llamarAPI(prompt,maxTokens=2000){
+  return (await llamarAPIFull(prompt,maxTokens)).texto;
 }
 
 // ═══════════════════════════════════════
@@ -2341,12 +2344,15 @@ async function generar(){
       }
 
       async function generarDia(dDia){
-        let texto = limpiarRespuestaDia(await llamarAPI(buildPrompt('diarios',dDia),3200));
-        // Reintento único si el día llega vacío o sospechosamente corto (posible fallo silencioso)
-        if(!texto || texto.trim().length < 150){
-          texto = limpiarRespuestaDia(await llamarAPI(buildPrompt('diarios',dDia),3200));
+        let ultimoMotivo = null;
+        for(let intento=1; intento<=3; intento++){
+          const {texto:crudo, finishReason} = await llamarAPIFull(buildPrompt('diarios',dDia),3800);
+          const texto = limpiarRespuestaDia(crudo);
+          if(texto && texto.trim().length >= 150) return {texto, motivo:null};
+          ultimoMotivo = finishReason;
+          if(intento < 3) await new Promise(r=>setTimeout(r, 1000*intento)); // pausa creciente antes de reintentar
         }
-        return texto;
+        return {texto:'', motivo:ultimoMotivo};
       }
 
       for(let dia=diaInicioLoop; dia<=d.totalDias; dia++){
@@ -2354,10 +2360,11 @@ async function generar(){
         const nombreDia = diasNombres[(dia-1)%diasNombres.length];
         setLoad('Generando planes diarios…',`Día ${dia} de ${d.totalDias} (${nombreDia})…`,2+(dia-1),stepsAll);
         const dDia={...d, semanaNum, diaInicio:dia, diaFin:dia};
-        const texto=await generarDia(dDia);
-        if(!texto || texto.trim().length < 150){
+        const {texto,motivo}=await generarDia(dDia);
+        if(!texto){
           guardarProgreso(key,d,wData,planesPorDia);
-          throw new Error(`El plan del Día ${dia} (${nombreDia}) llegó vacío o incompleto tras reintentar. Tu progreso hasta el Día ${dia-1} quedó guardado: vuelve a presionar "Generar" con los mismos datos para reanudar desde aquí.`);
+          const detalle = motivo ? ` (motivo reportado por la API: "${motivo}")` : '';
+          throw new Error(`El plan del Día ${dia} (${nombreDia}) llegó vacío tras 3 intentos${detalle}. Tu progreso hasta el Día ${dia-1} quedó guardado: vuelve a presionar "Generar" con los mismos datos para reanudar desde aquí.`);
         }
         planesPorDia.push({dia,nombre:nombreDia,texto});
         guardarProgreso(key,d,wData,planesPorDia);
