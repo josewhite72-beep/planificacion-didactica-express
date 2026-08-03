@@ -23,7 +23,17 @@ export default async function handler(req, res) {
       const r = await fetch('https://api.deepseek.com/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: 'deepseek-v4-flash', max_tokens: maxTokens || 1800, messages: [{ role: 'user', content: prompt }] })
+        body: JSON.stringify({
+          model: 'deepseek-v4-flash',
+          max_tokens: maxTokens || 1800,
+          // Sin modo de razonamiento: esta tarea es generación de contenido siguiendo
+          // una plantilla, no requiere "pensar" internamente. Con thinking activado
+          // (el default), el modelo gasta tokens en un razonamiento invisible antes
+          // de escribir la respuesta — y si se agotan ahí, content llega vacío con
+          // finish_reason:"length". Desactivarlo también acelera cada llamada.
+          thinking: { type: 'disabled' },
+          messages: [{ role: 'user', content: prompt }]
+        })
       });
       if (!r.ok) { const e = await r.text(); return res.status(r.status).json({ error: `Error DeepSeek: ${e}` }); }
       const data = await r.json();
