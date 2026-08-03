@@ -1982,7 +1982,12 @@ function sugerirEstrategias() {
 function buildPrompt(tipo,d){
   const cur=CURRICULO[d.asig]?.[d.grado];
   const indOficiales = cur?.indicadores?.[d.area];
-  const currCtx=cur?`
+
+  // El catálogo completo (todas las competencias con rasgos + TODOS los indicadores
+  // oficiales del área) solo hace falta en 'secuencia', que es donde se SELECCIONAN.
+  // Para 'diarios' esa selección ya se hizo — reenviar el catálogo completo en cada
+  // una de las 5 llamadas solo agrega tiempo de procesamiento sin aportar nada nuevo.
+  const currCtx=(tipo==='secuencia' && cur)?`
 CURRÍCULO OFICIAL MEDUCA 2026 para ${d.asig} — ${d.grado}:
 Competencias disponibles: ${cur.competencias.map(c=>`${c.nombre} (rasgos: ${c.rasgos.join(' | ')})`).join(' / ')}
 Áreas: ${cur.areas.join(', ')}
@@ -2004,7 +2009,7 @@ DATOS:
 - Eval. diagnóstica: ${d.ed} | Formativa: ${d.ef} | Sumativa: ${d.es}
 - Contexto: ${d.ctx} | Horas/semana: ${d.clases}
 
-ELEMENTOS OFICIALES DEL PROGRAMA (usar TEXTUALMENTE, sin modificar ni parafrasear):
+${tipo==='secuencia'?`ELEMENTOS OFICIALES DEL PROGRAMA (usar TEXTUALMENTE, sin modificar ni parafrasear):
 
 OBJETIVO(S) DE APRENDIZAJE (transcribir TEXTUALMENTE del programa):
 ${d.obj_input||'[Pegar del programa oficial]'}
@@ -2026,7 +2031,12 @@ ${d.ind_input||'[Seleccionar del programa oficial según área y tema]'}
 
 REGLA FUNDAMENTAL: Los elementos oficiales de arriba se transcriben textualmente en el planeamiento.
 Los objetivos de aprendizaje los genera la IA, alineados coherentemente con las competencias, contenidos e indicadores oficiales.
-Las actividades, evidencias, criterios e instrumentos los genera la IA con total coherencia con los elementos oficiales.`;
+Las actividades, evidencias, criterios e instrumentos los genera la IA con total coherencia con los elementos oficiales.`:
+`YA SELECCIONADO PARA ESTA SEMANA (no lo repitas ni lo transcribas de nuevo, solo mantente coherente con esto):
+Objetivo: ${d.obj_input||'según programa'}
+Competencias: ${d.comp_input||'según programa'}
+Indicadores: ${d.ind_input||'según programa'}
+Contenidos: ${d.conc||''} · ${d.proc||''} · ${d.acti||''}`}`;
 
   if(tipo==='secuencia') return base+`
 
@@ -2359,7 +2369,10 @@ async function generar(){
         const semanaNum = Math.ceil(dia/d.dias);
         const nombreDia = diasNombres[(dia-1)%diasNombres.length];
         setLoad('Generando planes diarios…',`Día ${dia} de ${d.totalDias} (${nombreDia})…`,2+(dia-1),stepsAll);
-        const dDia={...d, semanaNum, diaInicio:dia, diaFin:dia};
+        const dDia={...d, semanaNum, diaInicio:dia, diaFin:dia,
+          obj_input:wData.objs||d.obj_input, comp_input:wData.comp||d.comp_input,
+          ind_input:wData.ind||d.ind_input, conc:wData.conc||d.conc,
+          proc:wData.proc||d.proc, acti:wData.acti||d.acti};
         const {texto,motivo}=await generarDia(dDia);
         if(!texto){
           guardarProgreso(key,d,wData,planesPorDia);
